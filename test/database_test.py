@@ -24,23 +24,28 @@ DB = GetDB(
 class PersonTable(DB.Model):
     ID = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(1024))
+    other4 = DB.Column(DB.String(1024))
 
-    def __init__(self, name):
+    def __init__(self, name, other):
         self.name = name
+        self.other4 = other
 
     def __str__(self):
-        return '<PersonTable: name={}>'.format(self.name)
+        return '<PersonTable: name={}, other={}>'.format(self.name, self.other4)
 
 
-p = PersonTable('Grant{}'.format(int(time.time())))
+p = PersonTable(
+    'Grant{}'.format(int(time.time())),
+    'OtherAtt'
+)
 print(type(p))
 SaveToTable(obj=p)
 
-p2 = GetFromTable(PersonTable)#, filter={'name': 'Grant'})
+p2 = GetFromTable(PersonTable)  # , filter={'name': 'Grant'})
 print('query all=', p2)
 for item in p2:
     print(42, item)
 
-p3 =  GetFromTable(PersonTable, filter={'name': 'Grant'})
+p3 = GetFromTable(PersonTable, filter={'name': 'Grant'})
 print('query filter=', list(p3))
 

@@ -1,10 +1,29 @@
+'''
+Example database TableClass
+
+class PersonTable(DB.Model):
+    ID = DB.Column(DB.Integer, primary_key=True)
+    name = DB.Column(DB.String(1024))
+    other3 = DB.Column(DB.String(1024))
+
+    def __init__(self, name, other):
+        self.name = name
+        self.other3 = other
+
+    def __str__(self):
+        return '<PersonTable: name={}, other={}>'.format(self.name, self.other3)
+
+
+'''
+
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+import re
 
 DEV_MODE = False
 
 DB = None
 
+missingColumnRE = re.compile('no column named (\w+) ')
 
 def SaveToTable(obj):
     '''
@@ -17,7 +36,30 @@ def SaveToTable(obj):
     DB.create_all()
 
     DB.session.add(obj)
-    DB.session.commit()
+    try:
+        DB.session.commit()
+    except Exception as e:
+        errorString = str(e)
+        print(23, errorString)
+        if 'has no column named' in errorString:
+            missingColumnMatch = missingColumnRE.search(errorString)
+            print('missingColumnMatch=', missingColumnMatch.group(1))
+            if missingColumnMatch is not None:
+                # attribute in object does not exist in database
+
+                missingColumnName = missingColumnMatch.group(1)
+
+                if DEV_MODE is True:
+                    print('Adding a column')
+                    newColumn = getattr(type(obj),missingColumnName)
+                    AddColumn(obj.__table__.name, newColumn)
+                else:
+                    print('57', e)
+                    raise e
+
+        elif 'has no attribute' in str(errorString):
+            # data in database does not exists in the object
+            print(errorString)
 
 
 def GetFromTable(typeOf, filter=None):
@@ -31,7 +73,9 @@ def GetFromTable(typeOf, filter=None):
     if filter is None:  # return all results
         return typeOf.query.all()
     else:
-        l = DB.session.execute(typeOf.query.filter_by(**filter))
+        cmd = typeOf.query.filter_by(**filter)
+        print('cmd=', cmd)
+        l = DB.session.execute(cmd)
 
         def Gen(l=l):
             for item in l:
@@ -63,4 +107,31 @@ def GetDB(flaskApp, engineURI, devMode=False):
 
     DB.create_all()
 
+    # for item in dir(DB):
+    #     print(53, item, getattr(DB, item))
+
     return DB
+
+
+def AddColumn(table_name, column):
+    '''
+
+    :param table_name: str(tableName)
+    :param column: DB.Column() obj
+    :return:
+    '''
+    # Found on: https://stackoverflow.com/questions/7300948/add-column-to-sqlalchemy-table
+    print('AddColumn', table_name, column)
+    engine = DB.get_engine()
+    column_name = str(column.compile(dialect=engine.dialect)).split('.')[-1]
+    column_type = column.type.compile(engine.dialect)
+
+    # print('table_name=', table_name)
+    # print('column_name=', column_name)
+    # print('column_type=', column_type)
+
+    cmd = 'ALTER TABLE %s ADD COLUMN %s %s' % (table_name, column_name, column_type)
+    print('cmd=', cmd)
+
+    engine.execute(cmd)
+    engine.commit()
