@@ -1,72 +1,66 @@
 from flask_sqlalchemy import SQLAlchemy
-import sqlite3
+import datetime
 
-global db
-db = None
+DEV_MODE = False
 
-global classes
-classes = {}
+DB = None
 
 
-def GetClass(string):
-    global classes
-    return classes.get(string, None)
+def SaveToTable(obj):
+    '''
+
+    :param obj: subclass of DB.Model
+    :return:
+    '''
+    print('SaveToTable', obj)
+
+    DB.create_all()
+
+    DB.session.add(obj)
+    DB.session.commit()
 
 
-def Delete(tableName, **kwargs):
-    cls = GetClass(tableName)
-    cls.query.filer_by(**kwargs).delete()
+def GetFromTable(typeOf, filter=None):
+    '''
+
+    :param typeOf: subclass of DB.Model
+    :param filter: dict, if None return all
+    :return:
+    '''
+
+    if filter is None:  # return all results
+        return typeOf.query.all()
+    else:
+        l = DB.session.execute(typeOf.query.filter_by(**filter))
+
+        def Gen(l=l):
+            for item in l:
+                yield item
+
+        return Gen()
 
 
-def Add(tableName, **kwargs):
-    global db
-    cls = GetClass(tableName)
-    obj = cls(**kwargs)
-    db.session.add(obj)
-    db.session.commit()
-    return obj
+def Delete(typeOf, filter):
+    pass
 
 
-def Modify(tableName, filter={}, newValues={}):
-    for item in Query(tableName, **filter):
-        # print('Modifying item=', item)
-        for key, value in newValues.items():
-            # print('key=', key, ', value=', value)
-            setattr(item, key, value)
-    db.session.commit()
+def GetDB(flaskApp, engineURI, devMode=False):
+    '''
 
+    :param flaskApp: Flask(__name__)
+    :param engineURI: 'sqlite:///test.db'
+    :param devMode: boolean, when true columns can be added
+    :return:
+    '''
+    global DB
+    global DEV_MODE
 
-def Query(tableName, **filters):
-    global db
-    cls = GetClass(tableName)
-    return cls.query.filter_by(**filters).all()
+    DEV_MODE = devMode
 
+    flaskApp.config['SQLALCHEMY_DATABASE_URI'] = engineURI
 
-def _RegisterDBClass(cls):
-    global classes
-    classes[cls.__name__] = cls
+    DB = SQLAlchemy(flaskApp)
 
+    DB.create_all()
 
-def RegisterApp(app):
-    global db
-    global classes
-
-    db = SQLAlchemy(app)
-
-    class User(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        email = db.Column(db.String(120), unique=True, nullable=False)
-        passwordHash = db.Column(db.String(128), unique=False, nullable=False)
-        emailNotifications = db.Column(db.Boolean())
-        confirmed = db.Column(db.Boolean())
-        confirmToken = db.Column(db.String(128), unique=False, nullable=False)
-
-        def __repr__(self):
-            return '<User %r>' % self.email
-
-    _RegisterDBClass(User)
-
-    # Do this after all db classes have been defined
-    db.create_all()
-
-    return db
+    return DB
