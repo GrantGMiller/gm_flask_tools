@@ -25,6 +25,7 @@ DB = None
 
 missingColumnRE = re.compile('no column named (\w+) ')
 
+
 def SaveToTable(obj):
     '''
 
@@ -39,6 +40,8 @@ def SaveToTable(obj):
     try:
         DB.session.commit()
     except Exception as e:
+        DB.session.rollback()
+
         errorString = str(e)
         print(23, errorString)
         if 'has no column named' in errorString:
@@ -51,8 +54,11 @@ def SaveToTable(obj):
 
                 if DEV_MODE is True:
                     print('Adding a column')
-                    newColumn = getattr(type(obj),missingColumnName)
+                    newColumn = getattr(type(obj), missingColumnName)
                     AddColumn(obj.__table__.name, newColumn)
+
+                    SaveToTable(obj)  # now that the new column has been added, try again
+
                 else:
                     print('57', e)
                     raise e
@@ -84,8 +90,35 @@ def GetFromTable(typeOf, filter=None):
         return Gen()
 
 
-def Delete(typeOf, filter):
-    pass
+def Delete(*a, **k):
+    '''
+    calling Delete(obj) will delete that object from the table
+
+    calling Delete(typeof, filter={'Name': 'Grant'}) will delete rows that match filter
+
+    :param a:
+    :param k:
+    :return:
+    '''
+
+    if len(k) == 0:
+        if len(a) == 1:
+            # probably calling Delete(obj)
+            obj = a[0]
+
+            DB.session.delete(obj)
+            DB.session.commit()
+
+        else:
+            raise TypeError('Incorrect usage. Delete can be used like "Delete(obj)" or "Delete(typeof, filter={..})"')
+    else:
+        filter = k.get('filter', None)
+        if filter is not None:
+            typeof = a[0]
+
+            typeof.query.filter_by(**filter).delete()
+        else:
+            raise TypeError('Incorrect usage. Delete can be used like "Delete(obj)" or "Delete(typeof, filter={..})"')
 
 
 def GetDB(flaskApp, engineURI, devMode=False):
@@ -134,4 +167,3 @@ def AddColumn(table_name, column):
     print('cmd=', cmd)
 
     engine.execute(cmd)
-    engine.commit()

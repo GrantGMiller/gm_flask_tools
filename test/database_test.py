@@ -2,6 +2,7 @@ from db_helpers import (
     SaveToTable,
     GetFromTable,
     GetDB,
+    Delete
 )
 from flask import Flask
 import time
@@ -24,18 +25,18 @@ DB = GetDB(
 class PersonTable(DB.Model):
     ID = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(1024))
-    other4 = DB.Column(DB.String(1024))
+    other11 = DB.Column(DB.String(1024))
 
     def __init__(self, name, other):
         self.name = name
-        self.other4 = other
+        self.other11 = other
 
     def __str__(self):
-        return '<PersonTable: name={}, other={}>'.format(self.name, self.other4)
+        return '<PersonTable: name={}, other={}>'.format(self.name, self.other11)
 
 
 p = PersonTable(
-    'Grant{}'.format(int(time.time())),
+    'Grant {}'.format(int(time.time())),
     'OtherAtt'
 )
 print(type(p))
@@ -49,3 +50,25 @@ for item in p2:
 p3 = GetFromTable(PersonTable, filter={'name': 'Grant'})
 print('query filter=', list(p3))
 
+print('52 deleting first record')
+
+p4 = GetFromTable(PersonTable)[0]
+print('deleting =', p4)
+Delete(p4)
+
+p5 = GetFromTable(PersonTable)  # , filter={'name': 'Grant'})
+print('60 query all=', p5)
+for item in p5:
+    print('62', item)
+
+print('Deleting by filter')
+p6 = GetFromTable(PersonTable)[0]
+filter = {'name': p6.name}
+print('filter=', filter)
+
+Delete(PersonTable, filter=filter)
+
+p7 = GetFromTable(PersonTable)  # , filter={'name': 'Grant'})
+print('72 query all=', p7)
+for item in p7:
+    print('74', item)
