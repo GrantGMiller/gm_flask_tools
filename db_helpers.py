@@ -1,17 +1,17 @@
 '''
 Example database TableClass
 
-class PersonTable(DB.Model):
+class PersonTableClass(DB.Model):
     ID = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(1024))
-    other3 = DB.Column(DB.String(1024))
+    other = DB.Column(DB.String(1024))
 
     def __init__(self, name, other):
         self.name = name
-        self.other3 = other
+        self.other = other
 
     def __str__(self):
-        return '<PersonTable: name={}, other={}>'.format(self.name, self.other3)
+        return '<PersonTableClass: name={}, other={}>'.format(self.name, self.other)
 
 
 '''
@@ -24,6 +24,11 @@ DEV_MODE = False
 DB = None
 
 missingColumnRE = re.compile('no column named (\w+) ')
+
+
+def InitAppDatabase(app):
+    global DEV_MODE
+    DEV_MODE = app.debug
 
 
 def SaveToTable(obj):

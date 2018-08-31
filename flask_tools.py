@@ -4,6 +4,24 @@ from subprocess import Popen, PIPE
 from email.mime.text import MIMEText
 import sys
 import time
+from flask import (
+    Flask,
+    render_template,
+    session,
+    request,
+    redirect,
+    flash,
+    make_response,
+    Markup,
+
+)
+import db_helpers
+from forms import (
+    LoginForm,
+)
+
+def GetRandomID():
+    return HashIt(None)
 
 
 def HashIt(string=None, salt='flask_tools_arbitrary_string'):
@@ -16,6 +34,9 @@ def HashIt(string=None, salt='flask_tools_arbitrary_string'):
     if string is None:
         # if None a random hash will be returned
         string = str(time.time())
+
+    if not isinstance(string, str):
+        string = str(string)
 
     salt = 'gs_tools_arbitrary_string'
     hash1 = hashlib.sha512(bytes(string, 'utf-8')).hexdigest()
@@ -78,3 +99,65 @@ def ModIndexLoop(num, min_, max_):
     # print('mod=', mod)
 
     return min_ + mod
+
+
+def GetApp(appName=None, *a, **k):
+    import config
+    app = Flask(
+        appName,
+        *a,
+        **k,
+    )
+    app.config.from_object(config.GetConfigClass(appName)())
+    return app
+
+
+def SetupLoginPage(
+        app,
+        loginURL='/login',
+        templatePath=None,
+        templateKey='loginContent',
+        userDatabaseName='Users',
+        afterLoginRedirect='/',
+):
+    @app.route(loginURL, methods=['GET', 'POST'])
+    def Login(*a, **k):
+        print('Login', a, k)
+        email = request.form.get('email', None)
+        print('email=', email)
+
+        if email is None:
+            # The user loaded the page
+
+            # Present them with the login form
+            ID = GetRandomID()
+
+            loginForm = '''
+                    <form method="POST" action="{0}">
+                        Email: <input type="email" name="email">
+                        <input type="hidden" name="ID" value="{1}">
+                        <input type="submit" value="Send Login Email">
+                    </form>
+                '''.format(loginURL, ID)
+
+            return render_template(
+                templatePath,
+                **{templateKey: Markup(loginForm)},
+            )
+
+        else:
+            print('Sending email to user to authenticate.')
+            if app.debug is True:
+                print('app.debug is True, faking the login')
+                session['email'] = email
+            else:
+                # TODO
+                print('Sending email to user. ')
+                ID = request.form.get('ID')
+                SendEmail(to=email, frm='login@{}'.format(appN), subject='Login', body='''
+                    Click here to login now:
+                    <a href="">Click here to login now:</a>
+                ''')
+                flash('Test')
+
+            return render_template('main.html')
