@@ -31,17 +31,18 @@ def InitAppDatabase(app):
     DEV_MODE = app.debug
 
 
-def SaveToTable(obj):
+def AddNewRecord(obj):
     '''
 
     :param obj: subclass of DB.Model
     :return:
     '''
-    print('SaveToTable', obj)
+    print('AddNewRecord(', obj)
 
-    DB.create_all()
+    DB.create_all()  # create table if missing
 
     DB.session.add(obj)
+
     try:
         DB.session.commit()
     except Exception as e:
@@ -62,15 +63,52 @@ def SaveToTable(obj):
                     newColumn = getattr(type(obj), missingColumnName)
                     AddColumn(obj.__table__.name, newColumn)
 
-                    SaveToTable(obj)  # now that the new column has been added, try again
+                    AddNewRecord(obj)  # now that the new column has been added, try again
 
                 else:
                     print('57', e)
                     raise e
 
-        elif 'has no attribute' in str(errorString):
+        elif 'has no attribute' in errorString:
             # data in database does not exists in the object
             print(errorString)
+
+        elif 'IntegrityError' in errorString:
+            # we are updating a record, not adding a new record
+            print('78 obj=', obj)
+
+
+def UpdateRecord(obj, newDict):
+    print('UpdateRecord(', obj)
+    type(obj).query.filter_by()
+    obj.update(**newDict)
+    DB.session.commit()
+
+
+class Result:
+    def __init__(self, typeOf, resultProxy):
+        self._typeOf = typeOf
+        self._resultProxy = resultProxy
+
+    def __iter__(self):
+        for item in self._resultProxy:
+            yield self._typeOf(*item)
+
+    def first(self):
+        resultProxyList = list(self._resultProxy)
+        print('resultProxyList=', resultProxyList)
+        if len(resultProxyList) is 0:
+            return None
+        else:
+            return self._typeOf(*resultProxyList[0])
+
+    def __str__(self):
+        s = '<Result object'
+        items = ['\n\tIndex{}={}'.format(index, item) for index, item in enumerate(list(self))]
+        for item in items:
+            s += item
+        s += '>\n\n'
+        return s
 
 
 def GetFromTable(typeOf, filter=None):
@@ -78,21 +116,35 @@ def GetFromTable(typeOf, filter=None):
 
     :param typeOf: subclass of DB.Model
     :param filter: dict, if None return all
-    :return:
+    :return: Result() object
     '''
-
+    print('GetFromTable', typeOf, filter)
     if filter is None:  # return all results
-        return typeOf.query.all()
+        ret = typeOf.query.all()
+        print('111 ret=', ret)
+        return ret
     else:
         cmd = typeOf.query.filter_by(**filter)
         print('cmd=', cmd)
-        l = DB.session.execute(cmd)
 
-        def Gen(l=l):
-            for item in l:
-                yield item
+        try:
+            resultProxy = DB.session.execute(cmd)
+        except Exception as e:
+            print('118', e)
+            return Result(typeOf, [])
 
-        return Gen()
+        # for item in dir(resultProxy):
+        #     print(item,'=', help(getattr(resultProxy, item)))
+
+        # Use these methods on resultProxy
+        '''
+        fetchall 
+        fetchmany
+        fetchone 
+        first
+        '''
+
+        return Result(typeOf, resultProxy)
 
 
 def Delete(*a, **k):

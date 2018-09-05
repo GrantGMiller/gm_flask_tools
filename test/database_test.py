@@ -1,5 +1,5 @@
-from db_helpers import (
-    SaveToTable,
+from simple_db import (
+    AddNewRecord,
     GetFromTable,
     GetDB,
     Delete
@@ -40,7 +40,7 @@ p = PersonTableClass(
     'OtherAtt'
 )
 print(type(p))
-SaveToTable(obj=p)
+AddNewRecord(obj=p)
 
 p2 = GetFromTable(PersonTableClass)  # , filter={'name': 'Grant'})
 print('query all=', p2)
