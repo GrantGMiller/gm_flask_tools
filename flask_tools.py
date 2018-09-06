@@ -283,10 +283,12 @@ def GetUser():
 
 
 def LogoutUser():
+    print('LogoutUser()')
     user = GetUser()
+    print('288 user=', user)
     if user is not None:
-        user.authenticated = False
-        UpdateDB(UserClass(email=user.email, authenticated=False), ['email'])
+        user['authenticated'] = False
+        UpdateDB(UserClass(user), ['email'])
 
 
 def InsertDB(dictObj):
