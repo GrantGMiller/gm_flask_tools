@@ -16,7 +16,6 @@ from flask import (
 
 )
 import dataset
-from collections import OrderedDict
 
 
 def GetRandomID():
@@ -100,16 +99,28 @@ def ModIndexLoop(num, min_, max_):
     return min_ + mod
 
 
-global UserClass
-UserClass = None
-
 global DB_URI
 DB_URI = None
 
 
+class UserClass(dict):
+
+    def __init__(self, *a, **k):
+        #, email=None, username=None, authToken=None, authenticated=False, lastAuthTokenTime=None):
+        print('UserClass.__init__', a, k)
+        super().__init__(*a, **k)
+
+    def __str__(self):
+        # print('self.items=', self.items())
+        itemsList = [('{}={}'.format(k, v)) for k, v, in self.items()]
+        # print('itemList=', itemsList)
+        return '<UserClass: {}>'.format(
+            ', '.join(itemsList)
+        )
+
+
 def GetApp(appName=None, *a, **k):
     global DB_URI
-    global UserClass
 
     import config
 
@@ -125,49 +136,25 @@ def GetApp(appName=None, *a, **k):
 
     DB_URI = engineURI
 
-    class UserClass(dict):
-
-        def __init__(self, email=None, username=None, authToken=None, authenticated=False, lastAuthTokenTime=None):
-            print('UserClass.__init__', email, username, authToken, authenticated, lastAuthTokenTime)
-
-            self.email = email
-            self.username = username
-            self.authToken = authToken
-            self.authenticated = authenticated
-            self.lastAuthTokenTime = lastAuthTokenTime
-
-        def __str__(self):
-            return '<UserClass: email={}, authenticated={}, lastAuthTokenTime={}, authToken={}>'.format(
-
-                self.email,
-                self.authenticated,
-                self.lastAuthTokenTime,
-                self.authToken,
-            )
-
     return app
 
 
 def SetupLoginPage(
         app,
-        tableName='Users',
         loginURL='/login',
         templatePath=None,
         templateKey='loginContent',
         afterLoginRedirect='/',
 ):
-    global userTable
     global DB_URI
 
     DB = dataset.connect(DB_URI)
-    userTable = DB[tableName]
 
-    print('DB=', DB)
-    print('userTable=', userTable)
+    print('159 DB=', DB)
+    print('DB["UserClass"].all() =', list(DB['UserClass'].all()))
 
     @app.route(loginURL, methods=['GET', 'POST'])
     def Login(*a, **k):
-        global DB
         print('Login', a, k)
         email = request.form.get('email', None)
         print('email=', email)
@@ -207,8 +194,7 @@ def SetupLoginPage(
             authToken = request.form.get('authToken')
 
             with dataset.connect(DB_URI) as DB:
-                userTable = DB['Users']
-                existingUser = userTable.find_one(email=email)
+                existingUser = FindOne(UserClass(email=email))
 
             print('199 existingUser=', existingUser)
 
@@ -258,18 +244,17 @@ def SetupLoginPage(
         print('email=', email)
         print('auth=', authToken)
 
-        user = userTable.find_one(
+        user = FindOne(UserClass(
             email=email,
-            authToken=authToken,
+            authToken=authToken, )
         )
 
         print('246 user=', user)
 
         if user is not None:
-            print('type(user.email=', type(user.email))
-            session['email'] = user.email
+            session['email'] = user.get('email')
 
-            UpdateDB(UserClass(email=email, authenticated=True), ['authenticated'])
+            UpdateDB(UserClass(email=email, authenticated=True), ['email'])
 
             return redirect(afterLoginRedirect)
 
@@ -279,16 +264,15 @@ def SetupLoginPage(
 
 def GetUser():
     # return user object if logged in, else return None
-    global userTable
 
     email = session.get('email', None)
     print('258 session email=', email)
     try:
         userObj = FindOne(UserClass(email=email))
-        print('userObj=', userObj)
+        print('274 userObj=', userObj)
 
         if userObj is not None:
-            if userObj.authenticated is True:
+            if userObj.get('authenticated') is True:
                 return userObj
             else:
                 return None
@@ -299,29 +283,43 @@ def GetUser():
 
 
 def LogoutUser():
-    global userTable
     user = GetUser()
     if user is not None:
         user.authenticated = False
-        UpdateDB(UserClass(email=user.email, authenticated=False), ['authenticated'])
+        UpdateDB(UserClass(email=user.email, authenticated=False), ['email'])
 
 
 def InsertDB(dictObj):
+    print('InsertDB(', dictObj)
     with dataset.connect(DB_URI) as DB:
-        DB[str(type(dictObj))].insert(dictObj)
+        DB[str(type(dictObj).__name__)].insert(dictObj)
         DB.commit()
 
 
-def UpdateDB(dictObj, listOfKeysToUpdate):
+def UpdateDB(dictObj, listOfKeysThatMustMatch):
+    print('UpdateDB(', dictObj, listOfKeysThatMustMatch)
     with dataset.connect(DB_URI) as DB:
-        DB[str(type(dictObj))].update(dictObj, listOfKeysToUpdate)
+        DB[str(type(dictObj).__name__)].update(dictObj, listOfKeysThatMustMatch)
         DB.commit()
 
 
 def FindOne(dictObj, **k):
+    print('FindOne(', dictObj, k)
+
+    dbName = type(dictObj).__name__
+
     with dataset.connect(DB_URI) as DB:
-        DB[str(type(dictObj))].find_one(**k)
+        print('{}.all()='.format(dbName), list(DB[dbName].all()))
+
+        ret = DB[dbName].find_one(**k)
+        print('FindOne ret=', ret)
+        return ret
+
 
 def FindAll(dictObj, **k):
+    print('FindAll(', dictObj, k)
+    dbName = type(dictObj).__name__
     with dataset.connect(DB_URI) as DB:
-        DB[str(type(dictObj))].find(**k)
+        ret = DB[dbName].find(**k)
+        print('FindAll ret=', ret)
+        return ret
