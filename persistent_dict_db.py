@@ -71,30 +71,33 @@ class PersistentDictDB(dict):
 def InsertDB(dictObj):
     print('InsertDB(', dictObj)
     with dataset.connect(DB_URI) as DB:
-        DB[str(type(dictObj).__name__)].insert(dictObj)
+        DB[type(dictObj).__name__].insert(dictObj)
         DB.commit()
 
 
 def UpsertDB(dictObj, listOfKeysThatMustMatch):
     print('UpsertDB(', dictObj, listOfKeysThatMustMatch)
     with dataset.connect(DB_URI) as DB:
-        DB[str(type(dictObj).__name__)].upsert(dictObj, listOfKeysThatMustMatch)
+        DB[type(dictObj).__name__].upsert(dictObj, listOfKeysThatMustMatch)
         DB.commit()
 
 
 def FindOne(objType, **k):
     print('FindOne(', objType, k)
 
-    objType
     dbName = objType.__name__
 
     with dataset.connect(DB_URI) as DB:
         print('{}.all()='.format(dbName), list(DB[dbName].all()))
 
         ret = DB[dbName].find_one(**k)
-        ret = objType(ret, doInsert=False)
-        print('FindOne ret=', ret)
-        return ret
+        print('95 ret=', ret)
+        if ret is None:
+            return None
+        else:
+            ret = objType(ret, doInsert=False)
+            print('FindOne ret=', ret)
+            return ret
 
 
 def FindAll(objType, **k):
@@ -102,9 +105,14 @@ def FindAll(objType, **k):
     print('FindAll(', objType, k)
     dbName = objType.__name__
     with dataset.connect(DB_URI) as DB:
-        ret = DB[dbName].find(**k)
-        print('FindAll ret=', ret)
-        return ret
+        if len(k) is 0:
+            ret = DB[dbName].all()
+            print('FindAll .all() ret=', ret)
+            return ret
+        else:
+            ret = DB[dbName].find(**k)
+            print('FindAll ret=', ret)
+            return ret
 
 
 def Drop(objType):

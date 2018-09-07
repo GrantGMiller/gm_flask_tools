@@ -8,8 +8,10 @@ from persistent_dict_db import (
 
 SetDB_URI('sqlite:///test.db')
 
+
 class UserClass(PersistentDictDB):
     uniqueKeys = ['email']
+
 
 Drop(UserClass)
 
@@ -30,7 +32,7 @@ print('result2=', result2)
 
 print('\n\nTest adding a new object with conflicting email')
 try:
-    userDuplicateEmail = UserClass(email='me@website.com') # this should fail
+    userDuplicateEmail = UserClass(email='me@website.com')  # this should fail
     raise Exception('Above line should have failed.')
 except Exception as e:
     print('35 Exception:', e)
