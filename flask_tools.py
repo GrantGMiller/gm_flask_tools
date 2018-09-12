@@ -18,6 +18,8 @@ from flask import (
 from persistent_dict_db import (
     FindOne,
     FindAll,
+    Delete,
+
     PersistentDictDB,
     SetDB_URI,
 )
@@ -106,6 +108,17 @@ def ModIndexLoop(num, min_, max_):
 
 class UserClass(PersistentDictDB):
     uniqueKeys = ['email']
+
+    def __setitem__(self, key, value):
+        if key == 'email':
+            value = value.lower() # force emails to be lower case
+
+        return super().__setitem__(key, value)
+
+    def __getitem__(self, item):
+        if item == 'email':
+            item = item.lower()
+        return super().__getitem__(item)
 
 
 def GetApp(appName=None, *a, **k):

@@ -108,11 +108,11 @@ def FindAll(objType, **k):
         if len(k) is 0:
             ret = DB[dbName].all()
             print('FindAll .all() ret=', ret)
-            return ret
+            return [objType(item, doInsert=False) for item in ret]
         else:
             ret = DB[dbName].find(**k)
             print('FindAll ret=', ret)
-            return ret
+            return [objType(item, doInsert=False) for item in ret]
 
 
 def Drop(objType):
@@ -121,4 +121,13 @@ def Drop(objType):
     dbName = objType.__name__
     with dataset.connect(DB_URI) as DB:
         DB[dbName].drop()
+        DB.commit()
+
+
+def Delete(obj):
+    objType = type(obj)
+    dbName = objType.__name__
+
+    with dataset.connect(DB_URI) as DB:
+        DB[dbName].delete(**obj)
         DB.commit()
