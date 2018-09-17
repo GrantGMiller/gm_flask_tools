@@ -262,10 +262,14 @@ def SetupLoginPage(
             return render_template('login_failed.html')
 
 
-def GetUser():
+def GetUser(email=None):
     # return user object if logged in, else return None
+    # if user provides an email then return that user obj
+    print('GetUser(', email)
 
-    email = session.get('email', None)
+    if email is None:
+        email = session.get('email', None)
+
     print('258 session email=', email)
     try:
         userObj = FindOne(UserClass, email=email)
