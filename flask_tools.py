@@ -13,7 +13,7 @@ from flask import (
     redirect,
     flash,
     Markup,
-
+    url_for,
 )
 from persistent_dict_db import (
 
@@ -25,6 +25,8 @@ from persistent_dict_db import (
     PersistentDictDB,
     SetDB_URI,
 )
+
+AUTH_TOKEN_EXPIRATION = 30 * 60  #
 
 
 def GetRandomID():
@@ -110,10 +112,16 @@ def ModIndexLoop(num, min_, max_):
 
 class UserClass(PersistentDictDB):
     uniqueKeys = ['email']
+    '''
+    OTHER KEYS
+    
+    authToken - unique 512 char string
+    lastAuthTokenTime - datatime.datetime that authToken was issued
+    '''
 
     def __setitem__(self, key, value):
         if key == 'email':
-            value = value.lower() # force emails to be lower case
+            value = value.lower()  # force emails to be lower case
 
         return super().__setitem__(key, value)
 
@@ -252,11 +260,25 @@ def SetupLoginPage(
         print('246 user=', user)
 
         if user is not None:
-            session['email'] = user.get('email')
+            authDT = user.get('lastAuthTokenTime', None)
+            if authDT is not None:
+                delta = datetime.datetime.now() - authDT
+                if delta.total_seconds() < AUTH_TOKEN_EXPIRATION:
+                    #good
+                    session['email'] = user.get('email')
 
-            user['authenticated'] = True
+                    user['authenticated'] = True
 
-            return redirect(afterLoginRedirect)
+                    return redirect(afterLoginRedirect)
+
+                else:
+                    # auth token expired
+                    flash('Auth Token expired. Please log in again.')
+                    return redirect(url_for(Login))
+
+            else:
+                flash('No auth token expiration. Please log in again.')
+                return redirect(url_for(Login))
 
         else:
             return render_template('login_failed.html')
