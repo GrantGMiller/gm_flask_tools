@@ -1,0 +1,77 @@
+{% extends "main.html" %}
+
+    {% block body %}
+
+    <h3>My Controllers</h3>
+
+   <table class="table table-striped">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">MAC</th>
+          <th scope="col">Status</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for controller in controllers %}
+            <tr>
+                <th scope="row">{{controller.name}}</th>
+                <td>{{controller.mac}}</td>
+                <td>{{controller.status}}</td>
+                <td><a href="/delete?mac={{controller.mac}}">Delete</a></td>
+            </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+    <hr>
+    <form action="" method="POST">
+        <div class="form-group">
+            {{controllerForm.mac.label}}:{{controllerForm.mac}}
+            {{controllerForm.submit}}
+        </div>
+    </form>
+
+    <hr>
+    <h3>My Players</h3>
+
+       <table class="table table-striped">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">MAC</th>
+              <th scope="col">Hostname/IP</th>
+              <th scope="col">Controller</th>
+              <th scope="col">Status</th>
+              <th scope="col">Delete</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for player in players %}
+                <tr>
+                    <th scope="row">{{player.name}}</th>
+                    <td>{{player.mac}}</td>
+                    <td>{{player.ip}}</td>
+                    <td>{{player.controllerMAC}}</td>
+                    <td>{{player.status}}</td>
+                    <td><a href="/delete?mac={{player.mac}}">Delete</a></td>
+                </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+    <hr>
+    <form action="" method="POST">
+        <div class="form-group">
+            {{playerForm.playerMac.label}}:{{playerForm.playerMac}}
+            <br>
+            {{playerForm.ip.label}}:{{playerForm.ip}}
+            <br>
+            {{playerForm.submit}}
+        </div>
+    </form>
+
+    {% endblock %}

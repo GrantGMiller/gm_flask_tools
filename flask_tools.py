@@ -25,8 +25,23 @@ from persistent_dict_db import (
     PersistentDictDB,
     SetDB_URI,
 )
+from pathlib import Path
 
 AUTH_TOKEN_EXPIRATION = 30 * 60  #
+
+
+def StripNonHex(string):
+    ret = ''
+    for c in string.upper():
+        if c in '0123456789ABCDEF':
+            ret += c
+    return ret
+
+
+def MACFormat(macString):
+    # macString can be any string like 'aabbccddeeff'
+    macString = StripNonHex(macString)
+    return '-'.join([macString[i: i + 2] for i in range(0, len(macString), 2)])
 
 
 def GetRandomID():
@@ -153,12 +168,19 @@ def GetApp(appName=None, *a, **k):
 
 def SetupLoginPage(
         app,
-        DB_URI,
-        loginURL='/login',
-        templatePath=None,
-        templateKey='loginContent',
+        DB_URI=None,  # None or 'sqlite:///mydatabase.db'
+        loginURL='/login',  # used for @app.route
+        templatePath=None,  # path like '/login.html'
+        templateKey='loginContent',  # used to fill in page with messages
         afterLoginRedirect='/',
 ):
+    if DB_URI is None:
+        DB_URI = 'sqlite:///{}.db'.format(app.name)
+
+    if templatePath is None:
+        templatePath = 'login.html'
+        print('templatePath=', templatePath)
+
     SetDB_URI(DB_URI)
 
     @app.route(loginURL, methods=['GET', 'POST'])
@@ -264,7 +286,7 @@ def SetupLoginPage(
             if authDT is not None:
                 delta = datetime.datetime.now() - authDT
                 if delta.total_seconds() < AUTH_TOKEN_EXPIRATION:
-                    #good
+                    # good
                     session['email'] = user.get('email')
 
                     user['authenticated'] = True

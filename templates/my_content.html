@@ -1,0 +1,57 @@
+{% extends "main.html" %}
+
+    {% block body %}
+
+
+    <!--{% for video in videos %}-->
+        <!--{{video.title}}<br>-->
+        <!--<video src="{{video.url}}" width="50%" controls="true"></video>-->
+        <!--<hr>-->
+    <!--{% endfor %}-->
+
+    <div class="container">
+        {% for item in media %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="media">
+                      <div class="media-left">
+                          {% if item.type in ['jpg', 'png'] %}
+                            <img class="media-object" src="{{item.url}}" width="200px">
+                            </img>
+                          {% else %}
+                            <video class="media-object" src="{{item.url}}" controls="true" width="200px">
+                            </video>
+                          {% endif %}
+                      </div>
+                      <div class="media-body">
+                        <h4 class="media-heading">{{item.title}}</h4>
+                        {{ item.description }}
+                          <br><br>
+                        <a href="/deleteMedia?mediaURL={{item.url}}">Delete</a>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+
+    <hr>
+    <h3>Add new Media</h3>
+    <form action="" method="post" enctype="multipart/form-data", id="mediaForm">
+
+        {{ form.videoFile }}
+        <br>
+        {{ form.submit }}
+    </form>
+    <!--<script>-->
+        <!--document.getElementById("file").onchange = function(){-->
+            <!--//alert('change')-->
+            <!--if (this.value != ""){-->
+                <!--document.getElementById("mediaForm").submit();-->
+            <!--};-->
+        <!--};//-->
+    <!--</script>-->
+
+
+{% endblock %}

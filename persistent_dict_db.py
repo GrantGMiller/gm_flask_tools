@@ -5,6 +5,7 @@ DB_URI = None
 
 
 def SetDB_URI(dburi):
+    print('SetDB_URI(', dburi)
     global DB_URI
     DB_URI = dburi
 
