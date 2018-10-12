@@ -29,6 +29,7 @@ from pathlib import Path
 
 AUTH_TOKEN_EXPIRATION = 30 * 60  #
 
+DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
 def StripNonHex(string):
     ret = ''
@@ -199,9 +200,13 @@ def SetupLoginPage(
 
             loginForm = '''
                     <form method="POST" action="{0}">
+                        <div class="form-group">
                         Email: <input type="email" name="email">
+                        </div><div class="form-group">
                         <input type="hidden" name="authToken" value="{1}">
+                        </div><div class="form-group">
                         <input type="submit" value="Send Login Email">
+                        </div>
                     </form>
                 '''.format(loginURL, authToken)
 
@@ -248,18 +253,27 @@ def SetupLoginPage(
                 # TODO
                 print('Sending email to user. ')
 
+                referrerDomain = DOMAIN_RE.search(request.referrer).group(1)
+
                 body = '''
-                    <a href="http://{0}/auth?email={1}&authToken={2}">
                     Click here to login now:
-                    </a>
+                    http://{0}/auth?email={1}&authToken={2}
+                    
                 '''.format(
-                    request.url_root,
+                    referrerDomain,
                     email,
                     authToken,
                 )
 
-                SendEmail(to=email, frm='login@{}'.format(request.url_root), subject='Login', body=body)
-                flash('Test')
+                # body += '\r\n'
+                #
+                # for item in dir(request):
+                #     print(item, getattr(request, item))
+                #     body += '{}={}\r\n'.format(item, getattr(request, item))
+
+
+                SendEmail(to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
+                flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
 
             return render_template('main.html')
 
