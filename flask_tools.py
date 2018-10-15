@@ -312,6 +312,7 @@ def SetupLoginPage(
                     user['authenticated'] = True
 
                     resp = redirect(afterLoginRedirect)
+                    resp.set_cookie('email', user.get('email'))
                     resp.set_cookie('authToken', authToken)
                     return resp
 
@@ -335,6 +336,8 @@ def GetUser(email=None):
 
     if email is None:
         email = session.get('email', None)
+    if email is None:
+        email = request.cookies.get('email', None)
 
     print('258 session email=', email)
     try:
