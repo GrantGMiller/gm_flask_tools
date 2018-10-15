@@ -257,11 +257,11 @@ def SetupLoginPage(
                 if referrerDomainMatch is not None:
                     referrerDomain = referrerDomainMatch.group(1)
                 else:
-                    referrerDomain = 'dummydomain.com'
+                    referrerDomain = 'grant-miller.com'
 
                 body = '''
-                    Click here to login now:
-                    http://{0}/auth?email={1}&authToken={2}
+Click here to login now:
+http://{0}/auth?email={1}&authToken={2}
                     
                 '''.format(
                     referrerDomain,
@@ -312,8 +312,9 @@ def SetupLoginPage(
                     user['authenticated'] = True
 
                     resp = redirect(afterLoginRedirect)
-                    resp.set_cookie('email', user.get('email'))
-                    resp.set_cookie('authToken', authToken)
+                    expireDT = datetime.datetime.now() + datetime.timedelta(days=1)
+                    resp.set_cookie('email', user.get('email'), expires=expireDT)
+                    resp.set_cookie('authToken', authToken, expires=expireDT)
                     return resp
 
                 else:
