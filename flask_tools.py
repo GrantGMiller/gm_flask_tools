@@ -286,6 +286,8 @@ def SetupLoginPage(
         print('Auth(', a, k)
         email = request.values.get('email', None)
         authToken = request.values.get('authToken', None)
+        if authToken is None:
+            authToken = request.cookies.get('authToken')
         print('email=', email)
         print('auth=', authToken)
 
@@ -309,7 +311,9 @@ def SetupLoginPage(
 
                     user['authenticated'] = True
 
-                    return redirect(afterLoginRedirect)
+                    resp = redirect(afterLoginRedirect)
+                    resp.set_cookie('authToken', authToken)
+                    return resp
 
                 else:
                     # auth token expired
