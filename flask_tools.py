@@ -253,7 +253,11 @@ def SetupLoginPage(
                 # TODO
                 print('Sending email to user. ')
 
-                referrerDomain = DOMAIN_RE.search(request.referrer).group(1)
+                referrerDomainMatch = DOMAIN_RE.search(request.referrer)
+                if referrerDomainMatch is not None:
+                    referrerDomain = referrerDomainMatch.group(1)
+                else:
+                    referrerDomain = 'dummydomain.com'
 
                 body = '''
                     Click here to login now:
