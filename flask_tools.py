@@ -190,6 +190,8 @@ def SetupLoginPage(
         email = request.form.get('email', None)
         print('email=', email)
 
+        flash(request.cookies)
+
         authToken = request.form.get('authToken', None)
 
         if email is None:
