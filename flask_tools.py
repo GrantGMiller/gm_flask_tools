@@ -188,6 +188,8 @@ def SetupLoginPage(
     def Login(*a, **k):
         print('Login', a, k)
         email = request.form.get('email', None)
+        if email is None:
+            email = request.cookies.get('email', None)
         print('email=', email)
 
         flash(request.cookies)
@@ -314,7 +316,7 @@ http://{0}/auth?email={1}&authToken={2}
                     user['authenticated'] = True
 
                     resp = redirect(afterLoginRedirect)
-                    expireDT = datetime.datetime.now() + datetime.timedelta(days=1)
+                    expireDT = datetime.datetime.utcnow() + datetime.timedelta(days=1)
                     resp.set_cookie('email', user.get('email'), expires=expireDT)
                     resp.set_cookie('authToken', authToken, expires=expireDT)
                     return resp
