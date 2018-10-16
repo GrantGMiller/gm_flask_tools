@@ -323,12 +323,12 @@ http://{0}/auth?email={1}&authToken={2}
                     resp.set_cookie(
                         'email', user.get('email'),
                         expires=expireDT,
-                        domain=app.config.get('SESSION_COOKIE_DOMAIN', None)
+                        domain=app.config.get('SERVER_NAME', None)
                     )
                     resp.set_cookie(
                         'authToken', authToken,
                         expires=expireDT,
-                        domain=app.config.get('SESSION_COOKIE_DOMAIN', None)
+                        domain=app.config.get('SERVER_NAME', None)
                     )
                     return resp
 
