@@ -31,6 +31,7 @@ AUTH_TOKEN_EXPIRATION = 30 * 60  #
 
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
+
 def StripNonHex(string):
     ret = ''
     for c in string.upper():
@@ -279,7 +280,6 @@ http://{0}/auth?email={1}&authToken={2}
                 #     print(item, getattr(request, item))
                 #     body += '{}={}\r\n'.format(item, getattr(request, item))
 
-
                 SendEmail(to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
                 flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
 
@@ -317,8 +317,16 @@ http://{0}/auth?email={1}&authToken={2}
 
                     resp = redirect(afterLoginRedirect)
                     expireDT = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-                    resp.set_cookie('email', user.get('email'), expires=expireDT)
-                    resp.set_cookie('authToken', authToken, expires=expireDT)
+                    resp.set_cookie(
+                        'email', user.get('email'),
+                        expires=expireDT,
+                        domain=app.config.get('SESSION_COOKIE_DOMAIN', None)
+                    )
+                    resp.set_cookie(
+                        'authToken', authToken,
+                        expires=expireDT,
+                        domain=app.config.get('SESSION_COOKIE_DOMAIN', None)
+                    )
                     return resp
 
                 else:
