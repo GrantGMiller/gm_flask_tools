@@ -258,7 +258,10 @@ def SetupLoginPage(
                 # TODO
                 print('Sending email to user. ')
 
-                referrerDomainMatch = DOMAIN_RE.search(request.referrer)
+                ref = request.referrer
+                if ref is None:
+                    ref = 'www.grant-miller.com'
+                referrerDomainMatch = DOMAIN_RE.search(ref)
                 if referrerDomainMatch is not None:
                     referrerDomain = referrerDomainMatch.group(1)
                 else:
@@ -316,7 +319,7 @@ http://{0}/auth?email={1}&authToken={2}
                     user['authenticated'] = True
 
                     resp = redirect(afterLoginRedirect)
-                    expireDT = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+                    expireDT = datetime.datetime.now() + datetime.timedelta(days=1)
                     resp.set_cookie(
                         'email', user.get('email'),
                         expires=expireDT,
@@ -335,7 +338,7 @@ http://{0}/auth?email={1}&authToken={2}
                     return redirect(url_for(Login))
 
             else:
-                flash('No auth token expiration. Please log in again.')
+                flash('Auth Token has no expiration. This is invalid. Please log in again.')
                 return redirect(url_for(Login))
 
         else:
