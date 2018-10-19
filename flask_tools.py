@@ -25,7 +25,7 @@ from persistent_dict_db import (
     PersistentDictDB,
     SetDB_URI,
 )
-from pathlib import Path
+import uuid
 
 AUTH_TOKEN_EXPIRATION = 30 * 60  #
 
@@ -50,7 +50,10 @@ def GetRandomID():
     return HashIt(None)
 
 
-def HashIt(string=None, salt='flask_tools_arbitrary_string'):
+uniqueID = uuid.getnode()
+
+
+def HashIt(string=None, salt=uniqueID):
     '''
     This function takes in a string and converts it to a unique hash.
     Note: this is a one-way conversion. The value cannot be converted from hash to the original string
@@ -153,7 +156,8 @@ def GetApp(appName=None, *a, **k):
 
     import config
 
-    engineURI = k.pop('db_engineURI', 'sqlite:///test.db')
+    engineURI = k.pop('db_engineURI', 'sqlite:///{}.db'.format(appName.replace(' ', '')))
+    SetDB_URI(engineURI)
     devMode = k.pop('devMode', False)
 
     app = Flask(
@@ -163,7 +167,6 @@ def GetApp(appName=None, *a, **k):
     )
     app.config.from_object(config.GetConfigClass(appName)())
 
-    DB_URI = engineURI
 
     return app
 
@@ -193,7 +196,7 @@ def SetupLoginPage(
             email = request.cookies.get('email', None)
         print('email=', email)
 
-        #flash(request.cookies)
+        # flash(request.cookies)
 
         authToken = request.form.get('authToken', None)
 

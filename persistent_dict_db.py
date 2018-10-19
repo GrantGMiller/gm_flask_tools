@@ -1,5 +1,7 @@
 import dataset
 
+DEBUG = True
+
 global DB_URI
 DB_URI = None
 
@@ -56,6 +58,18 @@ class PersistentDictDB(dict):
         print('__setitem__', key, value)
         super().__setitem__(key, value)
         self._Save()
+
+    def __setattr__(self, key, value):
+        # This allows the user to either access db rows by "obj.key" or "obj['key']"
+        self.__setitem__(key, value)
+
+    def __getattr__(self, key):
+        # This allows the user to either access db rows by "obj.key" or "obj['key']"
+        try:
+            return self.__getitem__(key)
+        except Exception as err:
+            print('72 err=', err)
+            return None
 
     def __str__(self):
         '''

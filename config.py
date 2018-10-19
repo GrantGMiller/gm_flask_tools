@@ -6,6 +6,10 @@ import uuid
 basedir = os.path.abspath(os.path.dirname(__file__))
 print('basedir=', basedir)
 
+# A unique hash per machine
+# hash of string like '202347123401880'
+uniqueHash = HashIt(uuid.getnode())
+
 
 def GetConfigClass(projectName):
     platform = sys.platform
@@ -14,8 +18,7 @@ def GetConfigClass(projectName):
     elif 'linux' in platform:
         sqlURI = 'sqlite:////{}/{}.db'.format(basedir, projectName)
 
-    # A unique hash per machine
-    uniqueHash = HashIt(uuid.getnode())  # string like '202347123401880'
+    uniqueHash = HashIt(uuid.getnode())
 
     class Config(object):
         SECRET_KEY = os.environ.get(
