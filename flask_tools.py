@@ -319,7 +319,7 @@ http://{0}/auth?email={1}&authToken={2}
                     user['authenticated'] = True
 
                     resp = redirect(afterLoginRedirect)
-                    expireDT = datetime.datetime.now() + datetime.timedelta(days=1)
+                    expireDT = datetime.datetime.now() + datetime.timedelta(days=365)
                     resp.set_cookie(
                         'email', user.get('email'),
                         expires=expireDT,
