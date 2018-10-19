@@ -193,7 +193,7 @@ def SetupLoginPage(
             email = request.cookies.get('email', None)
         print('email=', email)
 
-        flash(request.cookies)
+        #flash(request.cookies)
 
         authToken = request.form.get('authToken', None)
 
