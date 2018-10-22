@@ -27,7 +27,7 @@ from persistent_dict_db import (
 )
 import uuid
 
-AUTH_TOKEN_EXPIRATION = 30 * 60  #
+AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
@@ -166,7 +166,6 @@ def GetApp(appName=None, *a, **k):
         **k,
     )
     app.config.from_object(config.GetConfigClass(appName)())
-
 
     return app
 
@@ -315,14 +314,14 @@ http://{0}/auth?email={1}&authToken={2}
             authDT = user.get('lastAuthTokenTime', None)
             if authDT is not None:
                 delta = datetime.datetime.now() - authDT
-                if delta.total_seconds() < AUTH_TOKEN_EXPIRATION:
+                if delta.total_seconds() < AUTH_TOKEN_EXPIRATION_SECONDS:
                     # good
                     session['email'] = user.get('email')
 
                     user['authenticated'] = True
 
                     resp = redirect(afterLoginRedirect)
-                    expireDT = datetime.datetime.now() + datetime.timedelta(days=365)
+                    expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
                     resp.set_cookie(
                         'email', user.get('email'),
                         expires=expireDT,
