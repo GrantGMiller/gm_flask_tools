@@ -1,6 +1,8 @@
 import dataset
 
 DEBUG = True
+if not DEBUG:
+    print = lambda *a, **k: None
 
 global DB_URI
 DB_URI = None
@@ -32,6 +34,14 @@ class PersistentDictDB(dict):
 
     uniqueKeys = ['id']
 
+    def AfterInit(self, *args, **kwargs):
+        '''
+        Override this fucntion to do something after object is placed in database
+        :param a:
+        :param k:
+        :return: tuple of (args, kwargs)
+        '''
+
     def __init__(self, *a, doInsert=True, **k):
         '''
 
@@ -39,10 +49,12 @@ class PersistentDictDB(dict):
         :param k:
         :param uniqueKeys: list of keys that cannot be duplicated in the table
         '''
-        print('{}.__init__('.format(type(self).__name__), a, k)
+        print('44 {}.__init__('.format(type(self).__name__), a, k)
         super().__init__(*a, **k)
 
         if doInsert is True:
+            # called the first time this obj is created
+
             existing = FindAll(type(self), **k)
             if len(list(existing)) > 0:
                 duplicates = FindAll(type(self), **k)
@@ -50,6 +62,8 @@ class PersistentDictDB(dict):
                 raise SystemError('A record already exists in the database. \r\n{}'.format(duplicates))
 
             InsertDB(self)
+
+        self.AfterInit()
 
     def _Save(self):
         UpsertDB(self, self.uniqueKeys)
@@ -65,11 +79,10 @@ class PersistentDictDB(dict):
 
     def __getattr__(self, key):
         # This allows the user to either access db rows by "obj.key" or "obj['key']"
-        try:
+        if not key.startswith('_'):
             return self.__getitem__(key)
-        except Exception as err:
-            print('72 err=', err)
-            return None
+        else:
+            super().__getattr__(key)
 
     def __str__(self):
         '''
@@ -83,17 +96,32 @@ class PersistentDictDB(dict):
         )
 
 
-def InsertDB(dictObj):
-    print('InsertDB(', dictObj)
+def InsertDB(obj):
+    '''
+
+    :param obj: subclass of dict()
+    :return:
+    '''
+    print('InsertDB(', obj)
+
+    tableName = type(obj).__name__
     with dataset.connect(DB_URI) as DB:
-        DB[type(dictObj).__name__].insert(dictObj)
+        DB[tableName].insert(obj)
         DB.commit()
 
 
-def UpsertDB(dictObj, listOfKeysThatMustMatch):
-    print('UpsertDB(', dictObj, listOfKeysThatMustMatch)
+def UpsertDB(obj, listOfKeysThatMustMatch):
+    '''
+
+    :param obj: subclass of dict()
+    :param listOfKeysThatMustMatch:
+    :return:
+    '''
+    print('UpsertDB(', obj, listOfKeysThatMustMatch)
+
+    tableName = type(obj).__name__
     with dataset.connect(DB_URI) as DB:
-        DB[type(dictObj).__name__].upsert(dictObj, listOfKeysThatMustMatch)
+        DB[tableName].upsert(obj, listOfKeysThatMustMatch)
         DB.commit()
 
 
@@ -106,12 +134,12 @@ def FindOne(objType, **k):
         print('{}.all()='.format(dbName), list(DB[dbName].all()))
 
         ret = DB[dbName].find_one(**k)
-        print('95 ret=', ret)
+        print('95 FindOne ret=', ret)
         if ret is None:
             return None
         else:
             ret = objType(ret, doInsert=False)
-            print('FindOne ret=', ret)
+            print('128 FindOne ret=', ret)
             return ret
 
 
