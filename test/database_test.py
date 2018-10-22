@@ -1,4 +1,4 @@
-from simple_db import (
+from flask_tools import (
     AddNewRecord,
     GetFromTable,
     GetDB,

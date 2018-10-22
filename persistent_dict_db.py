@@ -1,4 +1,6 @@
 import dataset
+import json
+from collections import OrderedDict
 
 DEBUG = True
 if not DEBUG:
@@ -13,6 +15,7 @@ def SetDB_URI(dburi):
     global DB_URI
     DB_URI = dburi
 
+TYPE_CONVERT_TO_JSON = [list, dict]
 
 class PersistentDictDB(dict):
     '''
@@ -42,34 +45,60 @@ class PersistentDictDB(dict):
         :return: tuple of (args, kwargs)
         '''
 
-    def __init__(self, *a, doInsert=True, **k):
+    def __init__(self, *args, doInsert=True, **kwargs):
         '''
 
-        :param a:
-        :param k:
+        :param args:
+        :param kwargs:
         :param uniqueKeys: list of keys that cannot be duplicated in the table
         '''
-        print('44 {}.__init__('.format(type(self).__name__), a, k)
-        super().__init__(*a, **k)
+        print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
+
+        if len(args) > 0 and isinstance(args[0], OrderedDict):
+            kwargs = dict(args[0])
+
+        superInitDict = {}
+        print('kwargs=', kwargs)
+        for uKey in self.uniqueKeys:
+            print('uKey=', uKey)
+            if uKey in kwargs:
+                superInitDict[uKey] = kwargs[uKey]
+
+        print('58 superInitDict=', superInitDict)
+        super().__init__(*args, **superInitDict)
 
         if doInsert is True:
             # called the first time this obj is created
-
-            existing = FindAll(type(self), **k)
-            if len(list(existing)) > 0:
-                duplicates = FindAll(type(self), **k)
+            print('finding existing superInitDict=', superInitDict)
+            existing = FindAll(type(self), **superInitDict)
+            if len(list(existing)) > 0 and len(superInitDict) > 0:
+                duplicates = FindAll(type(self), **superInitDict)
                 duplicates = list(duplicates)
                 raise SystemError('A record already exists in the database. \r\n{}'.format(duplicates))
 
             InsertDB(self)
 
-        self.AfterInit()
+            obj = FindOne(type(self), **superInitDict)
+            print('68 obj=', obj)
+            for k1, v1 in kwargs.items():
+                print('70 obj={}, k1={}, v1={}'.format(obj, k1, v1))
+                obj[k1] = v1
+
+            obj = FindOne(type(self), **superInitDict)
+            obj.AfterInit()
 
     def _Save(self):
         UpsertDB(self, self.uniqueKeys)
 
     def __setitem__(self, key, value):
         print('__setitem__', key, value)
+
+        for aType in TYPE_CONVERT_TO_JSON:
+            if isinstance(value, aType):
+                value = json.dumps(value)
+                break
+
+        print('82 value={}, type(value)={}'.format(value, type(value)))
         super().__setitem__(key, value)
         self._Save()
 
@@ -77,12 +106,31 @@ class PersistentDictDB(dict):
         # This allows the user to either access db rows by "obj.key" or "obj['key']"
         self.__setitem__(key, value)
 
+    def __getitem__(self, key):
+        print('__getitem__ self={}, key={}'.format(self, key))
+        superValue = super().__getitem__(key)
+        try:
+            value = json.loads(superValue)
+            return value
+        except Exception as err:
+            print('92 err=', err, 'return', superValue)
+            return superValue
+
     def __getattr__(self, key):
         # This allows the user to either access db rows by "obj.key" or "obj['key']"
         if not key.startswith('_'):
             return self.__getitem__(key)
         else:
             super().__getattr__(key)
+
+    def get(self, *a, **k):
+        superValue = super().get(*a, **k)
+        try:
+            value = json.loads(superValue)
+            return value
+        except Exception as err:
+            print('92 err=', err, 'return', superValue)
+            return superValue
 
     def __str__(self):
         '''
