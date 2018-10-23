@@ -15,7 +15,28 @@ def SetDB_URI(dburi):
     global DB_URI
     DB_URI = dburi
 
+
 TYPE_CONVERT_TO_JSON = [list, dict]
+
+
+def ConvertDictValuesToJson(dictObj):
+    for key, value in dictObj.copy().items():
+        for aType in TYPE_CONVERT_TO_JSON:
+            if isinstance(value, aType):
+                dictObj[key] = json.dumps(value)
+                break
+    return dictObj
+
+
+def ConvertDictJsonValuesToNative(dictObj):
+    for key, value in dictObj.copy().items():
+        try:
+            newValue = json.loads(value)
+            dictObj[key] = newValue
+        except:
+            pass
+    return dictObj
+
 
 class PersistentDictDB(dict):
     '''
@@ -45,47 +66,88 @@ class PersistentDictDB(dict):
         :return: tuple of (args, kwargs)
         '''
 
-    def __init__(self, *args, doInsert=True, **kwargs):
+    def __init__(self, *args, **kwargs):
         '''
 
         :param args:
         :param kwargs:
         :param uniqueKeys: list of keys that cannot be duplicated in the table
         '''
+        # print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
+        #
+        # if len(args) > 0 and isinstance(args[0], OrderedDict):
+        #     kwargs = dict(args[0])
+        #
+        # superInitDict = {}
+        # print('61 kwargs=', kwargs)
+        # for uKey in self.uniqueKeys:
+        #     print('uKey=', uKey)
+        #     if uKey in kwargs:
+        #         superInitDict[uKey] = kwargs[uKey]
+        #
+        # print('58 superInitDict=', superInitDict)
+        # super().__init__(*args, **superInitDict)
+        #
+        # if doInsert is True:
+        #     # called the first time this obj is created
+        #     print('finding existing superInitDict=', superInitDict)
+        #     existing = FindAll(type(self), **superInitDict)
+        #     if len(list(existing)) > 0 and len(superInitDict) > 0:
+        #         duplicates = FindAll(type(self), **superInitDict)
+        #         duplicates = list(duplicates)
+        #         raise SystemError('A record already exists in the database. \r\n{}'.format(duplicates))
+        #
+        #     InsertDB(self)
+        #
+        #     obj = FindOne(type(self), **superInitDict)
+        #     print('68 obj=', obj)
+        #     for k1, v1 in kwargs.items():
+        #         print('70 obj={}, k1={}, v1={}'.format(obj, k1, v1))
+        #         obj[k1] = v1
+        #
+        #     obj = FindOne(type(self), **kwargs)
+        #     obj.AfterInit()
+
+        ################################################
+
         print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
 
-        if len(args) > 0 and isinstance(args[0], OrderedDict):
-            kwargs = dict(args[0])
-
-        superInitDict = {}
-        print('kwargs=', kwargs)
-        for uKey in self.uniqueKeys:
-            print('uKey=', uKey)
-            if uKey in kwargs:
-                superInitDict[uKey] = kwargs[uKey]
-
-        print('58 superInitDict=', superInitDict)
-        super().__init__(*args, **superInitDict)
-
+        doInsert = kwargs.pop('doInsert', True)
+        print('116 doInsert=', doInsert)
         if doInsert is True:
-            # called the first time this obj is created
-            print('finding existing superInitDict=', superInitDict)
-            existing = FindAll(type(self), **superInitDict)
-            if len(list(existing)) > 0 and len(superInitDict) > 0:
-                duplicates = FindAll(type(self), **superInitDict)
-                duplicates = list(duplicates)
-                raise SystemError('A record already exists in the database. \r\n{}'.format(duplicates))
+            # First check if there is already an object in database with the unique keys
 
+            kwargs = ConvertDictValuesToJson(kwargs)
+            print('119 kwargs=', kwargs)
+
+            searchDict = dict()
+            for key in self.uniqueKeys:
+                if key in kwargs:
+                    searchDict[key] = kwargs[key]
+
+            if len(searchDict) > 0:
+                # check for duplicates
+                searchResults = FindAll(type(self), **searchDict)
+                if len(searchResults) > 0:
+                    raise Exception('Duplicate object. searchDict={}, kwargs={}, uniqueKeys={}, searchResults={}'.format(
+                        searchDict,
+                        kwargs,
+                        self.uniqueKeys,
+                        searchResults
+                    ))
+
+            # Create the object and insert it in the database
+            super().__init__(*args, **kwargs)
             InsertDB(self)
 
-            obj = FindOne(type(self), **superInitDict)
-            print('68 obj=', obj)
-            for k1, v1 in kwargs.items():
-                print('70 obj={}, k1={}, v1={}'.format(obj, k1, v1))
-                obj[k1] = v1
+            obj = FindOne(type(self), **self)
+            obj.AfterInit()  # Call this so the programmer can specify actions after init
 
-            obj = FindOne(type(self), **superInitDict)
-            obj.AfterInit()
+        else:
+            # This is called by FindOne or FindAll to re-create an object from the database
+            dictObj = args[0]
+            #dictObj = ConvertDictJsonValuesToNative(dictObj) # dont do this.. items will be converted as they are __getitem__-ed
+            super().__init__(**dictObj)
 
     def _Save(self):
         UpsertDB(self, self.uniqueKeys)
@@ -150,7 +212,7 @@ def InsertDB(obj):
     :param obj: subclass of dict()
     :return:
     '''
-    print('InsertDB(', obj)
+    print('212 InsertDB(', obj)
 
     tableName = type(obj).__name__
     with dataset.connect(DB_URI) as DB:
@@ -165,7 +227,7 @@ def UpsertDB(obj, listOfKeysThatMustMatch):
     :param listOfKeysThatMustMatch:
     :return:
     '''
-    print('UpsertDB(', obj, listOfKeysThatMustMatch)
+    print('227 UpsertDB(', obj, listOfKeysThatMustMatch)
 
     tableName = type(obj).__name__
     with dataset.connect(DB_URI) as DB:
@@ -174,12 +236,13 @@ def UpsertDB(obj, listOfKeysThatMustMatch):
 
 
 def FindOne(objType, **k):
+    k = ConvertDictValuesToJson(k)
     print('FindOne(', objType, k)
 
     dbName = objType.__name__
 
     with dataset.connect(DB_URI) as DB:
-        print('{}.all()='.format(dbName), list(DB[dbName].all()))
+        print('242 {}.all()='.format(dbName), list(DB[dbName].all()))
 
         ret = DB[dbName].find_one(**k)
         print('95 FindOne ret=', ret)
@@ -192,18 +255,29 @@ def FindOne(objType, **k):
 
 
 def FindAll(objType, **k):
+    '''
+
+    :param objType:
+    :param k: an empty dict like {} will return all items from table
+    :return: a list of objType objects
+    '''
     # return iter
+    k = ConvertDictValuesToJson(k)
     print('FindAll(', objType, k)
     dbName = objType.__name__
     with dataset.connect(DB_URI) as DB:
         if len(k) is 0:
-            ret = DB[dbName].all()
-            print('FindAll .all() ret=', ret)
-            return [objType(item, doInsert=False) for item in ret]
+            res = DB[dbName].all()
+            print('267 FindAll .all() res=', res)
+            ret = [objType(item, doInsert=False) for item in res]
+            print('269 res=', ret)
+            return ret
         else:
-            ret = DB[dbName].find(**k)
-            print('FindAll ret=', ret)
-            return [objType(item, doInsert=False) for item in ret]
+            res = DB[dbName].find(**k)
+            print('271 FindAll res=', res)
+            ret = [objType(item, doInsert=False) for item in res]
+            print('275 ret=', ret)
+            return ret
 
 
 def Drop(objType):
