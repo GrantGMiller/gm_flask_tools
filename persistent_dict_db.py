@@ -129,12 +129,13 @@ class PersistentDictDB(dict):
                 # check for duplicates
                 searchResults = FindAll(type(self), **searchDict)
                 if len(searchResults) > 0:
-                    raise Exception('Duplicate object. searchDict={}, kwargs={}, uniqueKeys={}, searchResults={}'.format(
-                        searchDict,
-                        kwargs,
-                        self.uniqueKeys,
-                        searchResults
-                    ))
+                    raise Exception(
+                        'Duplicate object. searchDict={}, kwargs={}, uniqueKeys={}, searchResults={}'.format(
+                            searchDict,
+                            kwargs,
+                            self.uniqueKeys,
+                            searchResults
+                        ))
 
             # Create the object and insert it in the database
             super().__init__(*args, **kwargs)
@@ -146,7 +147,7 @@ class PersistentDictDB(dict):
         else:
             # This is called by FindOne or FindAll to re-create an object from the database
             dictObj = args[0]
-            #dictObj = ConvertDictJsonValuesToNative(dictObj) # dont do this.. items will be converted as they are __getitem__-ed
+            # dictObj = ConvertDictJsonValuesToNative(dictObj) # dont do this.. items will be converted as they are __getitem__-ed
             super().__init__(**dictObj)
 
     def _Save(self):
@@ -262,22 +263,46 @@ def FindAll(objType, **k):
     :return: a list of objType objects
     '''
     # return iter
+    limit = k.pop('_limit', None)  # should be int or None
+    print('limit=', limit)
+
+    reverse = k.pop('_reverse', False)  # bool
+    print('reverse=', reverse)
+
+    orderBy = k.pop('_orderBy', None)  # str
+    print('orderBy=', orderBy)
+
     k = ConvertDictValuesToJson(k)
     print('FindAll(', objType, k)
     dbName = objType.__name__
     with dataset.connect(DB_URI) as DB:
         if len(k) is 0:
-            res = DB[dbName].all()
-            print('267 FindAll .all() res=', res)
-            ret = [objType(item, doInsert=False) for item in res]
-            print('269 res=', ret)
-            return ret
+            ret = DB[dbName].all()
+            print('267 FindAll .all() res=', ret)
+
         else:
-            res = DB[dbName].find(**k)
-            print('271 FindAll res=', res)
-            ret = [objType(item, doInsert=False) for item in res]
-            print('275 ret=', ret)
-            return ret
+            ret = DB[dbName].find(**k)
+            print('271 FindAll res=', ret)
+
+        # do orderBy if needed
+        if orderBy is not None:
+            ret = sorted(ret, key=lambda item: item[orderBy])
+            print('290 ret=', ret)
+
+        # reverse results if needed
+        if reverse is True:
+            ret = reversed(ret)
+            print('303 ret=', ret)
+
+        # Limit results
+        if limit is None:
+            ret = [objType(item, doInsert=False) for item in ret]
+        else:
+            ret = [objType(item, doInsert=False) for index, item in enumerate(ret) if index < limit]
+
+        print('275 ret=', ret)
+
+        return ret
 
 
 def Drop(objType):
