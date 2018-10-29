@@ -58,13 +58,49 @@ class PersistentDictDB(dict):
 
     uniqueKeys = ['id']
 
-    def AfterInit(self, *args, **kwargs):
+    def AfterInsert(self, *args, **kwargs):
         '''
-        Override this fucntion to do something after object is placed in database
-        :param a:
-        :param k:
-        :return: tuple of (args, kwargs)
+        Override this fucntion to do something after object is inserted in database
+
+        Example:
+
+class Post(PersistentDictDB):
+
+    def AfterInsert(self):
+        print('14 AfterInsert() self=', self)
+
+        user = FindOne(UserClass, id=self.get('userID'))
+        print('17 user=', user)
+
+        posts = user.get('posts', None)
+        print('21 posts={}, type(posts)={}'.format(posts, type(posts)))
+        if posts is None:
+            posts = []
+        posts.append(self.id)
+        user.posts = posts
+
+        self['username'] = user.username
         '''
+
+    def CustomGetKey(self, key, value):
+        '''
+        This class supports values of type str/int/list/bool/datetime/(others supported by dataset?) only
+        This method along with CustomSetKey() can be used to support other types manually
+
+        Example:
+            #TODO
+
+        '''
+        return key, value
+
+    def CustomSetKey(self, key, value):
+        '''
+
+        :param key:
+        :param value:
+        :return: tuple of (newKey, newValue)
+        '''
+        return key, value
 
     def __init__(self, *args, **kwargs):
         '''
@@ -106,7 +142,7 @@ class PersistentDictDB(dict):
         #         obj[k1] = v1
         #
         #     obj = FindOne(type(self), **kwargs)
-        #     obj.AfterInit()
+        #     obj.AfterInsert()
 
         ################################################
 
@@ -142,7 +178,7 @@ class PersistentDictDB(dict):
             InsertDB(self)
 
             obj = FindOne(type(self), **self)
-            obj.AfterInit()  # Call this so the programmer can specify actions after init
+            obj.AfterInsert()  # Call this so the programmer can specify actions after init
 
         else:
             # This is called by FindOne or FindAll to re-create an object from the database
@@ -155,6 +191,8 @@ class PersistentDictDB(dict):
 
     def __setitem__(self, key, value):
         print('__setitem__', key, value)
+
+        key, value = self.CustomSetKey(key, value)
 
         for aType in TYPE_CONVERT_TO_JSON:
             if isinstance(value, aType):
@@ -174,10 +212,13 @@ class PersistentDictDB(dict):
         superValue = super().__getitem__(key)
         try:
             value = json.loads(superValue)
-            return value
+            ret = value
         except Exception as err:
             print('92 err=', err, 'return', superValue)
-            return superValue
+            ret = superValue
+
+        _, ret = self.CustomGetKey(key, ret)
+        return ret
 
     def __getattr__(self, key):
         # This allows the user to either access db rows by "obj.key" or "obj['key']"
