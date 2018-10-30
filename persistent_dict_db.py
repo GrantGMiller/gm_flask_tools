@@ -2,7 +2,7 @@ import dataset
 import json
 from collections import OrderedDict
 
-DEBUG = True
+DEBUG = False
 if not DEBUG:
     print = lambda *a, **k: None
 
@@ -88,7 +88,13 @@ class Post(PersistentDictDB):
         This method along with CustomSetKey() can be used to support other types manually
 
         Example:
-            #TODO
+            class Post(PersistentDictDB):
+
+                def CustomGetKey(self, key, value):
+                    if key == 'content':
+                        return key, Markup(value)
+                    else:
+                        return key, value
 
         '''
         return key, value
@@ -109,42 +115,6 @@ class Post(PersistentDictDB):
         :param kwargs:
         :param uniqueKeys: list of keys that cannot be duplicated in the table
         '''
-        # print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
-        #
-        # if len(args) > 0 and isinstance(args[0], OrderedDict):
-        #     kwargs = dict(args[0])
-        #
-        # superInitDict = {}
-        # print('61 kwargs=', kwargs)
-        # for uKey in self.uniqueKeys:
-        #     print('uKey=', uKey)
-        #     if uKey in kwargs:
-        #         superInitDict[uKey] = kwargs[uKey]
-        #
-        # print('58 superInitDict=', superInitDict)
-        # super().__init__(*args, **superInitDict)
-        #
-        # if doInsert is True:
-        #     # called the first time this obj is created
-        #     print('finding existing superInitDict=', superInitDict)
-        #     existing = FindAll(type(self), **superInitDict)
-        #     if len(list(existing)) > 0 and len(superInitDict) > 0:
-        #         duplicates = FindAll(type(self), **superInitDict)
-        #         duplicates = list(duplicates)
-        #         raise SystemError('A record already exists in the database. \r\n{}'.format(duplicates))
-        #
-        #     InsertDB(self)
-        #
-        #     obj = FindOne(type(self), **superInitDict)
-        #     print('68 obj=', obj)
-        #     for k1, v1 in kwargs.items():
-        #         print('70 obj={}, k1={}, v1={}'.format(obj, k1, v1))
-        #         obj[k1] = v1
-        #
-        #     obj = FindOne(type(self), **kwargs)
-        #     obj.AfterInsert()
-
-        ################################################
 
         print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
 
