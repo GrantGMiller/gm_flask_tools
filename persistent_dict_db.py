@@ -23,7 +23,10 @@ def ConvertDictValuesToJson(dictObj):
     for key, value in dictObj.copy().items():
         for aType in TYPE_CONVERT_TO_JSON:
             if isinstance(value, aType):
-                dictObj[key] = json.dumps(value)
+                try:
+                    dictObj[key] = json.dumps(value)
+                except:
+                    pass
                 break
     return dictObj
 
@@ -326,6 +329,7 @@ def Drop(objType):
 
 
 def Delete(obj):
+    print('332 Delete(', obj)
     objType = type(obj)
     dbName = objType.__name__
 
