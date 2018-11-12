@@ -26,6 +26,7 @@ from persistent_dict_db import (
     SetDB_URI,
 )
 import uuid
+import functools
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 
@@ -379,3 +380,25 @@ def LogoutUser():
     print('288 user=', user)
     if user is not None:
         user['authenticated'] = False
+
+
+def VerifyLogin(func):
+    '''
+    Use this decorator on view's that require a log in, it will auto redirect to login page
+    :param func:
+    :return:
+    '''
+    print('53 VerifyLogin(', func)
+
+    @functools.wraps(func)
+    def VerifyLoginWrapper(*args, **kwargs):
+        print('VerifyLoginWrapper(', args, kwargs)
+        user = GetUser()
+        print('57 user=', user)
+        if user is None:
+            flash('You must be logged in for that.')
+            return redirect('/login')
+        else:
+            return func(*args, **kwargs)
+
+    return VerifyLoginWrapper
