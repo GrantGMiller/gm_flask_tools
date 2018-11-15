@@ -224,70 +224,94 @@ def SetupLoginPage(
             )
 
         else:
-            # The user submitted the form.
+            # The user submitted the form, or cookie email found
             # Send an email to the address they entered with the authToken
             # If they click the link in the email
             # Check that the auth token and email match
 
-            print('Sending email to user to authenticate.')
+            authToken = request.form.get('authToken')
+            print('authToken=', authToken, type(authToken))
+
 
             # for item in dir(request):
             #     print(item, getattr(request, item))
 
-            authToken = request.form.get('authToken')
-
             existingUser = FindOne(UserClass, email=email)
 
-            print('199 existingUser=', existingUser)
+            print('199 existingUser=', existingUser, type(existingUser))
 
-            if existingUser is not None:
-                existingUser['authToken'] = authToken
-                existingUser['lastAuthTokenTime'] = datetime.datetime.now()
+            if authToken is not None:
+                if existingUser is not None:
+                    existingUser['authToken'] = authToken
+                    existingUser['lastAuthTokenTime'] = datetime.datetime.now()
 
-            else:
-                # no user exist, create a new one
-                newUser = UserClass(
-                    email=email,
-                    authToken=authToken,
-                    lastAuthTokenTime=datetime.datetime.now(),
-                )
-                print('221 newUser=', newUser)
-
-            if app.debug is True:
-                print('app.debug is True, faking the login')
-                print('redirecting to auth page')
-                return redirect('/auth?email={}&authToken={}'.format(email, authToken))
-            else:
-                # TODO
-                print('Sending email to user. ')
-
-                ref = request.referrer
-                if ref is None:
-                    ref = 'www.grant-miller.com'
-                referrerDomainMatch = DOMAIN_RE.search(ref)
-                if referrerDomainMatch is not None:
-                    referrerDomain = referrerDomainMatch.group(1)
                 else:
-                    referrerDomain = 'grant-miller.com'
+                    print('no user exist, create a new one')
+                    newUser = UserClass(
+                        email=email,
+                        authToken=authToken,
+                        lastAuthTokenTime=datetime.datetime.now(),
+                    )
+                    print('221 newUser=', newUser)
 
-                body = '''
-Click here to login now:
-http://{0}/auth?email={1}&authToken={2}
-                    
-                '''.format(
-                    referrerDomain,
-                    email,
-                    authToken,
+                print('Sending email to user to authenticate.')
+
+                if app.debug is True:
+                    print('app.debug is True, faking the login')
+                    print('redirecting to auth page')
+                    return redirect('/auth?email={}&authToken={}'.format(email, authToken))
+
+                else:
+                    print('Sending email to user. ')
+
+                    ref = request.referrer
+                    if ref is None:
+                        ref = 'www.grant-miller.com'
+                    referrerDomainMatch = DOMAIN_RE.search(ref)
+                    if referrerDomainMatch is not None:
+                        referrerDomain = referrerDomainMatch.group(1)
+                    else:
+                        referrerDomain = 'grant-miller.com'
+
+                    body = '''
+    Click here to login now:
+    http://{0}/auth?email={1}&authToken={2}
+                        
+                    '''.format(
+                        referrerDomain,
+                        email,
+                        authToken,
+                    )
+
+                    # body += '\r\n'
+                    #
+                    # for item in dir(request):
+                    #     print(item, getattr(request, item))
+                    #     body += '{}={}\r\n'.format(item, getattr(request, item))
+
+                    SendEmail(to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
+                    flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
+            else:
+                print('no auth token, show login page')
+
+                authToken = GetRandomID()
+
+                loginForm = '''
+                                    <form method="POST" action="{0}">
+                                        <div class="form-group">
+                                        Email: <input type="email" name="email">
+                                        </div><div class="form-group">
+                                        <input type="hidden" name="authToken" value="{1}">
+                                        </div><div class="form-group">
+                                        <input type="submit" value="Send Login Email">
+                                        </div>
+                                    </form>
+                                '''.format(loginURL, authToken)
+
+                return render_template(
+                    'login.html',
+                    **{templateKey: Markup(loginForm)},
                 )
-
-                # body += '\r\n'
-                #
-                # for item in dir(request):
-                #     print(item, getattr(request, item))
-                #     body += '{}={}\r\n'.format(item, getattr(request, item))
-
-                SendEmail(to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
-                flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
 
             return render_template('main.html')
 
@@ -345,6 +369,7 @@ http://{0}/auth?email={1}&authToken={2}
                 return redirect(url_for(Login))
 
         else:
+            flash('Error 348. Login Failed')
             return render_template('login_failed.html')
 
 
@@ -380,6 +405,7 @@ def LogoutUser():
     print('288 user=', user)
     if user is not None:
         user['authenticated'] = False
+        session['email'] = None
 
 
 def VerifyLogin(func):
