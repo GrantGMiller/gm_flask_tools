@@ -399,6 +399,7 @@ def GetUser(email=None):
         return None
 
 
+
 def LogoutUser():
     print('LogoutUser()')
     user = GetUser()
