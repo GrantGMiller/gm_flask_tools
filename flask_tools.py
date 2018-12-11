@@ -27,6 +27,9 @@ from persistent_dict_db import (
 )
 import uuid
 import functools
+from collections import namedtuple
+import os
+from pathlib import Path
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 
@@ -157,7 +160,13 @@ def GetApp(appName=None, *a, **k):
 
     import config
 
-    engineURI = k.pop('db_engineURI', 'sqlite:///{}.db'.format(appName.replace(' ', '')))
+    displayableAppName = appName
+
+    dbName = appName.replace(' ', '')
+    appName = dbName.replace('.', '_')
+    dbName = dbName.replace('.', '_')
+    engineURI = k.pop('db_engineURI', 'sqlite:///{}.db'.format(dbName))
+
     SetDB_URI(engineURI)
     devMode = k.pop('devMode', False)
 
@@ -167,6 +176,8 @@ def GetApp(appName=None, *a, **k):
         **k,
     )
     app.config.from_object(config.GetConfigClass(appName)())
+
+    app.jinja_env.globals['displayableAppName'] = displayableAppName
 
     return app
 
@@ -179,6 +190,16 @@ def SetupLoginPage(
         templateKey='loginContent',  # used to fill in page with messages
         afterLoginRedirect='/',
 ):
+    '''
+    This sets up the login page with no password
+    :param app:
+    :param DB_URI:
+    :param loginURL:
+    :param templatePath:
+    :param templateKey:
+    :param afterLoginRedirect:
+    :return:
+    '''
     if DB_URI is None:
         DB_URI = 'sqlite:///{}.db'.format(app.name)
 
@@ -231,7 +252,6 @@ def SetupLoginPage(
 
             authToken = request.form.get('authToken')
             print('authToken=', authToken, type(authToken))
-
 
             # for item in dir(request):
             #     print(item, getattr(request, item))
@@ -380,7 +400,7 @@ def GetUser(email=None):
 
     if email is None:
         email = session.get('email', None)
-    if email is None:
+    if email is None: #check again
         email = request.cookies.get('email', None)
 
     print('258 session email=', email)
@@ -397,7 +417,6 @@ def GetUser(email=None):
     except Exception as e:
         print(236, e)
         return None
-
 
 
 def LogoutUser():
@@ -429,3 +448,205 @@ def VerifyLogin(func):
             return func(*args, **kwargs)
 
     return VerifyLoginWrapper
+
+
+MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url'])
+
+
+def SetupRegisterAndLoginPageWithPassword(
+        app,
+        redirectSuccess=None,
+        callbackFailedLogin=None,
+        callbackNewUserRegistered=None,
+        loginTemplate=None,
+        registerTemplate=None,
+):
+    '''
+    Use this function with the @VerifyLogin decorator to simplify login auth
+
+    form should have at least two elements
+
+    '''
+
+    mainPath = Path(os.path.dirname(sys.modules['__main__'].__file__))
+    TEMPLATES_PATH = mainPath / 'templates'
+
+    if loginTemplate is None:
+        templateName = 'autogen_login.html'
+        loginTemplate = templateName
+
+        with open(TEMPLATES_PATH / templateName, mode='wt') as file:
+            file.write('''
+                {% extends "main.html" %}
+                {% block content %}
+                <div class="container">
+                
+                    <form class="form-signin" method="post">
+                        <h2 class="form-signin-heading">Please sign in</h2>
+                        
+                        <label for="inputEmail" class="sr-only">Email address</label>
+                        <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                        
+                        <label for="inputPassword" class="sr-only">Password</label>
+                        <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                        
+                        <div class="checkbox">
+                            <label>
+                                <input name="rememberMe" type="checkbox"> Remember me
+                            </label>
+                        </div>
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                
+                        {{messages}}
+                
+                    </form>
+                <br><br>
+                <a href="/register">New here? Create an account.</a>
+                <a href="/forgot">Forgot Password</a>
+                </div> <!-- /container -->
+                {% endblock %}
+        ''')
+
+    if registerTemplate is None:
+        templateName = 'autogen_register.html'
+        registerTemplate = templateName
+        with open(TEMPLATES_PATH / templateName, mode='wt') as file:
+            file.write('''
+            {% extends "main.html" %}
+            {% block content %}
+            <div class="container">
+            
+                <form class="form-signin" method="post">
+                    <h2 class="form-signin-heading">Create a new account:</h2>
+                    
+                    <label for="inputEmail" class="sr-only">Email address</label>
+                    <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                    
+                    <label for="inputPassword" class="sr-only">Password</label>
+                    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    
+                    <label for="inputPassword" class="sr-only">Password</label>
+                    <input name="passwordConfirm" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    
+                    <div class="checkbox">
+                        <label>
+                            <input value="rememberMe" type="checkbox" {% if rememberMe %} checked {% endif %}> Remember me
+                        </label>
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            
+                    {{messages}}
+            
+                </form>
+            
+                <a href="/forgot">Forgot Password</a>
+            </div> <!-- /container -->
+            {% endblock %}
+        ''')
+
+    LOGIN_FAILED_FLASH_MESSAGE = 'Username and/or Password is incorrect. Please try again.'
+
+    @app.route('/login', methods=['GET', 'POST'])
+    def Login():
+        email = request.form.get('email', None)
+        password = request.form.get('password', None)
+        rememberMe = request.form.get('rememberMe', False)
+        if rememberMe is not False:
+            rememberMe = True
+
+        print('email=', email)
+        #print('password=', '*' * len(password))
+        print('rememberMe=', rememberMe)
+
+        if request.method == 'POST':
+            # flash messages if needed
+            if password is None:
+                flash('Please enter a password.')
+
+            if email is None:
+                flash('Please enter a username.')
+
+            if email is not None and password is not None:
+                passwordHash = HashIt(password)
+                userObj = FindOne(UserClass, email=email)
+                print('572 userObj=', userObj)
+                if userObj is None:
+                    # username not found
+                    flash(LOGIN_FAILED_FLASH_MESSAGE, 'error')
+                    if callable(callbackFailedLogin):
+                        callbackFailedLogin()
+
+                    return render_template(
+                        loginTemplate,
+                        rememberMe=rememberMe,
+                    )
+                else:
+                    if userObj.passwordHash == passwordHash:
+                        userObj.authenticated = True
+                        session['email'] = email
+                        if redirectSuccess:
+                            return redirect(redirectSuccess)
+
+                        else:
+                            return redirect('/')
+
+                    else:
+                        # password mismatch
+                        flash(LOGIN_FAILED_FLASH_MESSAGE, 'error')
+                        if callable(callbackFailedLogin):
+                            callbackFailedLogin()
+
+                        else:
+                            return redirect('/login')
+
+            else:
+                # user did not enter a email/password, try again
+                return render_template(
+                    loginTemplate,
+                    rememberMe=rememberMe,
+                )
+
+        return render_template(
+            loginTemplate,
+            rememberMe=rememberMe,
+        )
+
+    @app.route('/register', methods=['GET', 'POST'])
+    def Register():
+        email = request.form.get('email', None)
+        password = request.form.get('password', None)
+        passwordConfirm = request.form.get('passwordConfirm', None)
+        rememberMe = request.form.get('rememberMe', False)
+
+        if request.method == 'POST':
+            if email is None:
+                flash('Please provide an email address.', 'error')
+            if password != passwordConfirm:
+                flash('Passwords do not match.', 'error')
+
+            existingUser = FindOne(UserClass, email=email)
+            if existingUser is not None:
+                flash('An account with this email already exists.')
+
+            else:
+                if passwordConfirm == password:
+                    newUser = UserClass(
+                        email=email,
+                        passwordHash=HashIt(password),
+                        authenticated=True,
+                    )
+                    if callable(callbackNewUserRegistered):
+                        callbackNewUserRegistered()
+
+                    return redirect('/')
+
+            return render_template(
+                registerTemplate,
+                rememberMe=rememberMe,
+            )
+
+        else:
+            return render_template(
+                registerTemplate,
+                rememberMe=rememberMe,
+            )
