@@ -400,7 +400,7 @@ def GetUser(email=None):
 
     if email is None:
         email = session.get('email', None)
-    if email is None: #check again
+    if email is None:  # check again
         email = request.cookies.get('email', None)
 
     print('258 session email=', email)
@@ -555,7 +555,7 @@ def SetupRegisterAndLoginPageWithPassword(
             rememberMe = True
 
         print('email=', email)
-        #print('password=', '*' * len(password))
+        # print('password=', '*' * len(password))
         print('rememberMe=', rememberMe)
 
         if request.method == 'POST':
@@ -650,3 +650,48 @@ def SetupRegisterAndLoginPageWithPassword(
                 registerTemplate,
                 rememberMe=rememberMe,
             )
+
+
+def ListOfDictToJS(l):
+    '''
+    take in a list of dict
+    return a string like """
+    events: [
+            {
+                title: 'All Day Event2',
+                start: new Date(y, m, 1)
+            },
+            {
+                id: 999,
+                title: 'Repeating Event',
+                start: new Date(y, m, d-3, 16, 0),
+                allDay: false,
+                className: 'info'
+            },
+            ]
+    """
+    :param d:
+    :return:
+    '''
+
+    string = '['
+
+    for d in l:
+        string += '{\r\n'
+
+        d = dict(d)  # just to make sure we arent making changes to the database
+        for k, v in d.items():
+            if isinstance(v, str):
+                string += '{}: "{}",\r\n'.format(k, v)
+            elif isinstance(v, datetime.datetime):
+                month = v.month - 1
+                string += '{}: {},\r\n'.format(k, v.strftime('new Date(%Y, {}, %d, %H, %M)'.format(month)))
+            elif isinstance(v, bool):
+                string += '{}: {},\r\n'.format(k, {True: 'true', False: 'false'}.get(v))
+            else:
+                string += '{}: {},\r\n'.format(k, v)
+
+        string += '},\r\n'
+
+    string += ']'
+    return string
