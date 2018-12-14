@@ -151,6 +151,7 @@ class Post(PersistentDictDB):
             InsertDB(self)
 
             obj = FindOne(type(self), **self)
+            self.id = obj.id
             obj.AfterInsert()  # Call this so the programmer can specify actions after init
 
         else:
