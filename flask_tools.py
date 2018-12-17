@@ -85,6 +85,33 @@ def IsValidEmail(email):
         return False
 
 
+def IsValidIPv4(ip):
+    '''
+    Returns True if ip is a valid IPv4 IP like '192.168.254.254'
+    Example '192.168.254.254' > return True
+    Example '192.168.254.300' > return False
+    :param ip: str like '192.168.254.254'
+    :return: bool
+    '''
+    # print('96 IsValidIPv4(', ip)
+    if not isinstance(ip, str):
+        return False
+    else:
+        ip_split = ip.split('.')
+        if len(ip_split) != 4:
+            return False
+
+        for octet in ip_split:
+            try:
+                octet_int = int(octet)
+                if not 0 <= octet_int <= 255:
+                    return False
+            except:
+                return False
+
+        return True
+
+
 def SendEmail(to, frm, subject, body):
     if 'linux' in sys.platform:
         msg = MIMEText(body)
