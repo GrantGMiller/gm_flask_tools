@@ -773,11 +773,11 @@ def SetupRegisterAndLoginPageWithPassword(
                 user.tempPasswordHash = HashIt(request.form.get('password'))
 
             body = '''
-            Click here to reset your password:
-            
-            Reset My Password Now
-            
-            {}
+Click here to reset your password:
+
+Reset My Password Now
+
+{}
             '''.format(resetLink)
 
             SendEmail(to=email, subject='Password Reset', body=body)
@@ -835,6 +835,8 @@ def ListOfDictToJS(l):
                 string += '{}: {},\r\n'.format(k, v.strftime('new Date(%Y, {}, %d, %H, %M)'.format(month)))
             elif isinstance(v, bool):
                 string += '{}: {},\r\n'.format(k, {True: 'true', False: 'false'}.get(v))
+            elif v is None:
+                string += '{}: null,\r\n'.format(k, v)
             else:
                 string += '{}: {},\r\n'.format(k, v)
 
