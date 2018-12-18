@@ -499,13 +499,13 @@ def SetupRegisterAndLoginPageWithPassword(
         mainPath = Path(os.path.dirname(sys.modules['__main__'].__file__))
         TEMPLATES_PATH = mainPath / 'templates'
     else:
-        TEMPLATES_PATH = '/home/flask_signage/templates'
+        TEMPLATES_PATH = Path('/home/flask_signage/templates')
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
         loginTemplate = templateName
 
-        with open(TEMPLATES_PATH / templateName, mode='wt') as file:
+        with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
             file.write('''
                 {% extends "main.html" %}
                 {% block content %}
@@ -540,7 +540,7 @@ def SetupRegisterAndLoginPageWithPassword(
     if registerTemplate is None:
         templateName = 'autogen_register.html'
         registerTemplate = templateName
-        with open(TEMPLATES_PATH / templateName, mode='wt') as file:
+        with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
             file.write('''
             {% extends "main.html" %}
             {% block content %}
