@@ -495,8 +495,11 @@ def SetupRegisterAndLoginPageWithPassword(
 
     '''
 
-    mainPath = Path(os.path.dirname(sys.modules['__main__'].__file__))
-    TEMPLATES_PATH = mainPath / 'templates'
+    if 'win' in sys.platform:
+        mainPath = Path(os.path.dirname(sys.modules['__main__'].__file__))
+        TEMPLATES_PATH = mainPath / 'templates'
+    else:
+        TEMPLATES_PATH = '/home/flask_signage/templates'
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
