@@ -112,7 +112,25 @@ def IsValidIPv4(ip):
         return True
 
 
-def SendEmail(to, frm, subject, body):
+def SendEmail(to, frm=None, subject=None, body=None):
+    if frm is None:
+        ref = request.referrer
+        if ref is None:
+            ref = 'www.grant-miller.com'
+        referrerDomainMatch = DOMAIN_RE.search(ref)
+        if referrerDomainMatch is not None:
+            referrerDomain = referrerDomainMatch.group(1)
+        else:
+            referrerDomain = 'grant-miller.com'
+
+        frm = 'admin@' + referrerDomain
+
+    if subject is None:
+        subject = 'Info'
+
+    if body is None:
+        body = '<empty body. sorry :-('
+
     if 'linux' in sys.platform:
         msg = MIMEText(body)
         msg["From"] = frm
@@ -487,6 +505,7 @@ def SetupRegisterAndLoginPageWithPassword(
         callbackNewUserRegistered=None,
         loginTemplate=None,
         registerTemplate=None,
+        forgotTemplate=None,
 ):
     '''
     Use this function with the @VerifyLogin decorator to simplify login auth
@@ -531,7 +550,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 
                     </form>
                 <br><br>
-                <a href="/register">New here? Create an account.</a>
+                <a href="/register">New here? Create an account.</a><br>
                 <a href="/forgot">Forgot Password</a>
                 </div> <!-- /container -->
                 {% endblock %}
@@ -569,7 +588,7 @@ def SetupRegisterAndLoginPageWithPassword(
             
                 </form>
             
-                <a href="/forgot">Forgot Password</a>
+                <a href="/">Cancel</a>
             </div> <!-- /container -->
             {% endblock %}
         ''')
@@ -681,6 +700,94 @@ def SetupRegisterAndLoginPageWithPassword(
                 rememberMe=rememberMe,
             )
 
+    if forgotTemplate is None:
+        templateName = 'autogen_forgot.html'
+        forgotTemplate = templateName
+        with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
+            file.write('''
+            {% extends "main.html" %}
+            {% block content %}
+            <div class="container">
+
+                <form class="form-signin" method="post">
+                    <h2 class="form-signin-heading">Forgot Password:</h2>
+
+                    <label for="inputEmail" class="sr-only">Email address</label>
+                    <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+
+                    <label for="inputPassword" class="sr-only">Password</label>
+                    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    
+                    <label for="inputPassword" class="sr-only">Password</label>
+                    <input name="passwordConfirm" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Send Forgot Email</button>
+
+                    {{messages}}
+
+                </form>
+
+                <a href="/">Cancel</a>
+            </div> <!-- /container -->
+            {% endblock %}
+        ''')
+
+    @app.route('/forgot', methods=['GET', 'POST'])
+    def Forgot():
+
+        if request.method == 'POST':
+
+            if request.form.get('password', None) != request.form.get('passwordConfirm', None):
+                flash('Passwords do not match.')
+                return render_template(forgotTemplate)
+
+            # send them a reset email
+            ref = request.referrer
+            if ref is None:
+                ref = 'www.grant-miller.com'
+            referrerDomainMatch = DOMAIN_RE.search(ref)
+            if referrerDomainMatch is not None:
+                referrerDomain = referrerDomainMatch.group(1)
+            else:
+                referrerDomain = 'grant-miller.com'
+
+            frm = 'admin@' + referrerDomain
+            email = request.form.get('email')
+            print('forgot email=', email)
+
+            resetToken = GetRandomID()
+            resetLink = 'http://{}/reset_password/{}'.format(referrerDomain, resetToken)
+            print('resetLink=', resetLink)
+
+            user = FindOne(UserClass, email=email)
+            if user is None:
+                pass
+            else:
+                user.resetToken = resetToken
+                user.tempPasswordHash = HashIt(request.form.get('password'))
+
+            body = '''
+            Click here to reset your password:
+            
+            <a href="{}">Reset My Password Now</a>
+            '''.format(resetLink)
+
+            SendEmail(to=email, subject='Password Reset', body=body)
+            flash('A reset link has been emailed to you.')
+            return redirect('/')
+
+        else:
+            # get the users email
+            return render_template(forgotTemplate)
+
+    @app.route('/reset_password/<resetToken>')
+    def ResetPassword(resetToken):
+        user = FindOne(UserClass, resetToken=resetToken)
+        tempHash = user.get('tempPasswordHash', None)
+        if tempHash:
+            user.passwordHash = tempHash
+            flash('Your password has been changed.')
+            return redirect('/')
 
 def ListOfDictToJS(l):
     '''
