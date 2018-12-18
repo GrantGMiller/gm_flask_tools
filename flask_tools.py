@@ -711,7 +711,9 @@ def SetupRegisterAndLoginPageWithPassword(
 
                 <form class="form-signin" method="post">
                     <h2 class="form-signin-heading">Forgot Password:</h2>
-
+                    <br>
+                    <b><i>Enter your new password twice below.</b></i>
+                    <br>
                     <label for="inputEmail" class="sr-only">Email address</label>
                     <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
 
@@ -756,6 +758,10 @@ def SetupRegisterAndLoginPageWithPassword(
             print('forgot email=', email)
 
             resetToken = GetRandomID()
+
+            if 'Signage' in app.name:
+                referrerDomain = 'signage.grant-miller.com'
+
             resetLink = 'http://{}/reset_password/{}'.format(referrerDomain, resetToken)
             print('resetLink=', resetLink)
 
@@ -769,7 +775,9 @@ def SetupRegisterAndLoginPageWithPassword(
             body = '''
             Click here to reset your password:
             
-            <a href="{}">Reset My Password Now</a>
+            Reset My Password Now
+            
+            {}
             '''.format(resetLink)
 
             SendEmail(to=email, subject='Password Reset', body=body)
@@ -787,7 +795,9 @@ def SetupRegisterAndLoginPageWithPassword(
         if tempHash:
             user.passwordHash = tempHash
             flash('Your password has been changed.')
-            return redirect('/')
+
+        return redirect('/')
+
 
 def ListOfDictToJS(l):
     '''
