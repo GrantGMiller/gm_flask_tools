@@ -587,7 +587,8 @@ def SetupRegisterAndLoginPageWithPassword(
                     {{messages}}
             
                 </form>
-            
+                <br>
+                <a href="/forgot">Forgot Password</a><br>
                 <a href="/">Cancel</a><br>
                 <a href="/login">Sign In</a>
             </div> <!-- /container -->
@@ -687,8 +688,9 @@ def SetupRegisterAndLoginPageWithPassword(
                     )
                     if callable(callbackNewUserRegistered):
                         callbackNewUserRegistered(newUser)
-
-                    return redirect('/')
+                    session['email'] = email
+                    flash('Your account has been created. Thank you.')
+                    return redirect(redirectSuccess)
 
             return render_template(
                 registerTemplate,
