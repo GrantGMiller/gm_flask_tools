@@ -550,7 +550,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 
                     </form>
                 <br><br>
-                <a href="/register">New here? Create an account.</a><br>
+                <a href="/register">New here? Create an account.</a><br><br>
                 <a href="/forgot">Forgot Password</a>
                 </div> <!-- /container -->
                 {% endblock %}
@@ -588,7 +588,8 @@ def SetupRegisterAndLoginPageWithPassword(
             
                 </form>
             
-                <a href="/">Cancel</a>
+                <a href="/">Cancel</a><br>
+                <a href="/login">Sign In</a>
             </div> <!-- /container -->
             {% endblock %}
         ''')
@@ -729,7 +730,8 @@ def SetupRegisterAndLoginPageWithPassword(
 
                 </form>
 
-                <a href="/">Cancel</a>
+                <a href="/">Cancel</a><br>
+                <a href="/login">Sign In</a>
             </div> <!-- /container -->
             {% endblock %}
         ''')
