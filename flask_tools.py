@@ -686,7 +686,7 @@ def SetupRegisterAndLoginPageWithPassword(
                         authenticated=True,
                     )
                     if callable(callbackNewUserRegistered):
-                        callbackNewUserRegistered()
+                        callbackNewUserRegistered(newUser)
 
                     return redirect('/')
 
