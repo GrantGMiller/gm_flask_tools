@@ -479,7 +479,7 @@ def VerifyLogin(func):
     :param func:
     :return:
     '''
-    print('53 VerifyLogin(', func)
+    #print('53 VerifyLogin(', func)
 
     @functools.wraps(func)
     def VerifyLoginWrapper(*args, **kwargs):
