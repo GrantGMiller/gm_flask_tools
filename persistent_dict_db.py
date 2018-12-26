@@ -2,7 +2,7 @@ import dataset
 import json
 from collections import OrderedDict
 
-DEBUG = False
+DEBUG = True
 if not DEBUG:
     print = lambda *a, **k: None
 
@@ -195,10 +195,13 @@ class Post(PersistentDictDB):
         return ret
 
     def __getattr__(self, key):
+        print('198 __getattr__(', self, key)
         # This allows the user to either access db rows by "obj.key" or "obj['key']"
         if not key.startswith('_'):
             return self.__getitem__(key)
         else:
+            print('202 self=', self)
+            print('204 super()=', super())
             super().__getattr__(key)
 
     def get(self, *a, **k):
@@ -277,7 +280,10 @@ def FindAll(objType, **k):
     :param k: an empty dict like {} will return all items from table
     :return: a list of objType objects
     '''
+    print('FindAll(', objType, k)
+
     # return iter
+
     limit = k.pop('_limit', None)  # should be int or None
     print('limit=', limit)
 
@@ -288,7 +294,6 @@ def FindAll(objType, **k):
     print('orderBy=', orderBy)
 
     k = ConvertDictValuesToJson(k)
-    print('FindAll(', objType, k)
     dbName = objType.__name__
     with dataset.connect(DB_URI) as DB:
         if len(k) is 0:

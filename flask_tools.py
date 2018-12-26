@@ -479,7 +479,8 @@ def VerifyLogin(func):
     :param func:
     :return:
     '''
-    #print('53 VerifyLogin(', func)
+
+    # print('53 VerifyLogin(', func)
 
     @functools.wraps(func)
     def VerifyLoginWrapper(*args, **kwargs):
@@ -798,6 +799,8 @@ Reset My Password Now
         tempHash = user.get('tempPasswordHash', None)
         if tempHash:
             user.passwordHash = tempHash
+            user.resetToken = None
+            user.tempPasswordHash = None
             flash('Your password has been changed.')
 
         return redirect('/')
