@@ -496,7 +496,7 @@ def VerifyLogin(func):
     return VerifyLoginWrapper
 
 
-MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url'])
+MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
 
 
 def SetupRegisterAndLoginPageWithPassword(
