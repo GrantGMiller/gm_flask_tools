@@ -169,6 +169,7 @@ sudo git init --bare
 sudo nano hooks/post-receive
 
 # Copy-paste the following into that folder
+
 #!/bin/sh
 GIT_WORK_TREE=/home/www/flask_project git checkout -f
 sudo supervisorctl restart flask_project
