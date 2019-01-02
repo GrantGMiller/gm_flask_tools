@@ -214,6 +214,7 @@ def GetApp(appName=None, *a, **k):
 
     SetDB_URI(engineURI)
     devMode = k.pop('devMode', False)
+    domainName = k.pop('domainName', 'grant-miller.com')
 
     app = Flask(
         appName,
@@ -221,8 +222,9 @@ def GetApp(appName=None, *a, **k):
         **k,
     )
     app.config.from_object(config.GetConfigClass(appName)())
-
     app.jinja_env.globals['displayableAppName'] = displayableAppName
+
+    app.domainName = domainName
 
     return app
 
@@ -412,11 +414,14 @@ def SetupLoginPage(
 
                     resp = redirect(afterLoginRedirect)
                     expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
-                    resp.set_cookie(
-                        'email', user.get('email'),
-                        expires=expireDT,
-                        domain=app.config.get('SERVER_NAME', None)
-                    )
+
+                    # dont do this
+                    # resp.set_cookie(
+                    #     'email', user.get('email'),
+                    #     expires=expireDT,
+                    #     domain=app.config.get('SERVER_NAME', None)
+                    # )
+
                     resp.set_cookie(
                         'authToken', authToken,
                         expires=expireDT,
@@ -445,8 +450,10 @@ def GetUser(email=None):
 
     if email is None:
         email = session.get('email', None)
+        print('451 email=', email)
     if email is None:  # check again
         email = request.cookies.get('email', None)
+        print('454 email=', email)
 
     print('258 session email=', email)
     try:
@@ -488,6 +495,8 @@ def VerifyLogin(func):
         user = GetUser()
         print('57 user=', user)
         if user is None:
+            cookieAuthToken = request.values.get('authToken', None)
+            print('495 cookieAuthToken=', cookieAuthToken)
             flash('You must be logged in for that.')
             return redirect('/login')
         else:
@@ -501,12 +510,14 @@ MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
 
 def SetupRegisterAndLoginPageWithPassword(
         app,
+        mainTemplate=None,
         redirectSuccess=None,
         callbackFailedLogin=None,
         callbackNewUserRegistered=None,
         loginTemplate=None,
         registerTemplate=None,
         forgotTemplate=None,
+        templatesPath=None,
 ):
     '''
     Use this function with the @VerifyLogin decorator to simplify login auth
@@ -519,7 +530,10 @@ def SetupRegisterAndLoginPageWithPassword(
         mainPath = Path(os.path.dirname(sys.modules['__main__'].__file__))
         TEMPLATES_PATH = mainPath / 'templates'
     else:
-        TEMPLATES_PATH = Path('/home/flask_signage/templates')
+        if templatesPath is None:
+            TEMPLATES_PATH = Path('/home/flask_signage/templates')
+        else:
+            TEMPLATES_PATH = Path(templatesPath)
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
@@ -527,8 +541,8 @@ def SetupRegisterAndLoginPageWithPassword(
 
         with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
             file.write('''
-                {% extends "main.html" %}
-                {% block content %}
+                {{% extends "{0}" %}}
+                {{% block content %}}
                 <div class="container">
                 
                     <form class="form-signin" method="post">
@@ -540,30 +554,25 @@ def SetupRegisterAndLoginPageWithPassword(
                         <label for="inputPassword" class="sr-only">Password</label>
                         <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
                         
-                        <div class="checkbox">
-                            <label>
-                                <input name="rememberMe" type="checkbox"> Remember me
-                            </label>
-                        </div>
                         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
                 
-                        {{messages}}
+                        {{{{messages}}}}
                 
                     </form>
                 <br><br>
                 <a href="/register">New here? Create an account.</a><br><br>
                 <a href="/forgot">Forgot Password</a>
                 </div> <!-- /container -->
-                {% endblock %}
-        ''')
+                {{% endblock %}}
+        '''.format(mainTemplate))
 
     if registerTemplate is None:
         templateName = 'autogen_register.html'
         registerTemplate = templateName
         with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
             file.write('''
-            {% extends "main.html" %}
-            {% block content %}
+            {{% extends "{0}" %}}
+            {{% block content %}}
             <div class="container">
             
                 <form class="form-signin" method="post">
@@ -578,14 +587,10 @@ def SetupRegisterAndLoginPageWithPassword(
                     <label for="inputPassword" class="sr-only">Password</label>
                     <input name="passwordConfirm" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
                     
-                    <div class="checkbox">
-                        <label>
-                            <input value="rememberMe" type="checkbox" {% if rememberMe %} checked {% endif %}> Remember me
-                        </label>
-                    </div>
+                    
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             
-                    {{messages}}
+                    {{{{messages}}}}
             
                 </form>
                 <br>
@@ -593,8 +598,8 @@ def SetupRegisterAndLoginPageWithPassword(
                 <a href="/">Cancel</a><br>
                 <a href="/login">Sign In</a>
             </div> <!-- /container -->
-            {% endblock %}
-        ''')
+            {{% endblock %}}
+        '''.format(mainTemplate))
 
     LOGIN_FAILED_FLASH_MESSAGE = 'Username and/or Password is incorrect. Please try again.'
 
@@ -633,7 +638,7 @@ def SetupRegisterAndLoginPageWithPassword(
                         rememberMe=rememberMe,
                     )
                 else:
-                    if userObj.passwordHash == passwordHash:
+                    if userObj.get('passwordHash', None) == passwordHash:
                         userObj.authenticated = True
                         session['email'] = email
                         if redirectSuccess:
@@ -709,8 +714,8 @@ def SetupRegisterAndLoginPageWithPassword(
         forgotTemplate = templateName
         with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
             file.write('''
-            {% extends "main.html" %}
-            {% block content %}
+            {{% extends "{0}" %}}
+            {{% block content %}}
             <div class="container">
 
                 <form class="form-signin" method="post">
@@ -729,15 +734,15 @@ def SetupRegisterAndLoginPageWithPassword(
                     
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Send Forgot Email</button>
 
-                    {{messages}}
+                    {{{{messages}}}}
 
                 </form>
 
                 <a href="/">Cancel</a><br>
                 <a href="/login">Sign In</a>
             </div> <!-- /container -->
-            {% endblock %}
-        ''')
+            {{% endblock %}}
+        '''.format(mainTemplate))
 
     @app.route('/forgot', methods=['GET', 'POST'])
     def Forgot():
