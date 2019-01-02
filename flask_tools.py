@@ -754,14 +754,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 return render_template(forgotTemplate)
 
             # send them a reset email
-            ref = request.referrer
-            if ref is None:
-                ref = 'www.grant-miller.com'
-            referrerDomainMatch = DOMAIN_RE.search(ref)
-            if referrerDomainMatch is not None:
-                referrerDomain = referrerDomainMatch.group(1)
-            else:
-                referrerDomain = 'grant-miller.com'
+            referrerDomain = app.domainName
 
             frm = 'admin@' + referrerDomain
             email = request.form.get('email')
