@@ -50,6 +50,39 @@ def MACFormat(macString):
     return '-'.join([macString[i: i + 2] for i in range(0, len(macString), 2)])
 
 
+def FormatPhoneNumber(phone):
+    print('54 FormatPhoneNumber(', phone)
+    phone = phone
+    phone = str(phone)
+
+    ret = ''
+
+    # remove non-digits
+    for ch in phone:
+        if ch.isdigit() or ch == '+':
+            ret += ch
+
+    if not ret.startswith('+1'):
+        ret = '+1' + ret
+
+    print('66 ret=', ret)
+    return ret
+
+
+RE_PHONE_NUMBER = re.compile('\+\d{1}')
+
+
+def IsValidPhone(phone):
+    print('76 IsValidPhone(', phone)
+    print('len(phone)=', len(phone))
+    match = RE_PHONE_NUMBER.search(phone)
+    print('match=', match)
+
+    ret =  match is not None and len(phone) is 12
+    print('78 ret=', ret)
+    return ret
+
+
 def GetRandomID():
     return HashIt(None)
 
@@ -434,6 +467,10 @@ def SetupLoginPage(
         else:
             flash('Error 348. Login Failed')
             return render_template('login_failed.html')
+
+
+def SetUser(userObj):
+    session['email'] = userObj.email
 
 
 def GetUser(email=None):
