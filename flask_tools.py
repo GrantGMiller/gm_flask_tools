@@ -425,7 +425,7 @@ def SetupLoginPage(
                     resp.set_cookie(
                         'authToken', authToken,
                         expires=expireDT,
-                        domain=app.config.get('SERVER_NAME', None)
+                        domain=app.domainName,
                     )
                     return resp
 
