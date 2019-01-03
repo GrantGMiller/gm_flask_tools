@@ -1,0 +1,30 @@
+{% extends "main.html" %}
+{% block content %}
+
+<hr>
+<form class="form-vertical" action="/add_content" method="post" enctype = "multipart/form-data">
+
+
+	{{ form.hidden_tag() }}
+
+	<table class="grantFormTable">
+		<tr>
+			<td class="grantFormHeader" colspan="2">
+				<h1>Add Content</h1>
+			</td>
+		</tr>
+		<tr>
+			<td class="grantFormLabelCell">{{form.name.label(class_="grantFormLabel")}}:</td>
+			<td>{{form.name(class_="form-control")}}</td>
+		</tr>
+		<tr>
+			<td class="grantFormLabelCell">{{form.file.label(class_="grantFormLabel")}}:</td>
+			<td>{{form.file}}</td>
+		</tr>
+
+	</table>
+	{{form.submit(class_="btn btn-primary grantFormSubmit")}}
+
+</form>
+<hr>
+{% endblock %}

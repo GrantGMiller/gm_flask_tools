@@ -2,83 +2,91 @@
 <html lang="en">
 
 <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="/static/css/grant.css">
 <link rel="stylesheet" href="/static/css/bootstrap.css">
 
 <!-- jQuery library -->
-<script src="/static/jquery.min.js"></script>
+<script src="/static/js/jquery-2.1.4.min.js"></script>
 
 <!-- Latest compiled JavaScript -->
-<script src="/static/bootstrap.min.js"></script>
+<script src="/static/js/bootstrap.js"></script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Digital Signage Manager Web</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ displayableAppName }}</title>
 
-</head>
-<body>
+    </head>
+    <body>
     {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-danger alert-dismissible">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                  <strong>{{ message }}</strong>
-                </div>
-            {% endfor %}
-      {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
     {% endwith %}
 
     <div class="container">
 
         <div class="page-header">
-            {{ welcomeMessage }}
-            <br><br>
+            {% if welcomeMessage %}
+                {{ welcomeMessage }}
+                <br><br>
+            {% endif %}
             <nav class="navbar navbar-default">
-              <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                  </button>
-                  <a class="navbar-brand" href="#">Digital Signage Manager Web</a>
-                </div>
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                  <ul class="nav navbar-nav">
+                        {% if menuOptions %}
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        {% endif %}
+                        <a class="navbar-brand" href="#">{{ displayableAppName }}</a>
+                    </div>
 
-                    {% for menuOption in menuOptions %}
-                        <li class="active">
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
 
-                          <a href="{{menuOption.url}}">
-                              {{menuOption.title}}
-                              <span class="sr-only">
-                                  (current) <!--highlight the current page-->
-                              </span>
-                          </a>
-                      </li>
-                    {% endfor %}
+                            {% for menuOption in menuOptions %}
+                            <li {% if menuOption.active %}class="active"{% endif %}>
 
-                  </ul>
-                </div><!-- /.navbar-collapse -->
-              </div><!-- /.container-fluid -->
+                                <a href="{{menuOption.url}}">
+                                    {{menuOption.title}}
+                                    <span class="sr-only">
+                                      (current) <!--highlight the current page-->
+                                  </span>
+                                </a>
+                            </li>
+                            {% endfor %}
+
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
             </nav>
-            {{ projectName }}
-            <br>
+            {% if projectName %}
+                {{ projectName }}
+                <br>
+            {% endif %}
 
         </div>
 
-        {% block body %}{% endblock %}
+        {% block content %}{% endblock %}
 
         <br>
         <hr>
         <div class="panel-footer">
-            Footer Text
+            Web Design by <a href="http://www.grant-miller.com">Grant(at)grant-miller.com</a>
         </div>
 
     </div>
-</body>
+    </body>
 </html>
