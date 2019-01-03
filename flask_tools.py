@@ -643,7 +643,7 @@ def SetupRegisterAndLoginPageWithPassword(
 
                         expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
                         if userObj.get('authToken', None) is None:
-                            userObj.authToken = GetRandomID()[:10]
+                            userObj.authToken = GetRandomID()
 
                         resp.set_cookie(
                             'authToken', userObj.authToken,
