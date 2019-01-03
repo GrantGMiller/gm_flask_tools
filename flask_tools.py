@@ -415,13 +415,6 @@ def SetupLoginPage(
                     resp = redirect(afterLoginRedirect)
                     expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
 
-                    # dont do this
-                    # resp.set_cookie(
-                    #     'email', user.get('email'),
-                    #     expires=expireDT,
-                    #     domain=app.config.get('SERVER_NAME', None)
-                    # )
-
                     resp.set_cookie(
                         'authToken', authToken,
                         expires=expireDT,
@@ -448,16 +441,15 @@ def GetUser(email=None):
     # if user provides an email then return that user obj
     print('GetUser(', email)
 
-    if email is None:
-        email = session.get('email', None)
-        print('451 email=', email)
-    if email is None:  # check again
-        email = request.cookies.get('email', None)
-        print('454 email=', email)
+    email = session.get('email', None)
+    authToken = request.cookies.get('authToken')
 
     print('258 session email=', email)
     try:
-        userObj = FindOne(UserClass, email=email)
+        if email is None:
+            userObj = FindOne(UserClass, authToken=authToken)
+        else:
+            userObj = FindOne(UserClass, email=email)
         print('274 userObj=', userObj)
 
         if userObj is not None:
@@ -641,11 +633,22 @@ def SetupRegisterAndLoginPageWithPassword(
                     if userObj.get('passwordHash', None) == passwordHash:
                         userObj.authenticated = True
                         session['email'] = email
+
                         if redirectSuccess:
-                            return redirect(redirectSuccess)
+                            resp = redirect(redirectSuccess)
 
                         else:
-                            return redirect('/')
+                            resp = redirect('/')
+
+                        expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
+                        userObj.authToken = GetRandomID()
+
+                        resp.set_cookie(
+                            'authToken', userObj.authToken,
+                            expires=expireDT,
+                            domain=app.domainName,
+                        )
+                        return resp
 
                     else:
                         # password mismatch
