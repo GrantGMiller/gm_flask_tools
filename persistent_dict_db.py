@@ -2,7 +2,7 @@ import dataset
 import json
 from collections import OrderedDict
 
-DEBUG = True
+DEBUG = False
 if not DEBUG:
     print = lambda *a, **k: None
 
