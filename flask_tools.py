@@ -836,12 +836,15 @@ Reset My Password Now
     @app.route('/reset_password/<resetToken>')
     def ResetPassword(resetToken):
         user = FindOne(UserClass, resetToken=resetToken)
-        tempHash = user.get('tempPasswordHash', None)
-        if tempHash:
-            user.passwordHash = tempHash
-            user.resetToken = None
-            user.tempPasswordHash = None
-            flash('Your password has been changed.')
+        if user:
+            tempHash = user.get('tempPasswordHash', None)
+            if tempHash:
+                user.passwordHash = tempHash
+                user.resetToken = None
+                user.tempPasswordHash = None
+                flash('Your password has been changed.')
+        else:
+            flash('(Info 847) Your password has been changed', 'success')
 
         return redirect('/')
 
