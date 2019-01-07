@@ -3,7 +3,10 @@ import json
 from collections import OrderedDict
 
 DEBUG = False
-if not DEBUG:
+
+oldPrint = print
+
+if DEBUG is False:
     print = lambda *a, **k: None
 
 global DB_URI
@@ -222,7 +225,13 @@ class Post(PersistentDictDB):
 
         :return: string like '<PersistentDictDB: email=me@website.com, name=John>'
         '''
-        itemsList = [('{}={}'.format(k, v)) for k, v, in self.items()]
+        itemsList = []
+        for k, v, in self.items():
+            try:
+                itemsList.append(('{}={}'.format(k, v.encode())))
+            except:
+                itemsList.append(('{}={}'.format(k, v)))
+
         return '<{}: {}>'.format(
             type(self).__name__,
             ', '.join(itemsList)

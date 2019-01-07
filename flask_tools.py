@@ -78,7 +78,7 @@ def IsValidPhone(phone):
     match = RE_PHONE_NUMBER.search(phone)
     print('match=', match)
 
-    ret =  match is not None and len(phone) is 12
+    ret = match is not None and len(phone) is 12
     print('78 ret=', ret)
     return ret
 
@@ -894,3 +894,11 @@ def ListOfDictToJS(l):
 
     string += ']'
     return string
+
+
+def DecodeLiteral(string):
+    return string.decode(encoding='iso-8859-1')
+
+
+def EncodeLiteral(string):
+    return string.encode(encoding='iso-8859-1')
