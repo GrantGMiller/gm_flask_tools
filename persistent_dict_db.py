@@ -119,7 +119,11 @@ class Post(PersistentDictDB):
         :param uniqueKeys: list of keys that cannot be duplicated in the table
         '''
 
-        print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
+        try:
+            print('44 {}.__init__(args='.format(type(self).__name__), args, ' kwargs=', kwargs)
+        except Exception as e:
+            # if string contains an emoji get a Unicode Error
+            print('44', e)
 
         doInsert = kwargs.pop('doInsert', True)
         print('116 doInsert=', doInsert)
