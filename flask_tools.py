@@ -348,7 +348,7 @@ def SetupLoginPage(
                 else:
                     print('no user exist, create a new one')
                     newUser = UserClass(
-                        email=email,
+                        email=email.lower(),
                         authToken=authToken,
                         lastAuthTokenTime=datetime.datetime.now(),
                     )
@@ -730,7 +730,7 @@ def SetupRegisterAndLoginPageWithPassword(
             else:
                 if passwordConfirm == password:
                     newUser = UserClass(
-                        email=email,
+                        email=email.lower(),
                         passwordHash=HashIt(password),
                         authenticated=True,
                     )
