@@ -540,14 +540,14 @@ MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
 
 def SetupRegisterAndLoginPageWithPassword(
         app,
-        mainTemplate=None,
+        mainTemplate,
+        templatesPath,
         redirectSuccess=None,
         callbackFailedLogin=None,
         callbackNewUserRegistered=None,
         loginTemplate=None,
         registerTemplate=None,
         forgotTemplate=None,
-        templatesPath=None,
 ):
     '''
     Use this function with the @VerifyLogin decorator to simplify login auth
