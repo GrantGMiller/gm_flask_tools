@@ -11,9 +11,9 @@ from wtforms import (
 from wtforms.validators import DataRequired
 
 
-class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired()])
-    authToken = HiddenField('authToken', validators=[DataRequired()])
-    submit = SubmitField('Send Login Email Now')
+class ExampleForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    file = FileField('File', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 
