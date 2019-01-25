@@ -540,7 +540,7 @@ MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
 
 def SetupRegisterAndLoginPageWithPassword(
         app,
-        mainTemplate,
+        mainTemplate,# should be like
         templatesPath,
         redirectSuccess=None,
         callbackFailedLogin=None,
