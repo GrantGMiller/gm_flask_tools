@@ -266,6 +266,7 @@ def UpsertDB(obj, listOfKeysThatMustMatch):
     :param listOfKeysThatMustMatch:
     :return:
     '''
+    listOfKeysThatMustMatch += ['id']
     print('227 UpsertDB(', obj, listOfKeysThatMustMatch)
 
     tableName = type(obj).__name__
@@ -385,8 +386,9 @@ def FindAll(objType, **k):
                 ret = DB[dbName].find(order_by=['{}'.format(orderBy)], **k)
             else:
                 ret = DB[dbName].find(**k)
-            print('271 FindAll res=', ret)
 
+        ret = list(ret)
+        print('391 ret=', ret)
         return ret
 
 
