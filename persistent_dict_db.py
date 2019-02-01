@@ -6,7 +6,7 @@ DEBUG = False
 
 oldPrint = print
 
-if DEBUG is False:
+if DEBUG is True:
     print = lambda *a, **k: None
 
 global DB_URI
@@ -142,9 +142,16 @@ class Post(PersistentDictDB):
                     searchDict[key] = kwargs[key]
 
             if len(searchDict) > 0:
-                # check for duplicates
+                # check for duplicate rows in the db
                 searchResults = FindAll(type(self), **searchDict)
-                if len(searchResults) > 0:
+
+                duplicateExists = False
+                for item in searchResults:
+                    duplicateExists = True
+                    # if len(searchResults) is 0, this wont happen
+                    break
+
+                if duplicateExists:
                     raise Exception(
                         'Duplicate object. searchDict={}, kwargs={}, uniqueKeys={}, searchResults={}'.format(
                             searchDict,
@@ -286,7 +293,7 @@ def FindOne(objType, **k):
             return ret
 
 
-def FindAll(objType, **k):
+def FindAllOld(objType, **k):
     '''
 
     :param objType:
@@ -334,6 +341,51 @@ def FindAll(objType, **k):
             ret = [objType(item, doInsert=False) for index, item in enumerate(ret) if index < limit]
 
         print('275 ret=', ret)
+
+        return ret
+
+
+def FindAll(objType, **k):
+    '''
+
+    :param objType:
+    :param k: an empty dict like {} will return all items from table
+    :return: a list of objType objects
+    '''
+    print('FindAll(', objType, k)
+
+    # return iter
+    # https://github.com/pudo/dataset/blob/163e6554cc0b4a6e17413a2a190a18db9b5dd13c/dataset/table.py
+    reverse = k.pop('_reverse', False)  # bool
+    print('reverse=', reverse)
+
+    orderBy = k.pop('_orderBy', None)  # str
+    print('366 orderBy=', orderBy)
+
+    if reverse is True:
+        if orderBy is not None:
+            orderBy = '-' + orderBy
+        else:
+            orderBy = '-id'
+
+    k = ConvertDictValuesToJson(k)
+    dbName = objType.__name__
+    with dataset.connect(DB_URI) as DB:
+        if len(k) is 0:
+            if orderBy is not None:
+                ret = DB[dbName].all(order_by=['{}'.format(orderBy)])
+            else:
+                ret = DB[dbName].all()
+            print('267 FindAll .all() res=', ret)
+
+        else:
+
+            if orderBy is not None:
+                print('378 orderBy=', orderBy)
+                ret = DB[dbName].find(order_by=['{}'.format(orderBy)], **k)
+            else:
+                ret = DB[dbName].find(**k)
+            print('271 FindAll res=', ret)
 
         return ret
 
