@@ -6,7 +6,7 @@ DEBUG = False
 
 oldPrint = print
 
-if DEBUG is True:
+if DEBUG is False:
     print = lambda *a, **k: None
 
 global DB_URI
