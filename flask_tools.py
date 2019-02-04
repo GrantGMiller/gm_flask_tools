@@ -659,7 +659,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 print('572 userObj=', userObj)
                 if userObj is None:
                     # username not found
-                    flash(LOGIN_FAILED_FLASH_MESSAGE, 'error')
+                    flash('Error 662:' + LOGIN_FAILED_FLASH_MESSAGE, 'error')
                     if callable(callbackFailedLogin):
                         callbackFailedLogin()
 
@@ -691,7 +691,10 @@ def SetupRegisterAndLoginPageWithPassword(
 
                     else:
                         # password mismatch
-                        flash(LOGIN_FAILED_FLASH_MESSAGE, 'error')
+                        # print('userObj.get("passwordHash")=', userObj.get('passwordHash', None))
+                        # print('passwordHash=', passwordHash)
+
+                        flash('Error 694:' + LOGIN_FAILED_FLASH_MESSAGE, 'error')
                         if callable(callbackFailedLogin):
                             callbackFailedLogin()
 
