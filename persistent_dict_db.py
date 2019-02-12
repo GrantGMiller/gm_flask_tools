@@ -165,7 +165,7 @@ class Post(PersistentDictDB):
             InsertDB(self)
 
             obj = FindOne(type(self), **self)
-            self.id = obj.id
+            self['id'] = obj['id']
             obj.AfterInsert()  # Call this so the programmer can specify actions after init
 
         else:
@@ -191,9 +191,10 @@ class Post(PersistentDictDB):
         super().__setitem__(key, value)
         self._Save()
 
-    def __setattr__(self, key, value):
-        # This allows the user to either access db rows by "obj.key" or "obj['key']"
-        self.__setitem__(key, value)
+    # depricated
+    # def __setattr__(self, key, value):
+    #     # This allows the user to either access db rows by "obj.key" or "obj['key']"
+    #     self.__setitem__(key, value)
 
     def __getitem__(self, key):
         print('__getitem__ self={}, key={}'.format(self, key))
@@ -208,15 +209,16 @@ class Post(PersistentDictDB):
         _, ret = self.CustomGetKey(key, ret)
         return ret
 
-    def __getattr__(self, key):
-        print('198 __getattr__(', self, key)
-        # This allows the user to either access db rows by "obj.key" or "obj['key']"
-        if not key.startswith('_'):
-            return self.__getitem__(key)
-        else:
-            print('202 self=', self)
-            print('204 super()=', super())
-            super().__getattr__(key)
+    # Deprecated
+    # def __getattr__(self, key):
+    #     print('198 __getattr__(', self, key)
+    #     # This allows the user to either access db rows by "obj.key" or "obj['key']"
+    #     if not key.startswith('_'):
+    #         return self.__getitem__(key)
+    #     else:
+    #         print('202 self=', self)
+    #         print('204 super()=', super())
+    #         super().__getattr__(key)
 
     def get(self, *a, **k):
         superValue = super().get(*a, **k)
@@ -243,6 +245,9 @@ class Post(PersistentDictDB):
             type(self).__name__,
             ', '.join(itemsList)
         )
+
+    def __repr__(self):
+        return str(self)
 
 
 def InsertDB(obj):
@@ -387,7 +392,7 @@ def FindAll(objType, **k):
             else:
                 ret = DB[dbName].find(**k)
 
-        ret = list(ret)
+        ret = [objType(item, doInsert=False) for item in list(ret)]
         print('391 ret=', ret)
         return ret
 
