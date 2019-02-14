@@ -507,7 +507,7 @@ def LogoutUser():
     if user is not None:
         user['authenticated'] = False
         session['email'] = None
-        user.authToken = None
+        user['authToken'] = None
 
 
 def VerifyLogin(func):
@@ -680,10 +680,10 @@ def SetupRegisterAndLoginPageWithPassword(
 
                         expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
                         if userObj.get('authToken', None) is None:
-                            userObj.authToken = GetRandomID()
+                            userObj['authToken'] = GetRandomID()
 
                         resp.set_cookie(
-                            'authToken', userObj.authToken,
+                            'authToken', userObj['authToken'],
                             expires=expireDT,
                             domain=app.domainName,
                         )
