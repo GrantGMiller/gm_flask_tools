@@ -669,7 +669,7 @@ def SetupRegisterAndLoginPageWithPassword(
                     )
                 else:
                     if userObj.get('passwordHash', None) == passwordHash:
-                        userObj.authenticated = True
+                        userObj['authenticated'] = True
                         session['email'] = email
 
                         if redirectSuccess:
@@ -817,8 +817,8 @@ def SetupRegisterAndLoginPageWithPassword(
             if user is None:
                 pass
             else:
-                user.resetToken = resetToken
-                user.tempPasswordHash = HashIt(request.form.get('password'))
+                user['resetToken'] = resetToken
+                user['tempPasswordHash'] = HashIt(request.form.get('password'))
 
             body = '''
 Click here to reset your password:
@@ -842,9 +842,9 @@ Reset My Password Now
         if user:
             tempHash = user.get('tempPasswordHash', None)
             if tempHash:
-                user.passwordHash = tempHash
-                user.resetToken = None
-                user.tempPasswordHash = None
+                user['passwordHash'] = tempHash
+                user['resetToken'] = None
+                user['tempPasswordHash'] = None
                 flash('Your password has been changed.')
         else:
             flash('(Info 847) Your password has been changed', 'success')
