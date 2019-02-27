@@ -195,6 +195,20 @@ def MoveListItem(l, item, units):
 
 
 def ModIndexLoop(num, min_, max_):
+    '''
+    Takes an index "num" and a min/max and loops is around
+    for example
+    ModIndexLoop(1, 1, 4) = 1
+    ModIndexLoop(2, 1, 4) = 2
+    ModIndexLoop(3, 1, 4) = 3
+    ModIndexLoop(4, 1, 4) = 4
+    ModIndexLoop(5, 1, 4) = 1
+    ModIndexLoop(6, 1, 4) = 2
+    :param num: int
+    :param min_: int
+    :param max_: int
+    :return:
+    '''
     # print('\nMod(num={}, min_={}, max_={})'.format(num, min_, max))
 
     maxMinDiff = max_ - min_ + 1  # +1 to include min_
@@ -618,7 +632,7 @@ def SetupRegisterAndLoginPageWithPassword(
                     <input name="passwordConfirm" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
                     
                     
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Register Now</button>
             
                     {{{{messages}}}}
             
