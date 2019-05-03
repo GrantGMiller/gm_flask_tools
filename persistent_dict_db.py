@@ -2,6 +2,7 @@ import dataset
 import json
 from collections import OrderedDict
 
+# Setting this True will cause a bunch of print statements
 DEBUG = False
 
 oldPrint = print
@@ -9,6 +10,7 @@ oldPrint = print
 if DEBUG is False:
     print = lambda *a, **k: None
 
+# The DB URI used to store/read all data. By default uses sqlite
 global DB_URI
 DB_URI = None
 
