@@ -15,14 +15,13 @@ from flask import (
     Markup,
     url_for,
 )
-from persistent_dict_db import (
+from dictabase import (
 
     FindOne,
     FindAll,
     Delete,
     Drop,
-
-    PersistentDictDB,
+    BaseDictabaseTable,
     SetDB_URI,
 )
 import uuid
@@ -226,7 +225,7 @@ def ModIndexLoop(num, min_, max_):
     return min_ + mod
 
 
-class UserClass(PersistentDictDB):
+class UserClass(BaseDictabaseTable):
     uniqueKeys = ['email']
     '''
     OTHER KEYS
@@ -629,7 +628,7 @@ def SetupRegisterAndLoginPageWithPassword(
                     <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
                     
                     <label for="inputPassword" class="sr-only">Password</label>
-                    <input name="passwordConfirm" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    <input name="passwordConfirm" type="password" id="inputPasswordConfirm" class="form-control" placeholder="Password" required>
                     
                     
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Register Now</button>
