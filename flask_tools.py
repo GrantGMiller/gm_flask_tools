@@ -1,10 +1,15 @@
 import hashlib
+import json
+import random
 import re
+import string
 from subprocess import Popen, PIPE
 from email.mime.text import MIMEText
 import sys
 import time
 import datetime
+
+import requests
 from flask import (
     Flask,
     render_template,
@@ -82,8 +87,12 @@ def IsValidPhone(phone):
     return ret
 
 
-def GetRandomID():
-    return HashIt(None)
+def GetRandomID(length=None):
+    hash = HashIt(None)
+    if length:
+        return hash[:length]
+    else:
+        return hash
 
 
 uniqueID = uuid.getnode()
@@ -98,7 +107,7 @@ def HashIt(string=None, salt=uniqueID):
     '''
     if string is None:
         # if None a random hash will be returned
-        string = str(time.time())
+        string = str(random.random())
 
     if not isinstance(string, str):
         string = str(string)
@@ -108,6 +117,15 @@ def HashIt(string=None, salt=uniqueID):
     hash1 += salt
     hash2 = hashlib.sha512(bytes(hash1, 'utf-8')).hexdigest()
     return hash2
+
+
+def GetRandomWord():
+    letters = string.ascii_uppercase
+    ch = random.choice(letters)
+    resp = requests.get('https://grant-miller.com/static/words/{}.json'.format(ch))
+    print(resp)
+    data = resp.json()
+    return random.choice(data).capitalize()
 
 
 def IsValidEmail(email):
@@ -553,8 +571,8 @@ MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
 
 def SetupRegisterAndLoginPageWithPassword(
         app,
-        mainTemplate,# should be like mainTemplate='main.html',
-        templatesPath, # should be like templatesPath='/home/grant/signage/templates',
+        mainTemplate,  # should be like mainTemplate='main.html',
+        templatesPath,  # should be like templatesPath='/home/grant/signage/templates',
         redirectSuccess=None,
         callbackFailedLogin=None,
         callbackNewUserRegistered=None,
