@@ -163,6 +163,18 @@ def IsValidIPv4(ip):
 
 
 def SendEmail(to, frm=None, subject=None, body=None):
+    '''
+    linux example
+    sendmail -t grant@grant-miller.com
+    hello test 357
+    CTRL+D
+
+    :param to:
+    :param frm:
+    :param subject:
+    :param body:
+    :return:
+    '''
     if frm is None:
         ref = request.referrer
         if ref is None:
