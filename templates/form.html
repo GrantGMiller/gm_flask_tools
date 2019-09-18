@@ -20,7 +20,7 @@
 					{% if "File" in item.label() %}
 						<td class="form-control">{{item}}</td>
 					{% else %}
-						<td class="form-control">{{item.name}}</td>
+						<td>{{item(class_="form-control")}}</td>
 					{% endif %}
 				</tr>
 			{% endif %}
