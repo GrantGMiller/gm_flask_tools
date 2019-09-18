@@ -17,7 +17,7 @@ sudo apt-get install -y nginx # web server (like apache)
 sudo apt-get install -y gunicorn # WSGI to do translation between nginx and flask
 sudo apt-get install nano # text editor to make changes from terminal
 
-# Remove default apache
+# Remove default apache2
 sudo apt-get remove apache2
 
 # Make alias so calls to "python" call python3 not python 2
