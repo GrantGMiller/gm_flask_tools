@@ -948,3 +948,4 @@ def DecodeLiteral(string):
 
 def EncodeLiteral(string):
     return string.encode(encoding='iso-8859-1')
+
