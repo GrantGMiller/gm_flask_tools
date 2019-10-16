@@ -3,6 +3,7 @@ import json
 import random
 import re
 import string
+import threading
 from subprocess import Popen, PIPE
 from email.mime.text import MIMEText
 import sys
@@ -949,3 +950,78 @@ def DecodeLiteral(string):
 def EncodeLiteral(string):
     return string.encode(encoding='iso-8859-1')
 
+
+class OneTimeWait(threading.Thread):
+    def __init__(self, Time=0, Function=None):
+        super().__init__()
+        if Time is None:
+            Time = 0
+        self.Time = Time
+        self.Function = Function
+        self.StartTime = None
+        self.Running = False
+        self._lock = threading.Lock()
+
+        # Start this thread
+        self.start()
+
+    def Cancel(self):
+        self.Running = False
+
+    def run(self):
+        self.StartTime = time.time()
+        self.Running = True
+        while self.Running is True:
+            # time.sleep(0.01) # Per extronlib API, 10ms precision
+            try:
+                if time.time() - self.StartTime > self.Time:
+                    # print('Wait executing Function')
+                    self._lock.acquire()
+                    self.Function()
+                    self._lock.release()
+                    break
+            except Exception as e:
+                print('Exception:', e)
+                print('self.Time=', self.Time)
+                print('self.StartTime=', self.StartTime)
+                print('time.time()=', time.time())
+                self._lock.release()
+                raise e
+
+        # print('Wait out of while (self.Running == True):')
+        self.Running = False
+
+
+class Worker:
+    def __init__(self, Time=0, Function=None):
+        self.Time = Time
+        self.Function = Function
+        if self.Function:
+            self.SubWait = OneTimeWait(self.Time, self.Function)
+
+    def __call__(self, func):
+        self.Function = func
+        if self.Function:
+            self.SubWait = OneTimeWait(self.Time, self.Function)
+
+    def Cancel(self):
+        """Stop wait Function from executing when the timer expires."""
+        self.SubWait.Cancel()
+
+    def Restart(self):
+        """Restarts the timer – executes the Function in Time seconds.
+        If the a timer is active, cancels that timer before starting the new timer.
+        """
+        self.SubWait.Cancel()
+        self.SubWait = OneTimeWait(self.Time, self.Function)
+
+    def Add(self, Time):
+        """Add time to current timer"""
+        self.Time += Time
+
+    def Change(self, Time):
+        """Set a new Time value for current and future timers in this instance."""
+        self.Time = Time
+
+    def __del__(self, *a, **k):
+        pass
