@@ -176,6 +176,8 @@ def SendEmail(to, frm=None, subject=None, body=None):
     :param body:
     :return:
     '''
+    if 'win' in sys.platform:
+        print('SendEmail(', to, frm, subject, body)
     if frm is None:
         ref = request.referrer
         if ref is None:
