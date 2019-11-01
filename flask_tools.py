@@ -1000,4 +1000,5 @@ jobFailedCallback = None
 
 
 def JobFailedCallback(func):
-    global jobFailedCallback = func
+    global jobFailedCallback
+    jobFailedCallback = func
