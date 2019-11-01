@@ -960,7 +960,6 @@ def _ProcessOneQueueItem():
     callback, args, kwargs = q.get()
     try:
         callback(*args, **kwargs)
-        q.task_done()
     except Exception as e:
         if jobFailedCallback:
             jobFailedCallback('''
@@ -969,6 +968,8 @@ a={}
 k={}
 e={}
             '''.format(callback, args, kwargs, e))
+
+    q.task_done()
 
     if q.qsize() is 0:
         workerTimer = None
