@@ -954,12 +954,21 @@ workerTimer = None
 
 
 def _ProcessOneQueueItem():
-    #print('_ProcessOneQueueItem()')
+    # print('_ProcessOneQueueItem()')
     global workerTimer
 
     callback, args, kwargs = q.get()
-    callback(*args, **kwargs)
-    q.task_done()
+    try:
+        callback(*args, **kwargs)
+        q.task_done()
+    except Exception as e:
+        if jobFailedCallback:
+            jobFailedCallback('''
+callback={}
+a={}
+k={}
+e={}
+            '''.format(callback, args, kwargs, e))
 
     if q.qsize() is 0:
         workerTimer = None
@@ -967,20 +976,27 @@ def _ProcessOneQueueItem():
         workerTimer = threading.Timer(0, _ProcessOneQueueItem)
         workerTimer.start()
 
-    #print('workerTime=', workerTimer)
+    # print('workerTime=', workerTimer)
 
 
 def GetNumOfJobs():
     size = q.qsize()
-    #print('GetNumOfJobs return {}'.format(size))
+    # print('GetNumOfJobs return {}'.format(size))
     return size
 
 
 def AddJob(callback, *args, **kwargs):
-    #print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
+    # print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
     global workerTimer
     q.put((callback, args, kwargs))
 
     if workerTimer is None:
         workerTimer = threading.Timer(0, _ProcessOneQueueItem)
         workerTimer.start()
+
+
+jobFailedCallback = None
+
+
+def JobFailedCallback(func):
+    global jobFailedCallback = func
