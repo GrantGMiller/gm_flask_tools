@@ -120,12 +120,7 @@ def HashIt(string=None, salt=uniqueID):
 
 
 def GetRandomWord():
-    letters = string.ascii_uppercase
-    ch = random.choice(letters)
-    resp = requests.get('https://grant-miller.com/static/words/{}.json'.format(ch))
-    print(resp)
-    data = resp.json()
-    return random.choice(data).capitalize()
+    return requests.get('https://grant-miller.com/get_random_word').text
 
 
 def IsValidEmail(email):
@@ -951,6 +946,7 @@ def DecodeLiteral(string):
 def EncodeLiteral(string):
     return string.encode(encoding='iso-8859-1')
 
+
 # jobs queue
 q = Queue()
 
@@ -958,7 +954,7 @@ workerTimer = None
 
 
 def _ProcessOneQueueItem():
-    print('_ProcessOneQueueItem()')
+    #print('_ProcessOneQueueItem()')
     global workerTimer
 
     callback, args, kwargs = q.get()
@@ -971,17 +967,17 @@ def _ProcessOneQueueItem():
         workerTimer = threading.Timer(0, _ProcessOneQueueItem)
         workerTimer.start()
 
-    print('workerTime=', workerTimer)
+    #print('workerTime=', workerTimer)
 
 
 def GetNumOfJobs():
     size = q.qsize()
-    print('GetNumOfJobs return {}'.format(size))
+    #print('GetNumOfJobs return {}'.format(size))
     return size
 
 
 def AddJob(callback, *args, **kwargs):
-    print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
+    #print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
     global workerTimer
     q.put((callback, args, kwargs))
 
