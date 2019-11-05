@@ -1,3 +1,6 @@
+from flask import request
+
+
 @app.route('/add_content', methods=['GET', 'POST'])
 @VerifyLogin
 def AddContent():
@@ -58,3 +61,7 @@ def AddContent():
             form=form,
             menuOptions=GetMenuOptions(active='Content')
         )
+
+@app.route('/get_args')
+def GetArgs():
+    code = request.args.get('code', None)
