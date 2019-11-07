@@ -961,6 +961,7 @@ def _ProcessOneQueueItem():
     try:
         callback(*args, **kwargs)
     except Exception as e:
+        print('_ProcessOneQueueItem Exception:', e)
         if jobFailedCallback:
             jobFailedCallback('''
 callback={}
@@ -968,6 +969,7 @@ a={}
 k={}
 e={}
             '''.format(callback, args, kwargs, e))
+        raise e
 
     q.task_done()
 
