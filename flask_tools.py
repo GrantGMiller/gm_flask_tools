@@ -34,6 +34,7 @@ import functools
 from collections import namedtuple
 import os
 from pathlib import Path
+import traceback
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
@@ -971,7 +972,14 @@ callback={}
 a={}
 k={}
 e={}
-            '''.format(callback, args, kwargs, e))
+traceback={}
+            '''.format(
+                callback,
+                args,
+                kwargs,
+                e,
+                traceback.format_exc())
+            )
         raise e
 
     q.task_done()
