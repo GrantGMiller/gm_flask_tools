@@ -36,8 +36,11 @@ import os
 from pathlib import Path
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
-
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
+
+DEBUG = False
+if DEBUG is False:
+    print = lambda *a, **k: None
 
 
 def StripNonHex(string):
