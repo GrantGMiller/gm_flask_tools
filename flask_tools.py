@@ -3,7 +3,7 @@ import random
 import re
 import string
 import threading
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 from email.mime.text import MIMEText
 import sys
 import time
@@ -329,7 +329,7 @@ def GetApp(appName=None, *a, **k):
                 if adminUser.get('code', None) == session.get('code', 'nope') or \
                         request.args.get('code', None) is not None:
 
-                    if adminUser['expiresAt'] > time.time():
+                    if adminUser.get('expiresAt', time.time() - 1) < time.time():
                         # the admin session has expired
                         session['code'] = 'nope'
                         adminUser['code'] = None
@@ -370,7 +370,10 @@ def GetApp(appName=None, *a, **k):
                         subject='Admin Magic Link',
                         body=url
                     )
-                    return 'A magic link has been emailed to the admin. Go click it!'
+                    return render_template(
+                        'content.html',
+                        content='A magic link has been emailed to the admin. Go click it!'
+                    )
 
         elif request.method == 'POST':
             if adminUser is None:
