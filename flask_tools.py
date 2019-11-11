@@ -1067,7 +1067,7 @@ traceback={}
                 e,
                 traceback.format_exc())
             )
-        raise e
+
 
     q.task_done()
 
