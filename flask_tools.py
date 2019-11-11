@@ -21,7 +21,6 @@ from flask import (
     url_for,
 )
 from dictabase import (
-
     FindOne,
     FindAll,
     Delete,
@@ -39,7 +38,7 @@ import traceback
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
-DEBUG = False
+DEBUG = True
 if DEBUG is False:
     print = lambda *a, **k: None
 
@@ -302,6 +301,91 @@ def GetApp(appName=None, *a, **k):
     app.jinja_env.globals['displayableAppName'] = displayableAppName
 
     app.domainName = domainName
+
+    # Setup Admin pages
+    class FlaskToolsAdminUser(BaseDictabaseTable):
+        pass
+
+    @app.route('/flask_tools_admin', methods=['GET', 'POST'])
+    def FlaskToolsAdmin():
+        print('FlaskToolsAdmin', request.method, request.args, request.form)
+        adminUser = FindOne(FlaskToolsAdminUser)
+
+        if request.method == 'GET':
+            if adminUser is None:
+                # no admin user exist request an admin email from the user
+                return '''
+                    <html>
+                        <body>
+                            <form method="POST">
+                                Enter the Admin email address: <input name="adminEmail" type="email"><br>
+                                <input type="submit">
+                            </form>
+                        </body>
+                    </html>
+                '''
+            else:
+                # an admin user exist already
+                if adminUser.get('code', None) == session.get('code', 'nope') or \
+                        request.args.get('code', None) is not None:
+
+                    if adminUser['expiresAt'] > time.time():
+                        # the admin session has expired
+                        session['code'] = 'nope'
+                        adminUser['code'] = None
+                        flash('You admin session has expired')
+                        return redirect(url_for('FlaskToolsAdmin'))
+
+                    # the admin has clicked on a magic link, or is logged in
+                    code = request.args.get('code', None)
+                    if adminUser.get('code', None) == code:
+                        # the admin is now logged in
+                        # the session should persist
+                        session['code'] = code
+
+                        # here is where to show the admin page
+
+                        return render_template(
+                            'admin_page.html',
+                            numOfJobs=GetNumOfJobs(),
+                            jobs=q.queue,
+                            worker=workerTimer,
+                        )
+
+                else:
+                    # generate a magic link, email it to admin
+                    code = GetRandomID()
+                    adminUser['code'] = code
+                    adminUser['expiresAt'] = time.time() + 8 * 60 * 60
+                    print('adminUser=', adminUser)
+                    url = '{}/{}?code={}'.format(
+                        app.domainName,
+                        url_for('FlaskToolsAdmin'),
+                        code
+                    )
+                    print('url=', url)
+                    SendEmail(
+                        to=adminUser.get('email'),
+                        frm='system@{}'.format(app.domainName),
+                        subject='Admin Magic Link',
+                        body=url
+                    )
+                    return 'A magic link has been emailed to the admin. Go click it!'
+
+        elif request.method == 'POST':
+            if adminUser is None:
+                # create the new admin user
+                adminEmailAddress = request.form.get('adminEmail', None)
+                if adminEmailAddress:
+                    newAdminUser = FlaskToolsAdminUser(email=adminEmailAddress)
+                    print('new admin user created. email={}'.format(adminEmailAddress))
+
+                else:
+                    print('no adminEmailAddress submited')
+
+                return redirect(url_for('FlaskToolsAdmin'))
+            else:
+                return 'an admin already exist, you cannot create another'
 
     return app
 
