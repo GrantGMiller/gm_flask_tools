@@ -276,7 +276,8 @@ class UserClass(BaseDictabaseTable):
         return super().__getitem__(item)
 
 
-def GetApp(appName=None, *a, **k):
+def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
+    # OtherAdminStuff should return dict that will be used to render_template for admin page
     global DB_URI
 
     import config
@@ -350,6 +351,7 @@ def GetApp(appName=None, *a, **k):
                             numOfJobs=GetNumOfJobs(),
                             jobs=q.queue,
                             worker=workerTimer,
+                            **OtherAdminStuff(),
                         )
 
                 else:
@@ -1054,20 +1056,22 @@ def _ProcessOneQueueItem():
     except Exception as e:
         print('_ProcessOneQueueItem Exception:', e)
         if jobFailedCallback:
-            jobFailedCallback('''
-callback={}
-a={}
-k={}
-e={}
-traceback={}
-            '''.format(
-                callback,
-                args,
-                kwargs,
-                e,
-                traceback.format_exc())
-            )
-
+            try:
+                jobFailedCallback('''
+    callback={}
+    a={}
+    k={}
+    e={}
+    traceback={}
+                '''.format(
+                    callback,
+                    args,
+                    kwargs,
+                    e,
+                    traceback.format_exc())
+                )
+            except Exception as e:
+                print(e)
 
     q.task_done()
 
