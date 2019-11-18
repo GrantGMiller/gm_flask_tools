@@ -370,7 +370,10 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                         to=adminUser.get('email'),
                         frm='system@{}'.format(app.domainName),
                         subject='Admin Magic Link',
-                        body=url
+                        body='''
+                        You can access the admin portal by clicking on the magic link below.
+                        
+                        ''' + url
                     )
                     return render_template(
                         'content.html',
