@@ -351,7 +351,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                             numOfJobs=GetNumOfJobs(),
                             jobs=q.queue,
                             worker=workerTimer,
-                            **OtherAdminStuff(),
+                            otherStuff=OtherAdminStuff(),
                         )
 
                 else:
