@@ -1,11 +1,17 @@
 from flask import request
+from flask_tools import GetApp, VerifyLogin, GetRandomID
+from forms import ExampleForm
+from dictabase import FindAll, FindOne
+import os
+
+app = GetApp('App Name')
 
 
 @app.route('/add_content', methods=['GET', 'POST'])
 @VerifyLogin
 def AddContent():
     print('AddContent()')
-    form = ContentForm()
+    form = ExampleForm()
 
     if form.validate_on_submit():
         print('validated')
@@ -61,6 +67,7 @@ def AddContent():
             form=form,
             menuOptions=GetMenuOptions(active='Content')
         )
+
 
 @app.route('/get_args')
 def GetArgs():

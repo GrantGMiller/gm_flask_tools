@@ -1109,3 +1109,49 @@ jobFailedCallback = None
 def JobFailedCallback(func):
     global jobFailedCallback
     jobFailedCallback = func
+
+
+def RelativePath(path):
+    path = Path(path)
+    return path
+
+
+def SaveFormFile(form, key, saveToPath):
+    form.file.data.save(RelativePath(saveToPath))
+
+
+class File:
+    pass
+
+
+class FormFile(File):
+    def __init(self, form, key):
+        self._form = form
+        self._key = key
+
+    def SaveTo(self, newPath):
+        self._form[self._key].data.save(RelativePath(newPath))
+
+    @property
+    def Size(self, asString=False):
+        size = len(self._form[self._key].data)
+        if asString:
+            sizeString = '{:,} Bytes'.format(size)
+            return sizeString
+        else:
+            return size
+
+
+class SystemFile(File):
+    def __init__(self, path):
+        self._path = RelativePath(path)
+
+    @property
+    def Size(self, asString=False):
+        ''' returns num of bytes'''
+        size = os.stat(RelativePath(self._path)).st_size
+        if asString:
+            sizeString = '{:,} Bytes'.format(size)
+            return sizeString
+        else:
+            return size
