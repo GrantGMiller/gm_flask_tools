@@ -19,7 +19,7 @@ from flask import (
     flash,
     Markup,
     url_for,
-)
+    send_file)
 from dictabase import (
     FindOne,
     FindAll,
@@ -32,7 +32,7 @@ import uuid
 import functools
 from collections import namedtuple
 import os
-from pathlib import Path
+from pathlib import Path as _PathlibPath
 import traceback
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
@@ -693,13 +693,13 @@ def SetupRegisterAndLoginPageWithPassword(
     '''
 
     if 'win' in sys.platform:
-        mainPath = Path(os.path.dirname(sys.modules['__main__'].__file__))
+        mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__))
         TEMPLATES_PATH = mainPath / 'templates'
     else:
         if templatesPath is None:
-            TEMPLATES_PATH = Path('/home/flask_signage/templates')
+            TEMPLATES_PATH = _PathlibPath('/home/flask_signage/templates')
         else:
-            TEMPLATES_PATH = Path(templatesPath)
+            TEMPLATES_PATH = _PathlibPath(templatesPath)
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
@@ -1111,26 +1111,28 @@ def JobFailedCallback(func):
     jobFailedCallback = func
 
 
-def RelativePath(path):
-    path = Path(path)
-    return path
-
-
-def SaveFormFile(form, key, saveToPath):
-    form.file.data.save(RelativePath(saveToPath))
+def Path(path):
+    path = _PathlibPath(path)
+    if str(path).startswith('/') or str(path).startswith('\\'):
+        return str(path)[1:]
+    else:
+        return str(path)
 
 
 class File:
-    pass
+    def __init__(self, *a, **k):
+        pass
 
 
 class FormFile(File):
-    def __init(self, form, key):
+    def __init__(self, form, key):
         self._form = form
         self._key = key
+        super().__init__(form, key)
 
     def SaveTo(self, newPath):
-        self._form[self._key].data.save(RelativePath(newPath))
+        self._form[self._key].data.save(Path(newPath))
+        return SystemFile(newPath)
 
     @property
     def Size(self, asString=False):
@@ -1141,17 +1143,41 @@ class FormFile(File):
         else:
             return size
 
+    @property
+    def Extension(self):
+        return self._form[self._key].data.filename.split('.')[-1].lower()
+
+    def Read(self):
+        return self._form[self._key].data
+
 
 class SystemFile(File):
     def __init__(self, path):
-        self._path = RelativePath(path)
+        self._path = Path(path)
+        super().__init__(path)
 
     @property
     def Size(self, asString=False):
         ''' returns num of bytes'''
-        size = os.stat(RelativePath(self._path)).st_size
+        size = os.stat(Path(self._path)).st_size
         if asString:
             sizeString = '{:,} Bytes'.format(size)
             return sizeString
         else:
             return size
+
+    @property
+    def Extension(self):
+        return _PathlibPath(self._path).suffix
+
+    @property
+    def Read(self):
+        with open(self._path, mode='rb') as file:
+            return file.read()
+
+    def SendFile(self):
+        return send_file(self._path)
+
+    @property
+    def Path(self):
+        return self._path
