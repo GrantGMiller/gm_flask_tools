@@ -1112,11 +1112,22 @@ def JobFailedCallback(func):
 
 
 def Path(path):
-    path = _PathlibPath(path)
-    if str(path).startswith('/') or str(path).startswith('\\'):
-        return str(path)[1:]
+    if 'win' in sys.platform:
+        path = _PathlibPath(path)
+        if str(path).startswith('/') or str(path).startswith('\\'):
+            return str(path)[1:]
+        else:
+            return str(path)
     else:
-        return str(path)
+        # assuming that flask_tools.py is in the same directory as other app files
+        appRootPath = '/'.join(__file__.split('/')[:-1])
+        if str(path).startswith(appRootPath):
+            # this path already starts with the appRootPath, so its prob good
+            pass
+        else:
+            path = str(_PathlibPath(appRootPath + '/' + str(path)))
+
+        return path
 
 
 class File:
