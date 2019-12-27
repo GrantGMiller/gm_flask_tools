@@ -1197,7 +1197,8 @@ class SystemFile(File):
 
     @property
     def Extension(self):
-        return _PathlibPath(self._path).suffix
+        ret = _PathlibPath(self._path).suffix.split('.')[-1]
+        return ret
 
     @property
     def Read(self):
