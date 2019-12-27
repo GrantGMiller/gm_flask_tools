@@ -30,7 +30,7 @@ from dictabase import (
 )
 import uuid
 import functools
-from collections import namedtuple
+from collections import namedtuple, deque
 import os
 from pathlib import Path as _PathlibPath
 import traceback
@@ -1053,7 +1053,7 @@ def _ProcessOneQueueItem():
     # print('_ProcessOneQueueItem()')
     global workerTimer
 
-    callback, args, kwargs = q.get()
+    callback, args, kwargs, ID = q.get()
     try:
         callback(*args, **kwargs)
     except Exception as e:
@@ -1076,6 +1076,7 @@ def _ProcessOneQueueItem():
             except Exception as e:
                 print(e)
 
+    completedJobs.append(ID)
     q.task_done()
 
     if q.qsize() is 0:
@@ -1093,14 +1094,31 @@ def GetNumOfJobs():
     return size
 
 
+global completedJobs
+completedJobs = deque(maxlen=100)
+
+
 def AddJob(callback, *args, **kwargs):
     # print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
     global workerTimer
-    q.put((callback, args, kwargs))
+    ID = GetRandomID()
+    q.put((callback, args, kwargs, ID))
 
     if workerTimer is None:
         workerTimer = threading.Timer(0, _ProcessOneQueueItem)
         workerTimer.start()
+
+    return ID
+
+
+def IsJobComplete(ID):
+    if ID in completedJobs:
+        return True
+    else:
+        for job in q.queue:
+            if ID == job[3]:
+                return False
+    return False
 
 
 jobFailedCallback = None
