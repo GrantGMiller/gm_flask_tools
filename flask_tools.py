@@ -672,6 +672,25 @@ def VerifyLogin(func):
 
 
 MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
+global menuOptions
+menuOptions = dict()
+
+
+def AddMenuOption(title, url):
+    global menuOptions
+    menuOptions[title] = url
+
+
+def RemoveMenuOption(title):
+    global menuOptions
+    menuOptions.pop(title, None)
+
+
+def GetMenu(active=None):
+    ret = []
+    for title, url in menuOptions.items():
+        ret.append(MenuOptionClass(title, url, active.lower() == title.lower()))
+    return ret
 
 
 def SetupRegisterAndLoginPageWithPassword(
