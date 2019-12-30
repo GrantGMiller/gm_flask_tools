@@ -1200,9 +1200,13 @@ class FormFile(File):
 
 
 class SystemFile(File):
-    def __init__(self, path):
+    def __init__(self, path, data=None, mode='rt'):
         self._path = Path(path)
         super().__init__(path)
+
+        if data:
+            with open(self._path, mode=mode) as file:
+                file.write(data)
 
     @property
     def Size(self, asString=False):
