@@ -1234,3 +1234,45 @@ class SystemFile(File):
     @property
     def Path(self):
         return self._path
+
+
+def FormatTimeAgo(dt):
+    utcNowDt = datetime.datetime.utcnow()
+    delta = utcNowDt - dt
+    if delta < datetime.timedelta(days=1):
+        # less than 1 day ago
+        if delta < datetime.timedelta(hours=1):
+            # less than 1 hour ago, show "X minutes ago"
+            if delta.total_seconds() < 60:
+                return '< 1 min ago'
+            else:
+                minsAgo = delta.total_seconds() / 60
+                minsAgo = int(minsAgo)
+                return '{} min{} ago'.format(
+                    minsAgo,
+                    's' if minsAgo > 1 else '',
+                )
+        else:
+            # between 1hour and 24 hours ago
+            hoursAgo = delta.total_seconds() / (60 * 60)
+            hoursAgo = int(hoursAgo)
+            return '{} hour{} ago'.format(
+                hoursAgo,
+                's' if hoursAgo > 1 else '',
+            )
+    else:
+        # more than 1 day ago
+        if delta.days < 31:
+            daysAgo = delta.total_seconds() / (60 * 60 * 24 * 1)
+            daysAgo = int(daysAgo)
+            return '{} day{} ago'.format(
+                daysAgo,
+                's' if daysAgo > 1 else '',
+            )
+        else:
+            # more then 30 days ago
+            months = int(delta.days / 30)
+            return '{} month{} ago'.format(
+                months,
+                's' if months > 1 else '',
+            )
