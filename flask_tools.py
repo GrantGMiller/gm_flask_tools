@@ -1276,3 +1276,43 @@ def FormatTimeAgo(dt):
                 months,
                 's' if months > 1 else '',
             )
+
+
+def FormatNumberFriendly(num):
+    if num < 1000:
+        return '{}'.format(num)
+    elif num < 99000:
+        return '{}K'.format(round(num / 1000, 1))
+    elif num < 1000000000:
+        return '{}M'.format(round(num / 1000000, 1))
+
+
+def FormToString(form):
+    ret = '<form>'
+    ret += form.hidden_tag()
+    ret += '''
+    <table class ="table table-dark" >
+        <tr>
+            <td class="grantFormHeader" colspan="2">
+            ''' + type(form).__name__ + '''
+            </td>
+        </tr>'''
+    for item in form:
+        if "CSRF" not in item.label() and "Submit" not in item.label():
+            ret += '''
+            <tr>
+                <td class ="grantFormLabelCell" > 
+                    ''' + item.label(class_="grantFormLabel") + ''':
+                </td>'''
+            if "File" in item.label():
+                ret += '''
+                <td class ="form-control" >''' + str(item) + '''</td>'''
+            else:
+                ret += '''<td>''' + item(class_="form-control") + '''</td>'''
+
+        ret += '''< / tr >'''
+
+    ret += '</table>'
+    ret += form.submit(class_="btn btn-primary grantFormSubmit")
+    ret += '</form>'
+    return Markup(ret)
