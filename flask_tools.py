@@ -30,7 +30,7 @@ from dictabase import (
 )
 import uuid
 import functools
-from collections import namedtuple, deque
+from collections import namedtuple, deque, OrderedDict
 import os
 from pathlib import Path as _PathlibPath
 import traceback
@@ -1120,14 +1120,42 @@ completedJobs = deque(maxlen=100)
 def AddJob(callback, *args, **kwargs):
     # print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
     global workerTimer
-    ID = GetRandomID()
+    ID = kwargs.pop('ID', None) or GetRandomID()
     q.put((callback, args, kwargs, ID))
+    jobProgress[ID] = 0
 
     if workerTimer is None:
         workerTimer = threading.Timer(0, _ProcessOneQueueItem)
         workerTimer.start()
 
     return ID
+
+
+class LimitedSizeDict(OrderedDict):
+    def __init__(self, *args, **kwds):
+        self.size_limit = kwds.pop("size_limit", None)
+        OrderedDict.__init__(self, *args, **kwds)
+        self._check_size_limit()
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        self._check_size_limit()
+
+    def _check_size_limit(self):
+        if self.size_limit is not None:
+            while len(self) > self.size_limit:
+                self.popitem(last=False)
+
+
+jobProgress = LimitedSizeDict(size_limit=100)
+
+
+def LogJobProgress(ID, progress):
+    jobProgress[ID] = progress
+
+
+def GetJobProgress(ID):
+    return jobProgress.get(ID, 'Unknown')
 
 
 def IsJobComplete(ID):
