@@ -72,3 +72,4 @@ def AddContent():
 @app.route('/get_args')
 def GetArgs():
     code = request.args.get('code', None)
+    print('request.form=', request.form) # immutable dict

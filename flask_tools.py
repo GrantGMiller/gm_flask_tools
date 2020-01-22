@@ -101,7 +101,7 @@ def GetRandomID(length=None):
 uniqueID = uuid.getnode()
 
 
-def HashIt(string=None, salt=uniqueID):
+def HashIt(string=None, salt=str(uniqueID)):
     '''
     This function takes in a string and converts it to a unique hash.
     Note: this is a one-way conversion. The value cannot be converted from hash to the original string
@@ -115,7 +115,6 @@ def HashIt(string=None, salt=uniqueID):
     if not isinstance(string, str):
         string = str(string)
 
-    salt = 'gs_tools_arbitrary_string'
     hash1 = hashlib.sha512(bytes(string, 'utf-8')).hexdigest()
     hash1 += salt
     hash2 = hashlib.sha512(bytes(hash1, 'utf-8')).hexdigest()
@@ -1245,6 +1244,10 @@ class SystemFile(File):
             return sizeString
         else:
             return size
+
+    @property
+    def Exists(self):
+        return os.path.exists(self._path)
 
     @property
     def Extension(self):
