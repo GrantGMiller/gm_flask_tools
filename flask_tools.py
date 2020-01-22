@@ -110,7 +110,7 @@ def HashIt(string=None, salt=str(uniqueID)):
     '''
     if string is None:
         # if None a random hash will be returned
-        string = str(random.random())
+        string = uuid.uuid4()
 
     if not isinstance(string, str):
         string = str(string)
