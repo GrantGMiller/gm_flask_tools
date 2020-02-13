@@ -11,9 +11,10 @@ from wtforms import (
 from wtforms.validators import DataRequired
 
 
-class ExampleForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    file = FileField('File', validators=[DataRequired()])
+class DigitalSignageForm(FlaskForm):
+    folder = StringField('Content Folder', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
+class AddDigitalSignagePlayerForm(FlaskForm):
+    hostname = StringField('IP Address/Hostname', validators=[DataRequired()])

@@ -90,6 +90,25 @@ def IsValidPhone(phone):
     return ret
 
 
+def IsValidMACAddress(mac):
+    if not isinstance(mac, str):
+        return False
+
+    return bool(re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", mac.lower()))
+
+
+def IsValidHostname(hostname):
+    if not isinstance(hostname, str):
+        return False
+
+    if len(hostname) > 255:
+        return False
+    if hostname[-1] == ".":
+        hostname = hostname[:-1]  # strip exactly one dot from the right, if present
+    allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+    return all(allowed.match(x) for x in hostname.split("."))
+
+
 def GetRandomID(length=None):
     hash = HashIt(None)
     if length:
@@ -613,6 +632,9 @@ def GetUser(email=None):
     # if user provides an email then return that user obj
     print('GetUser(', email)
 
+    if email:
+        return FindOne(UserClass, email=email)
+
     email = session.get('email', None)
     authToken = request.cookies.get('authToken')
 
@@ -652,7 +674,7 @@ def VerifyLogin(func):
     :return:
     '''
 
-    # print('53 VerifyLogin(', func)
+    print('53 VerifyLogin(', func)
 
     @functools.wraps(func)
     def VerifyLoginWrapper(*args, **kwargs):
@@ -689,6 +711,9 @@ def GetMenu(active=None):
     ret = []
     for title, url in menuOptions.items():
         ret.append(MenuOptionClass(title, url, active.lower() == title.lower()))
+    ret.sort()
+    if GetUser():
+        ret.append(MenuOptionClass('Logout', '/logout', False))
     return ret
 
 
@@ -947,13 +972,18 @@ def SetupRegisterAndLoginPageWithPassword(
     def Forgot():
 
         if request.method == 'POST':
+            for item in dir(request):
+                print(item, '=', getattr(request, item))
 
             if request.form.get('password', None) != request.form.get('passwordConfirm', None):
                 flash('Passwords do not match.')
                 return render_template(forgotTemplate)
 
             # send them a reset email
-            referrerDomain = app.domainName
+            try:
+                referrerDomain = request.host
+            except:
+                referrerDomain = app.domainName
 
             frm = 'admin@' + referrerDomain
             email = request.form.get('email')
@@ -1154,6 +1184,7 @@ def LogJobProgress(ID, progress):
 
 
 def GetJobProgress(ID):
+    print('jobProgress=', jobProgress)
     return jobProgress.get(ID, 'Unknown')
 
 
@@ -1255,6 +1286,10 @@ class SystemFile(File):
         return ret
 
     @property
+    def Name(self):
+        return _PathlibPath(self._path).name
+
+    @property
     def Read(self):
         with open(self._path, mode='rb') as file:
             return file.read()
@@ -1319,31 +1354,37 @@ def FormatNumberFriendly(num):
 
 
 def FormToString(form):
-    ret = '<form>'
+    ret = Markup('<form method="POST">')
+
+    # print('1324 ret=', ret)
     ret += form.hidden_tag()
-    ret += '''
-    <table class ="table table-dark" >
-        <tr>
-            <td class="grantFormHeader" colspan="2">
-            ''' + type(form).__name__ + '''
-            </td>
-        </tr>'''
+
+    # print('1327 ret=', ret)
+    ret += Markup('''
+    <table class ="table table-dark" >''')
+    # '''<tr>
+    #     <td class="grantFormHeader" colspan="2">
+    #     ''' + type(form).__name__ + '''
+    #     </td>
+    # </tr>'''
     for item in form:
-        if "CSRF" not in item.label() and "Submit" not in item.label():
-            ret += '''
+        if "CSRF" not in item.label() and "Submit" not in item.label() and "Save" not in item.label():
+            ret += Markup('''
             <tr>
                 <td class ="grantFormLabelCell" > 
                     ''' + item.label(class_="grantFormLabel") + ''':
-                </td>'''
+                </td>''')
             if "File" in item.label():
-                ret += '''
-                <td class ="form-control" >''' + str(item) + '''</td>'''
+                ret += Markup('''
+                <td class ="form-control" >''' + str(item) + '''</td>''')
             else:
-                ret += '''<td>''' + item(class_="form-control") + '''</td>'''
+                ret += Markup('''<td>''' + item(class_="form-control") + '''</td>''')
 
-        ret += '''< / tr >'''
+        ret += Markup('''</tr >''')
 
-    ret += '</table>'
-    ret += form.submit(class_="btn btn-primary grantFormSubmit")
-    ret += '</form>'
+    ret += Markup('</table>')
+    ret += Markup(form.submit(class_="btn btn-primary"))
+    ret += Markup('</form>')
+    # print('1349 ret=', ret)
+
     return Markup(ret)

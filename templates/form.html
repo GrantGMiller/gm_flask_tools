@@ -14,7 +14,7 @@
 			</td>
 		</tr>
 		{% for item in form %}
-			{% if "CSRF" not in item.label() and "Submit" not in item.label()%}
+			{% if "CSRF" not in item.label() and "Submit" not in item.label() and "Save" not in item.label()%}
 				<tr>
 					<td class="grantFormLabelCell">{{item.label(class_="grantFormLabel")}}:</td>
 					{% if "File" in item.label() %}
