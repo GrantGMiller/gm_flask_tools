@@ -775,6 +775,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 {{% endblock %}}
         '''.format(mainTemplate))
 
+
     if registerTemplate is None:
         templateName = 'autogen_register.html'
         registerTemplate = templateName
