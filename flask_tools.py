@@ -851,6 +851,7 @@ def SetupRegisterAndLoginPageWithPassword(
                         userObj['authenticated'] = True
                         session['email'] = email
 
+                        #login successful
                         if redirectSuccess:
                             resp = redirect(redirectSuccess)
 
@@ -894,8 +895,14 @@ def SetupRegisterAndLoginPageWithPassword(
 
     @app.route('/logout')
     def Logout():
+        user = GetUser()
+        if user:
+            user['authenticated'] = False
         session['email'] = None
-        return redirect('/')
+
+        resp = redirect('/')
+        resp.delete_cookie('authToken', domain=app.domainName)
+        return resp
 
     @app.route('/register', methods=['GET', 'POST'])
     def Register():
