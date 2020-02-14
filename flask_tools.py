@@ -775,7 +775,6 @@ def SetupRegisterAndLoginPageWithPassword(
                 {{% endblock %}}
         '''.format(mainTemplate))
 
-
     if registerTemplate is None:
         templateName = 'autogen_register.html'
         registerTemplate = templateName
@@ -892,6 +891,11 @@ def SetupRegisterAndLoginPageWithPassword(
             loginTemplate,
             rememberMe=rememberMe,
         )
+
+    @app.route('/logout')
+    def Logout():
+        session['email'] = None
+        return redirect('/')
 
     @app.route('/register', methods=['GET', 'POST'])
     def Register():
