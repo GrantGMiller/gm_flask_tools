@@ -397,7 +397,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                         code
                     )
                     print('url=', url)
-                    SendEmail(
+                    AddJob(SendEmail,
                         to=adminUser.get('email'),
                         frm='system@{}'.format(app.domainName),
                         subject='Admin Magic Link',
@@ -556,7 +556,7 @@ def SetupLoginPage(
                     #     print(item, getattr(request, item))
                     #     body += '{}={}\r\n'.format(item, getattr(request, item))
 
-                    SendEmail(to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
+                    AddJob(SendEmail, to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
                     flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
             else:
                 print('no auth token, show login page')
@@ -1037,7 +1037,7 @@ Reset My Password Now
 {}
             '''.format(resetLink)
 
-            SendEmail(to=email, subject='Password Reset', body=body)
+            AddJob(SendEmail, to=email, frm=frm, subject='Password Reset', body=body)
             flash('A reset link has been emailed to you.')
             return redirect('/')
 
