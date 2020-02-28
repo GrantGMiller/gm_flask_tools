@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="" />
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/flask_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/form.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,7 +55,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../hotdesk" />
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
   </component>
   <component name="RecentsManager">
@@ -140,5 +143,11 @@
     <MESSAGE value="db_helpers - WIP2" />
     <MESSAGE value="Delete, AddColumn working" />
     <option name="LAST_COMMIT_MESSAGE" value="Delete, AddColumn working" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1582917151164">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="740" y="274" key="FileChooserDialogImpl/1920.0.1920.1040/0.0.1920.1040/3840.1080.1366.768@0.0.1920.1040" timestamp="1582917151164" />
   </component>
 </project>

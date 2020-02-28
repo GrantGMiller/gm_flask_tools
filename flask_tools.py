@@ -178,7 +178,7 @@ def IsValidIPv4(ip):
         return True
 
 
-def SendEmail(to, frm=None, subject=None, body=None):
+def FTSendEmail(to, frm=None, subject=None, body=None):
     '''
     linux example
     sendmail -t grant@grant-miller.com
@@ -219,6 +219,19 @@ def SendEmail(to, frm=None, subject=None, body=None):
         with Popen(["sendmail", "-t", "-oi"], stdin=PIPE) as p:
             p.communicate(msg.as_string().encode())
             return str(p)
+
+
+global SendEmail
+SendEmail = FTSendEmail
+
+
+def RegisterEmailSender(func):
+    '''
+    func should accept the following parameters
+    func(to=None, frm=None, cc=None, bcc=None, subject=None, body=None, html=None, attachments=None)
+    '''
+    global SendEmail
+    SendEmail = func
 
 
 def MoveListItem(l, item, units):
@@ -851,7 +864,7 @@ def SetupRegisterAndLoginPageWithPassword(
                         userObj['authenticated'] = True
                         session['email'] = email
 
-                        #login successful
+                        # login successful
                         if redirectSuccess:
                             resp = redirect(redirectSuccess)
 
