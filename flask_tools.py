@@ -997,8 +997,8 @@ def SetupRegisterAndLoginPageWithPassword(
     def Forgot():
 
         if request.method == 'POST':
-            for item in dir(request):
-                print(item, '=', getattr(request, item))
+            # for item in dir(request):
+            #     print(item, '=', getattr(request, item))
 
             if request.form.get('password', None) != request.form.get('passwordConfirm', None):
                 flash('Passwords do not match.')
