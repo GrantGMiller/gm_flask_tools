@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="" />
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
