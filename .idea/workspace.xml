@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="added setup.py">
-      <change afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="added requirements.txt">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flask_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools_old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +135,21 @@
       <option name="project" value="LOCAL" />
       <updated>1585169833459</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="converted to package">
+      <created>1585170124335</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1585170124335</updated>
+    </task>
+    <task id="LOCAL-00006" summary="added requirements.txt">
+      <created>1585170291904</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1585170291904</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -147,37 +157,39 @@
     <MESSAGE value="db_helpers - WIP2" />
     <MESSAGE value="Delete, AddColumn working" />
     <MESSAGE value="added setup.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="added setup.py" />
+    <MESSAGE value="converted to package" />
+    <MESSAGE value="added requirements.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="added requirements.txt" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="2564" y="131" key="CommitChangelistDialog2" timestamp="1585170122674">
+    <state x="2564" y="131" key="CommitChangelistDialog2" timestamp="1585170290774">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="2564" y="131" key="CommitChangelistDialog2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170122674" />
+    <state x="2564" y="131" key="CommitChangelistDialog2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170290774" />
     <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1582917151164">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="740" y="274" key="FileChooserDialogImpl/1920.0.1920.1040/0.0.1920.1040/3840.1080.1366.768@0.0.1920.1040" timestamp="1582917151164" />
-    <state width="1898" height="232" key="GridCell.Tab.0.bottom" timestamp="1585170104255">
+    <state width="1898" height="232" key="GridCell.Tab.0.bottom" timestamp="1585170307497">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1898" height="232" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170104255" />
-    <state width="1898" height="232" key="GridCell.Tab.0.center" timestamp="1585170104255">
+    <state width="1898" height="232" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
+    <state width="1898" height="232" key="GridCell.Tab.0.center" timestamp="1585170307497">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1898" height="232" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170104255" />
-    <state width="1898" height="232" key="GridCell.Tab.0.left" timestamp="1585170104255">
+    <state width="1898" height="232" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
+    <state width="1898" height="232" key="GridCell.Tab.0.left" timestamp="1585170307497">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1898" height="232" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170104255" />
-    <state width="1898" height="232" key="GridCell.Tab.0.right" timestamp="1585170104255">
+    <state width="1898" height="232" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
+    <state width="1898" height="232" key="GridCell.Tab.0.right" timestamp="1585170307497">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1898" height="232" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170104255" />
-    <state x="2472" y="272" key="Vcs.Push.Dialog.v2" timestamp="1585170125300">
+    <state width="1898" height="232" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
+    <state x="2472" y="272" key="Vcs.Push.Dialog.v2" timestamp="1585170294285">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="2472" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170125300" />
+    <state x="2472" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170294285" />
     <state x="2577" y="257" width="606" height="526" key="find.popup" timestamp="1585169897839">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
