@@ -72,4 +72,8 @@ def AddContent():
 @app.route('/get_args')
 def GetArgs():
     code = request.args.get('code', None)
-    print('request.form=', request.form) # immutable dict
+    print('request.form=', request.form)  # immutable dict
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

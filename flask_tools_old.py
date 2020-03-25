@@ -1240,7 +1240,7 @@ def Path(path):
         else:
             return str(path)
     else:
-        # assuming that flask_tools.py is in the same directory as other app files
+        # assuming that flask_tools_old.py is in the same directory as other app files
         appRootPath = '/'.join(__file__.split('/')[:-1])
         if str(path).startswith(appRootPath):
             # this path already starts with the appRootPath, so its prob good

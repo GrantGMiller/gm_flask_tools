@@ -18,3 +18,6 @@ class DigitalSignageForm(FlaskForm):
 
 class AddDigitalSignagePlayerForm(FlaskForm):
     hostname = StringField('IP Address/Hostname', validators=[DataRequired()])
+
+class ExampleForm(FlaskForm):
+    hostname = StringField('IP Address/Hostname', validators=[DataRequired()])
