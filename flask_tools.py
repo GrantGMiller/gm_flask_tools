@@ -398,14 +398,14 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                     )
                     print('url=', url)
                     AddJob(SendEmail,
-                        to=adminUser.get('email'),
-                        frm='system@{}'.format(app.domainName),
-                        subject='Admin Magic Link',
-                        body='''
+                           to=adminUser.get('email'),
+                           frm='system@{}'.format(app.domainName),
+                           subject='Admin Magic Link',
+                           body='''
                         You can access the admin portal by clicking on the magic link below.
                         
                         ''' + url
-                    )
+                           )
                     return render_template(
                         'content.html',
                         content='A magic link has been emailed to the admin. Go click it!'
@@ -1131,9 +1131,7 @@ def _ProcessOneQueueItem():
         callback(*args, **kwargs)
     except Exception as e:
         print('_ProcessOneQueueItem Exception:', e)
-        if jobFailedCallback:
-            try:
-                jobFailedCallback('''
+        msg = '''
     callback={}
     a={}
     k={}
@@ -1145,7 +1143,10 @@ def _ProcessOneQueueItem():
                     kwargs,
                     e,
                     traceback.format_exc())
-                )
+        if jobFailedCallback:
+            try:
+                print(msg)
+                jobFailedCallback(msg)
             except Exception as e:
                 print(e)
 
