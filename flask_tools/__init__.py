@@ -1357,15 +1357,15 @@ class SystemFile(File):
 
 class DatabaseFile(BaseDictabaseTable):
     def __init__(self, *a, **k):
-        print('DatabaseFile.__init__(', a, k)
+        #print('DatabaseFile.__init__(', a, k)
         if k.get('doInsert') == True:
             if 'data' not in k or 'name' not in k:
                 print('"data" in k=', 'data' in k)
                 print('"name" in k=', 'name' in k)
                 raise Exception('You must pass kwargs for "data" (type=bytes) and "name" (type=str)')
 
-            if isinstance(k['data'], str):
-                k['data'] = k['data'].encode()
+            if isinstance(k['data'], bytes):
+                k['data'] = k['data'].decode()
 
         super().__init__(*a, **k)
 
