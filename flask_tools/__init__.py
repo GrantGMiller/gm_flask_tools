@@ -1364,8 +1364,8 @@ class DatabaseFile(BaseDictabaseTable):
                 print('"name" in k=', 'name' in k)
                 raise Exception('You must pass kwargs for "data" (type=bytes) and "name" (type=str)')
 
-        if isinstance(k['data'], str):
-            data = data.encode()
+            if isinstance(k['data'], str):
+                k['data'] = k['data'].encode()
 
         super().__init__(*a, **k)
 
