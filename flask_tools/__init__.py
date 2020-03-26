@@ -321,6 +321,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     engineURI = k.pop('db_engineURI', 'sqlite:///{}.db'.format(dbName))
 
     SetDB_URI(engineURI)
+
     devMode = k.pop('devMode', False)
     domainName = k.pop('domainName', 'grant-miller.com')
 
@@ -329,6 +330,8 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
         *a,
         **k,
     )
+    app.engineURI = engineURI
+
     configClass = k.pop('configClass', None)
     if configClass:
         app.config.from_object(config.GetConfigClass(appName)())
@@ -1243,7 +1246,8 @@ def Path(path):
         else:
             return str(path)
     else:
-        # assuming that flask_tools_old.py is in the same directory as other app files
+        # todo - might have broken this
+        # assuming that flask_tools is in the same directory as other app files
         appRootPath = '/'.join(__file__.split('/')[:-1])
         if str(path).startswith(appRootPath):
             # this path already starts with the appRootPath, so its prob good
