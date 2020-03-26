@@ -1,4 +1,5 @@
 import hashlib
+import io
 import random
 import re
 import string
@@ -118,6 +119,10 @@ def GetRandomID(length=None):
 
 
 uniqueID = uuid.getnode()
+
+
+def GetMachineUniqueID():
+    return HashIt(uuid.getnode())
 
 
 def HashIt(string=None, salt=str(uniqueID)):
@@ -318,12 +323,14 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     dbName = appName.replace(' ', '')
     appName = dbName.replace('.', '_')
     dbName = dbName.replace('.', '_')
-    engineURI = k.pop('db_engineURI', 'sqlite:///{}.db'.format(dbName))
+    engineURI = k.pop('DATABASE_URL', 'sqlite:///{}.db'.format(dbName))
 
     SetDB_URI(engineURI)
 
     devMode = k.pop('devMode', False)
     domainName = k.pop('domainName', 'grant-miller.com')
+
+    secretKey = k.pop('SECRET_KEY', GetMachineUniqueID())
 
     app = Flask(
         appName,
@@ -331,6 +338,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
         **k,
     )
     app.engineURI = engineURI
+    app.config['SECRET_KEY'] = secretKey
 
     configClass = k.pop('configClass', None)
     if configClass:
@@ -1287,7 +1295,19 @@ class FormFile(File):
         return self._form[self._key].data.filename.split('.')[-1].lower()
 
     def Read(self):
-        return self._form[self._key].data
+        return self._form[self._key].data.read()
+
+    @property
+    def Name(self):
+        return self._form[self._key].data.filename
+
+    def RenderResponse(self):
+        return send_file(
+            io.BytesIO(self.Read()),
+            mimetype='image/{}'.format(self.Extension),
+            as_attachment=False,  # True will make this download as a file
+            attachment_filename=self.Name
+        )
 
 
 class SystemFile(File):
@@ -1333,6 +1353,59 @@ class SystemFile(File):
     @property
     def Path(self):
         return self._path
+
+
+class DatabaseFile(BaseDictabaseTable):
+    def __init__(self, *a, **k):
+        print('DatabaseFile.__init__(', a, k)
+        if k.get('doInsert') == True:
+            if 'data' not in k or 'name' not in k:
+                print('"data" in k=', 'data' in k)
+                print('"name" in k=', 'name' in k)
+                raise Exception('You must pass kwargs for "data" (type=bytes) and "name" (type=str)')
+        super().__init__(*a, **k)
+
+    @property
+    def Size(self, asString=False):
+        size = len(self['data'])
+        if asString:
+            sizeString = '{:,} Bytes'.format(size)
+            return sizeString
+        else:
+            return size
+
+    @property
+    def Extension(self):
+        return self['name'].split('.')[-1].lower()
+
+    def Read(self):
+        return self['data']
+
+    @property
+    def Name(self):
+        return self['name']
+
+    def MakeResponse(self, asAttachment=False):
+        typeMap = {
+            'jpg': 'image',
+            'png': 'image',
+            'jpeg': 'image',
+            'gif': 'image',
+
+            'flv': 'video',
+            'mov': 'video',
+            'mp4': 'video',
+            'wmv': 'video',
+        }
+        return send_file(
+            io.BytesIO(self['data']),
+            mimetype='{}/{}'.format(
+                typeMap.get(self.Extension.lower(), 'image'),
+                self.Extension,
+            ),
+            as_attachment=True if typeMap.get(self.Extension.lower(), 'image') == 'video' else asAttachment,
+            attachment_filename=self['name']
+        )
 
 
 def FormatTimeAgo(dt):
