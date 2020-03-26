@@ -329,7 +329,10 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
         *a,
         **k,
     )
-    app.config.from_object(config.GetConfigClass(appName)())
+    configClass = k.pop('configClass', None)
+    if configClass:
+        app.config.from_object(config.GetConfigClass(appName)())
+
     app.jinja_env.globals['displayableAppName'] = displayableAppName
 
     app.domainName = domainName
