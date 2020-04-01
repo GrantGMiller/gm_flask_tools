@@ -1358,10 +1358,16 @@ class SystemFile(File):
 
 
 class DatabaseFile(BaseTable):
-
+    # name (str)
+    # data (str) (b''.encode())
+    
+    @property
+    def Data(self):
+        return EncodeLiteral(self['data'])
+    
     @property
     def Size(self, asString=False):
-        size = len(self['data'])
+        size = len(self.Data)
         if asString:
             sizeString = '{:,} Bytes'.format(size)
             return sizeString
@@ -1373,14 +1379,14 @@ class DatabaseFile(BaseTable):
         return self['name'].split('.')[-1].lower()
 
     def Read(self):
-        return self['data']
+        return self.Data
 
     @property
     def Name(self):
         return self['name']
 
     def MakeResponse(self, asAttachment=False):
-        #print('MakeResponse self.Data=', self['data'][:50])
+        #print('MakeResponse self.Data=', self.Data[:50])
         typeMap = {
             'jpg': 'image',
             'png': 'image',
@@ -1393,7 +1399,7 @@ class DatabaseFile(BaseTable):
             'wmv': 'video',
         }
         return send_file(
-            io.BytesIO(self['data']),
+            io.BytesIO(self.Data),
             mimetype='{}/{}'.format(
                 typeMap.get(self.Extension.lower(), 'image'),
                 self.Extension,
