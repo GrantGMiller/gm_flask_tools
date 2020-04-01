@@ -1363,7 +1363,7 @@ class DatabaseFile(BaseTable):
     
     @property
     def Data(self):
-        return EncodeLiteral(self['data'])
+        return base64.b64decode(self['data'].encode())
     
     @property
     def Size(self, asString=False):
