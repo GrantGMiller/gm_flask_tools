@@ -766,12 +766,12 @@ def SetupRegisterAndLoginPageWithPassword(
 
     if 'win' in sys.platform:
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__))
-        TEMPLATES_PATH = mainPath / 'templates'
+        TEMPLATES_PATH = PathString(mainPath / 'templates')
     else:
         if templatesPath is None:
-            TEMPLATES_PATH = Path('/templates').Path
+            TEMPLATES_PATH = PathString('/templates').Path
         else:
-            TEMPLATES_PATH = Path(templatesPath).Path
+            TEMPLATES_PATH = PathString(templatesPath).Path
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
@@ -1257,7 +1257,7 @@ def JobFailedCallback(func):
     jobFailedCallback = func
 
 
-def Path(path):
+def PathString(path):
     if 'win' in sys.platform:
         path = _PathlibPath(path)
         if str(path).startswith('/') or str(path).startswith('\\'):
@@ -1265,16 +1265,7 @@ def Path(path):
         else:
             return str(path)
     else:
-        # todo - might have broken this
-        # assuming that flask_tools is in the same directory as other app files
-        appRootPath = '/'.join(__file__.split('/')[:-1])
-        if str(path).startswith(appRootPath):
-            # this path already starts with the appRootPath, so its prob good
-            pass
-        else:
-            path = str(_PathlibPath(appRootPath + '/' + str(path)))
-
-        return path
+        return str(_PathlibPath(path))
 
 
 class File:
@@ -1289,7 +1280,7 @@ class FormFile(File):
         super().__init__(form, key)
 
     def SaveTo(self, newPath):
-        self._form[self._key].data.save(Path(newPath))
+        self._form[self._key].data.save(PathString(newPath))
         return SystemFile(newPath)
 
     @property
@@ -1336,7 +1327,7 @@ class FormFile(File):
 
 class SystemFile(File):
     def __init__(self, path, data=None, mode='rt'):
-        self._path = Path(path)
+        self._path = PathString(path)
         super().__init__(path)
 
         if data:
@@ -1346,7 +1337,7 @@ class SystemFile(File):
     @property
     def Size(self, asString=False):
         ''' returns num of bytes'''
-        size = os.stat(Path(self._path)).st_size
+        size = os.stat(PathString(self._path)).st_size
         if asString:
             sizeString = '{:,} Bytes'.format(size)
             return sizeString
