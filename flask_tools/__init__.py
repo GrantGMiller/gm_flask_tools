@@ -769,16 +769,19 @@ def SetupRegisterAndLoginPageWithPassword(
         TEMPLATES_PATH = mainPath / 'templates'
     else:
         if templatesPath is None:
-            TEMPLATES_PATH = SystemFile('/templates').Path
+            TEMPLATES_PATH = Path('/templates').Path
         else:
-            TEMPLATES_PATH = SystemFile(templatesPath).Path
+            TEMPLATES_PATH = Path(templatesPath).Path
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
         loginTemplate = templateName
 
-        with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
-            file.write('''
+        thisTemplatePath = TEMPLATES_PATH + '/' + templateName
+
+        if not os.path.exists(thisTemplatePath):
+            with open(thisTemplatePath, mode='wt') as file:
+                file.write('''
                 {{% extends "{0}" %}}
                 {{% block content %}}
                 <div class="container">
@@ -807,8 +810,11 @@ def SetupRegisterAndLoginPageWithPassword(
     if registerTemplate is None:
         templateName = 'autogen_register.html'
         registerTemplate = templateName
-        with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
-            file.write('''
+
+        thisTemplatePath = TEMPLATES_PATH + '/' + templateName
+        if not os.path.exists(thisTemplatePath):
+            with open(thisTemplatePath, mode='wt') as file:
+                file.write('''
             {{% extends "{0}" %}}
             {{% block content %}}
             <div class="container">
@@ -977,8 +983,11 @@ def SetupRegisterAndLoginPageWithPassword(
     if forgotTemplate is None:
         templateName = 'autogen_forgot.html'
         forgotTemplate = templateName
-        with open(str(TEMPLATES_PATH / templateName), mode='wt') as file:
-            file.write('''
+
+        thisTemplatePath = TEMPLATES_PATH + '/' + templateName
+        if not os.path.exists(thisTemplatePath):
+            with open(thisTemplatePath, mode='wt') as file:
+                file.write('''
             {{% extends "{0}" %}}
             {{% block content %}}
             <div class="container">
