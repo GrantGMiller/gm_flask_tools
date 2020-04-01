@@ -1265,7 +1265,9 @@ def PathString(path):
         else:
             return str(path)
     else:
-        return str(_PathlibPath(path))
+        mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__)).parent
+        newPath = mainPath / path
+        return str(newPath)
 
 
 class File:
