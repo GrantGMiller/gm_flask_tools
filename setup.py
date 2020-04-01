@@ -11,7 +11,7 @@ print('packages=', packages)
 setup(
     name="flask_tools",
 
-    version="1.0",
+    version="1.1",
 
     packages=packages,
     install_requires=['flask'],
