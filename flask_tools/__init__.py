@@ -769,9 +769,9 @@ def SetupRegisterAndLoginPageWithPassword(
         TEMPLATES_PATH = PathString(mainPath / 'templates')
     else:
         if templatesPath is None:
-            TEMPLATES_PATH = PathString('/templates').Path
+            TEMPLATES_PATH = PathString('/templates')
         else:
-            TEMPLATES_PATH = PathString(templatesPath).Path
+            TEMPLATES_PATH = PathString(templatesPath)
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
@@ -806,6 +806,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 </div> <!-- /container -->
                 {{% endblock %}}
         '''.format(mainTemplate))
+
 
     if registerTemplate is None:
         templateName = 'autogen_register.html'
