@@ -769,9 +769,9 @@ def SetupRegisterAndLoginPageWithPassword(
         TEMPLATES_PATH = mainPath / 'templates'
     else:
         if templatesPath is None:
-            TEMPLATES_PATH = _PathlibPath('/templates')
+            TEMPLATES_PATH = SystemFile('/templates').Path
         else:
-            TEMPLATES_PATH = _PathlibPath(templatesPath)
+            TEMPLATES_PATH = SystemFile(templatesPath).Path
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
