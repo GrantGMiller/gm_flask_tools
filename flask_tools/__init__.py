@@ -749,7 +749,7 @@ def GetMenu(active=None):
 def SetupRegisterAndLoginPageWithPassword(
         app,
         mainTemplate,  # should be like mainTemplate='main.html',
-        templatesPath,  # should be like templatesPath='/home/grant/signage/templates',
+        templatesPath=None,  # should be like templatesPath='/home/grant/signage/templates',
         redirectSuccess=None,
         callbackFailedLogin=None,
         callbackNewUserRegistered=None,
@@ -769,7 +769,7 @@ def SetupRegisterAndLoginPageWithPassword(
         TEMPLATES_PATH = mainPath / 'templates'
     else:
         if templatesPath is None:
-            TEMPLATES_PATH = _PathlibPath('/home/flask_signage/templates')
+            TEMPLATES_PATH = _PathlibPath('/templates')
         else:
             TEMPLATES_PATH = _PathlibPath(templatesPath)
 
@@ -1301,6 +1301,7 @@ class FormFile(File):
 
     @property
     def Name(self):
+        # returns filename like "image.jpg"
         return self._form[self._key].data.filename
 
     def RenderResponse(self):
@@ -1310,6 +1311,18 @@ class FormFile(File):
             as_attachment=False,  # True will make this download as a file
             attachment_filename=self.Name
         )
+
+    def SaveToDatabaseFile(self):
+        data = self.Read()
+        data = base64.b64encode(data)
+        data = data.decode()
+
+        obj = New(
+            DatabaseFile,
+            data=data,
+            name=self.Name
+        )
+        return obj
 
 
 class SystemFile(File):
@@ -1358,13 +1371,13 @@ class SystemFile(File):
 
 
 class DatabaseFile(BaseTable):
-    # name (str)
+    # name (str) b64 encoded data
     # data (str) (b''.encode())
-    
+
     @property
     def Data(self):
         return base64.b64decode(self['data'].encode())
-    
+
     @property
     def Size(self, asString=False):
         size = len(self.Data)
@@ -1386,7 +1399,7 @@ class DatabaseFile(BaseTable):
         return self['name']
 
     def MakeResponse(self, asAttachment=False):
-        #print('MakeResponse self.Data=', self.Data[:50])
+        # print('MakeResponse self.Data=', self.Data[:50])
         typeMap = {
             'jpg': 'image',
             'png': 'image',
@@ -1397,6 +1410,10 @@ class DatabaseFile(BaseTable):
             'mov': 'video',
             'mp4': 'video',
             'wmv': 'video',
+
+            'mp3': 'audio',
+            'wav': 'audio',
+            'm4a': 'audio',
         }
         return send_file(
             io.BytesIO(self.Data),
