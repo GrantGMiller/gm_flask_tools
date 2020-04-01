@@ -36,6 +36,7 @@ from collections import namedtuple, deque, OrderedDict
 import os
 from pathlib import Path as _PathlibPath
 import traceback
+import base64
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
@@ -1379,6 +1380,7 @@ class DatabaseFile(BaseTable):
         return self['name']
 
     def MakeResponse(self, asAttachment=False):
+        #print('MakeResponse self.Data=', self['data'][:50])
         typeMap = {
             'jpg': 'image',
             'png': 'image',
