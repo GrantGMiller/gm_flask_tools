@@ -21,13 +21,14 @@ from flask import (
     Markup,
     url_for,
     send_file)
-from dictabase import (
+from dictabase2 import (
     FindOne,
     FindAll,
     Delete,
     Drop,
-    BaseDictabaseTable,
-    SetDB_URI,
+    BaseTable,
+    RegisterDBURI,
+    New,
 )
 import uuid
 import functools
@@ -291,7 +292,7 @@ def ModIndexLoop(num, min_, max_):
     return min_ + mod
 
 
-class UserClass(BaseDictabaseTable):
+class UserClass(BaseTable):
     uniqueKeys = ['email']
     '''
     OTHER KEYS
@@ -325,7 +326,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     dbName = dbName.replace('.', '_')
     engineURI = k.pop('DATABASE_URL', 'sqlite:///{}.db'.format(dbName))
 
-    SetDB_URI(engineURI)
+    RegisterDBURI(engineURI)
 
     devMode = k.pop('devMode', False)
     domainName = k.pop('domainName', 'grant-miller.com')
@@ -349,7 +350,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app.domainName = domainName
 
     # Setup Admin pages
-    class FlaskToolsAdminUser(BaseDictabaseTable):
+    class FlaskToolsAdminUser(BaseTable):
         pass
 
     @app.route('/flask_tools_admin', methods=['GET', 'POST'])
@@ -430,7 +431,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                 # create the new admin user
                 adminEmailAddress = request.form.get('adminEmail', None)
                 if adminEmailAddress:
-                    newAdminUser = FlaskToolsAdminUser(email=adminEmailAddress)
+                    newAdminUser = New(FlaskToolsAdminUser, email=adminEmailAddress)
                     print('new admin user created. email={}'.format(adminEmailAddress))
 
                 else:
@@ -528,11 +529,11 @@ def SetupLoginPage(
 
                 else:
                     print('no user exist, create a new one')
-                    newUser = UserClass(
-                        email=email.lower(),
-                        authToken=authToken,
-                        lastAuthTokenTime=datetime.datetime.now(),
-                    )
+                    newUser = New(UserClass,
+                                  email=email.lower(),
+                                  authToken=authToken,
+                                  lastAuthTokenTime=datetime.datetime.now(),
+                                  )
                     print('221 newUser=', newUser)
 
                 print('Sending email to user to authenticate.')
@@ -950,11 +951,11 @@ def SetupRegisterAndLoginPageWithPassword(
 
             else:
                 if passwordConfirm == password:
-                    newUser = UserClass(
-                        email=email.lower(),
-                        passwordHash=HashIt(password),
-                        authenticated=True,
-                    )
+                    newUser = New(UserClass,
+                                  email=email.lower(),
+                                  passwordHash=HashIt(password),
+                                  authenticated=True,
+                                  )
                     if callable(callbackNewUserRegistered):
                         callbackNewUserRegistered(newUser)
                     session['email'] = email
@@ -1355,19 +1356,7 @@ class SystemFile(File):
         return self._path
 
 
-class DatabaseFile(BaseDictabaseTable):
-    def __init__(self, *a, **k):
-        #print('DatabaseFile.__init__(', a, k)
-        if k.get('doInsert') == True:
-            if 'data' not in k or 'name' not in k:
-                print('"data" in k=', 'data' in k)
-                print('"name" in k=', 'name' in k)
-                raise Exception('You must pass kwargs for "data" (type=bytes) and "name" (type=str)')
-
-            if isinstance(k['data'], bytes):
-                k['data'] = k['data'].decode()
-
-        super().__init__(*a, **k)
+class DatabaseFile(BaseTable):
 
     @property
     def Size(self, asString=False):
@@ -1408,7 +1397,8 @@ class DatabaseFile(BaseDictabaseTable):
                 self.Extension,
             ),
             as_attachment=True if typeMap.get(self.Extension.lower(), 'image') == 'video' else asAttachment,
-            attachment_filename=self['name']
+            attachment_filename=self['name'],
+            cache_timeout=1
         )
 
 
