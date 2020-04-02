@@ -21,7 +21,7 @@ from flask import (
     Markup,
     url_for,
     send_file)
-from dictabase2 import (
+from dictabase import (
     FindOne,
     FindAll,
     Delete,
