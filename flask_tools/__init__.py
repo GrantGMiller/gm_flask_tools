@@ -777,7 +777,7 @@ def SetupRegisterAndLoginPageWithPassword(
         templateName = 'autogen_login.html'
         loginTemplate = templateName
 
-        thisTemplatePath = TEMPLATES_PATH + '/' + templateName
+        thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
 
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
@@ -812,7 +812,7 @@ def SetupRegisterAndLoginPageWithPassword(
         templateName = 'autogen_register.html'
         registerTemplate = templateName
 
-        thisTemplatePath = TEMPLATES_PATH + '/' + templateName
+        thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
                 file.write('''
@@ -985,7 +985,7 @@ def SetupRegisterAndLoginPageWithPassword(
         templateName = 'autogen_forgot.html'
         forgotTemplate = templateName
 
-        thisTemplatePath = TEMPLATES_PATH + '/' + templateName
+        thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
                 file.write('''
