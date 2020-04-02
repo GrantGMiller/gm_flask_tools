@@ -233,7 +233,10 @@ _SendEmailFunction = FTSendEmail
 
 
 def SendEmail(*a, **k):
-    _SendEmailFunction(*a, **k)
+    try:
+        _SendEmailFunction(*a, **k)
+    except Exception as e:
+        print('239 Exception:', e)
 
 
 def RegisterEmailSender(func):
@@ -241,7 +244,7 @@ def RegisterEmailSender(func):
     func should accept the following parameters
     func(to=None, frm=None, cc=None, bcc=None, subject=None, body=None, html=None, attachments=None)
     '''
-    print('RegisterEmailSender(', func)
+    print('244 RegisterEmailSender(', func)
     global _SendEmailFunction
     _SendEmailFunction = func
 
