@@ -862,7 +862,7 @@ def SetupRegisterAndLoginPageWithPassword(
             rememberMe = True
 
         print('email=', email)
-        # print('password=', '*' * len(password))
+        print('password=', HashIt(password) if password else password)
         print('rememberMe=', rememberMe)
 
         if request.method == 'POST':
