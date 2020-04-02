@@ -778,7 +778,7 @@ def SetupRegisterAndLoginPageWithPassword(
         loginTemplate = templateName
 
         thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
-
+        print('thisTemplatePath=', thisTemplatePath)
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
                 file.write('''
