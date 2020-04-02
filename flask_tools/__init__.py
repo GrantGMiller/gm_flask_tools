@@ -199,7 +199,7 @@ def FTSendEmail(to, frm=None, subject=None, body=None):
     :return:
     '''
     if 'win' in sys.platform:
-        print('SendEmail(', to, frm, subject, body)
+        print('FTSendEmail(', to, frm, subject, body)
     if frm is None:
         ref = request.referrer
         if ref is None:
@@ -228,8 +228,12 @@ def FTSendEmail(to, frm=None, subject=None, body=None):
             return str(p)
 
 
-global SendEmail
-SendEmail = FTSendEmail
+global _SendEmailFunction
+_SendEmailFunction = FTSendEmail
+
+
+def SendEmail(*a, **k):
+    _SendEmailFunction(*a, **k)
 
 
 def RegisterEmailSender(func):
@@ -237,8 +241,9 @@ def RegisterEmailSender(func):
     func should accept the following parameters
     func(to=None, frm=None, cc=None, bcc=None, subject=None, body=None, html=None, attachments=None)
     '''
-    global SendEmail
-    SendEmail = func
+    print('RegisterEmailSender(', func)
+    global _SendEmailFunction
+    _SendEmailFunction = func
 
 
 def MoveListItem(l, item, units):
@@ -413,7 +418,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                         code
                     )
                     print('url=', url)
-                    AddJob(SendEmail,
+                    AddJob(_SendEmailFunction,
                            to=adminUser.get('email'),
                            frm='system@{}'.format(app.domainName),
                            subject='Admin Magic Link',
@@ -572,7 +577,8 @@ def SetupLoginPage(
                     #     print(item, getattr(request, item))
                     #     body += '{}={}\r\n'.format(item, getattr(request, item))
 
-                    AddJob(SendEmail, to=email, frm='login@{}'.format(referrerDomain), subject='Login', body=body)
+                    AddJob(_SendEmailFunction, to=email, frm='login@{}'.format(referrerDomain), subject='Login',
+                           body=body)
                     flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
             else:
                 print('no auth token, show login page')
@@ -806,7 +812,6 @@ def SetupRegisterAndLoginPageWithPassword(
                 </div> <!-- /container -->
                 {{% endblock %}}
         '''.format(mainTemplate))
-
 
     if registerTemplate is None:
         templateName = 'autogen_register.html'
@@ -1063,7 +1068,7 @@ Reset My Password Now
 {}
             '''.format(resetLink)
 
-            AddJob(SendEmail, to=email, frm=frm, subject='Password Reset', body=body)
+            AddJob(_SendEmailFunction, to=email, frm=frm, subject='Password Reset', body=body)
             flash('A reset link has been emailed to you.')
             return redirect('/')
 
