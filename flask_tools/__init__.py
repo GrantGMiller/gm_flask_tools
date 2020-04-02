@@ -1268,7 +1268,7 @@ def PathString(path):
     else:
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__)).parent
 
-        if 'heroku' in mainPath:
+        if 'app/.heroku' in str(mainPath):
             if str(path).startswith('/'):
                 return str(path)[1:]
             else:
