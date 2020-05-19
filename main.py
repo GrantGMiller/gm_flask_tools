@@ -73,6 +73,7 @@ def AddContent():
 def GetArgs():
     code = request.args.get('code', None)
     print('request.form=', request.form)  # immutable dict
+    print('request.host=', request.host)  # "http://127.0.0.1:5000
 
 
 if __name__ == '__main__':
