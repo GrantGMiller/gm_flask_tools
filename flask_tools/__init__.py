@@ -419,7 +419,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                     adminUser['expiresAt'] = time.time() + 8 * 60 * 60
                     print('adminUser=', adminUser)
                     url = '{}/{}?code={}'.format(
-                        app.domainName,
+                        request.host_url,
                         url_for('FlaskToolsAdmin'),
                         code
                     )
@@ -1057,7 +1057,7 @@ def SetupRegisterAndLoginPageWithPassword(
             if 'Signage' in app.name:
                 referrerDomain = 'signage.grant-miller.com'
 
-            resetLink = 'http://{}/reset_password/{}'.format(referrerDomain, resetToken)
+            resetLink = '{}/reset_password/{}'.format(request.host_url, resetToken)
             print('resetLink=', resetLink)
 
             user = FindOne(UserClass, email=email)
