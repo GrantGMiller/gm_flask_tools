@@ -244,7 +244,7 @@ def RegisterEmailSender(func):
     func should accept the following parameters
     func(to=None, frm=None, cc=None, bcc=None, subject=None, body=None, html=None, attachments=None)
     '''
-    print('244 RegisterEmailSender(', func)
+    print('244 RegisterEmailSender(', func, 'from', func.__module__)
     global _SendEmailFunction
     _SendEmailFunction = func
 
