@@ -124,7 +124,9 @@ uniqueID = uuid.getnode()
 
 
 def GetMachineUniqueID():
-    return HashIt(uuid.getnode())
+    ret = HashIt(uuid.getnode())
+    print('GetMachineUniqueID( return', ret)
+    return ret
 
 
 def HashIt(strng=None, salt=str(uniqueID)):
@@ -341,7 +343,9 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     devMode = k.pop('devMode', False)
     domainName = k.pop('domainName', 'grant-miller.com')
 
-    secretKey = k.pop('SECRET_KEY', GetMachineUniqueID())
+    secretKey = GetConfigVar('SECRET_KEY')
+    if secretKey is None:
+        secretKey = GetMachineUniqueID()
 
     app = Flask(
         appName,
