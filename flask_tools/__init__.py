@@ -127,21 +127,21 @@ def GetMachineUniqueID():
     return HashIt(uuid.getnode())
 
 
-def HashIt(string=None, salt=str(uniqueID)):
+def HashIt(strng=None, salt=str(uniqueID)):
     '''
     This function takes in a string and converts it to a unique hash.
     Note: this is a one-way conversion. The value cannot be converted from hash to the original string
-    :param string: string, if None a random hash will be returned
+    :param strng: str, if None a random hash will be returned
     :return: str
     '''
-    if string is None:
+    if strng is None:
         # if None a random hash will be returned
-        string = uuid.uuid4()
+        strng = uuid.uuid4()
 
-    if not isinstance(string, str):
-        string = str(string)
+    if not isinstance(strng, str):
+        strng = str(strng)
 
-    hash1 = hashlib.sha512(bytes(string, 'utf-8')).hexdigest()
+    hash1 = hashlib.sha512(bytes(strng, 'utf-8')).hexdigest()
     hash1 += salt
     hash2 = hashlib.sha512(bytes(hash1, 'utf-8')).hexdigest()
     return hash2
