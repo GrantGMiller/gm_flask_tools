@@ -711,16 +711,16 @@ def VerifyLogin(func):
     :return:
     '''
 
-    print('53 VerifyLogin(', func)
+    #print('53 VerifyLogin(', func)
 
     @functools.wraps(func)
     def VerifyLoginWrapper(*args, **kwargs):
-        print('VerifyLoginWrapper(', args, kwargs)
+        #print('VerifyLoginWrapper(', args, kwargs)
         user = GetUser()
-        print('57 user=', user)
+        #print('57 user=', user)
         if user is None:
             cookieAuthToken = request.values.get('authToken', None)
-            print('495 cookieAuthToken=', cookieAuthToken)
+            #print('495 cookieAuthToken=', cookieAuthToken)
             flash('You must be logged in for that.')
             return redirect('/login')
         else:
