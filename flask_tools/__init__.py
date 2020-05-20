@@ -326,8 +326,6 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     # OtherAdminStuff should return dict that will be used to render_template for admin page
     global DB_URI
 
-    import config
-
     displayableAppName = appName
 
     dbName = appName.replace(' ', '')
@@ -354,8 +352,6 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app.config['SECRET_KEY'] = secretKey
 
     configClass = k.pop('configClass', None)
-    if configClass:
-        app.config.from_object(config.GetConfigClass(appName)())
 
     app.jinja_env.globals['displayableAppName'] = displayableAppName
 
