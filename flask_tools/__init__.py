@@ -1552,7 +1552,7 @@ def GetConfigVar(key):
             import config
             return getattr(config, key)
         else:
-            return os.environ.get(key)
+            return os.environ.get(key, None)
     except Exception as e:
         print('flask_tools Exception 1557:', e)
         return None
