@@ -333,7 +333,10 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     dbName = appName.replace(' ', '')
     appName = dbName.replace('.', '_')
     dbName = dbName.replace('.', '_')
-    engineURI = k.pop('DATABASE_URL', 'sqlite:///{}.db'.format(dbName))
+    # engineURI = k.pop('DATABASE_URL', 'sqlite:///{}.db'.format(dbName))
+    engineURI = GetConfigVar('DATABASE_URL')
+    if engineURI is None:
+        engineURI = 'sqlite:///{}.db'.format(dbName)
 
     RegisterDBURI(engineURI)
 
@@ -1538,5 +1541,18 @@ def RemovePunctuation(word):
     word = ''.join(ch for ch in word if ch not in string.punctuation)
     return word
 
+
 def RemoveNonLetters(word):
     return ''.join(ch for ch in word if ch in string.ascii_lowercase)
+
+
+def GetConfigVar(key):
+    try:
+        if sys.platform.startswith('win'):
+            import config
+            return getattr(config, key)
+        else:
+            return os.environ.get(key)
+    except Exception as e:
+        print('flask_tools Exception 1557:', e)
+        return None
