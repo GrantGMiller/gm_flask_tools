@@ -1531,3 +1531,11 @@ def FormToString(form):
     # print('1349 ret=', ret)
 
     return Markup(ret)
+
+
+def RemovePunctuation(word):
+    word = ''.join(ch for ch in word if ch not in string.punctuation)
+    return word
+
+def RemoveNonLetters(word):
+    return ''.join(ch for ch in word if ch in string.ascii_lowercase)
