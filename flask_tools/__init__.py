@@ -124,24 +124,26 @@ uniqueID = uuid.getnode()
 
 
 def GetMachineUniqueID():
-    return HashIt(uuid.getnode())
+    ret = HashIt(uuid.getnode())
+    print('GetMachineUniqueID( return', ret)
+    return ret
 
 
-def HashIt(string=None, salt=str(uniqueID)):
+def HashIt(strng=None, salt=str(uniqueID)):
     '''
     This function takes in a string and converts it to a unique hash.
     Note: this is a one-way conversion. The value cannot be converted from hash to the original string
-    :param string: string, if None a random hash will be returned
+    :param strng: str, if None a random hash will be returned
     :return: str
     '''
-    if string is None:
+    if strng is None:
         # if None a random hash will be returned
-        string = uuid.uuid4()
+        strng = uuid.uuid4()
 
-    if not isinstance(string, str):
-        string = str(string)
+    if not isinstance(strng, str):
+        strng = str(strng)
 
-    hash1 = hashlib.sha512(bytes(string, 'utf-8')).hexdigest()
+    hash1 = hashlib.sha512(bytes(strng, 'utf-8')).hexdigest()
     hash1 += salt
     hash2 = hashlib.sha512(bytes(hash1, 'utf-8')).hexdigest()
     return hash2
@@ -244,7 +246,7 @@ def RegisterEmailSender(func):
     func should accept the following parameters
     func(to=None, frm=None, cc=None, bcc=None, subject=None, body=None, html=None, attachments=None)
     '''
-    print('244 RegisterEmailSender(', func)
+    print('244 RegisterEmailSender(', func, 'from', func.__module__)
     global _SendEmailFunction
     _SendEmailFunction = func
 
@@ -326,21 +328,24 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     # OtherAdminStuff should return dict that will be used to render_template for admin page
     global DB_URI
 
-    import config
-
     displayableAppName = appName
 
     dbName = appName.replace(' ', '')
     appName = dbName.replace('.', '_')
     dbName = dbName.replace('.', '_')
-    engineURI = k.pop('DATABASE_URL', 'sqlite:///{}.db'.format(dbName))
+    # engineURI = k.pop('DATABASE_URL', 'sqlite:///{}.db'.format(dbName))
+    engineURI = GetConfigVar('DATABASE_URL')
+    if engineURI is None:
+        engineURI = 'sqlite:///{}.db'.format(dbName)
 
     RegisterDBURI(engineURI)
 
     devMode = k.pop('devMode', False)
     domainName = k.pop('domainName', 'grant-miller.com')
 
-    secretKey = k.pop('SECRET_KEY', GetMachineUniqueID())
+    secretKey = GetConfigVar('SECRET_KEY')
+    if secretKey is None:
+        secretKey = GetMachineUniqueID()
 
     app = Flask(
         appName,
@@ -351,8 +356,6 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app.config['SECRET_KEY'] = secretKey
 
     configClass = k.pop('configClass', None)
-    if configClass:
-        app.config.from_object(config.GetConfigClass(appName)())
 
     app.jinja_env.globals['displayableAppName'] = displayableAppName
 
@@ -416,7 +419,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                     adminUser['expiresAt'] = time.time() + 8 * 60 * 60
                     print('adminUser=', adminUser)
                     url = '{}/{}?code={}'.format(
-                        app.domainName,
+                        request.host_url,
                         url_for('FlaskToolsAdmin'),
                         code
                     )
@@ -712,16 +715,16 @@ def VerifyLogin(func):
     :return:
     '''
 
-    print('53 VerifyLogin(', func)
+    #print('53 VerifyLogin(', func)
 
     @functools.wraps(func)
     def VerifyLoginWrapper(*args, **kwargs):
-        print('VerifyLoginWrapper(', args, kwargs)
+        #print('VerifyLoginWrapper(', args, kwargs)
         user = GetUser()
-        print('57 user=', user)
+        #print('57 user=', user)
         if user is None:
             cookieAuthToken = request.values.get('authToken', None)
-            print('495 cookieAuthToken=', cookieAuthToken)
+            #print('495 cookieAuthToken=', cookieAuthToken)
             flash('You must be logged in for that.')
             return redirect('/login')
         else:
@@ -746,6 +749,7 @@ def RemoveMenuOption(title):
 
 
 def GetMenu(active=None):
+    active = active or ''
     ret = []
     for title, url in menuOptions.items():
         ret.append(MenuOptionClass(title, url, active.lower() == title.lower()))
@@ -1053,7 +1057,7 @@ def SetupRegisterAndLoginPageWithPassword(
             if 'Signage' in app.name:
                 referrerDomain = 'signage.grant-miller.com'
 
-            resetLink = 'http://{}/reset_password/{}'.format(referrerDomain, resetToken)
+            resetLink = '{}/reset_password/{}'.format(request.host_url, resetToken)
             print('resetLink=', resetLink)
 
             user = FindOne(UserClass, email=email)
@@ -1537,5 +1541,18 @@ def RemovePunctuation(word):
     word = ''.join(ch for ch in word if ch not in string.punctuation)
     return word
 
+
 def RemoveNonLetters(word):
     return ''.join(ch for ch in word if ch in string.ascii_lowercase)
+
+
+def GetConfigVar(key):
+    try:
+        if sys.platform.startswith('win'):
+            import config
+            return getattr(config, key)
+        else:
+            return os.environ.get(key, None)
+    except Exception as e:
+        print('flask_tools Exception 1557:', e)
+        return None
