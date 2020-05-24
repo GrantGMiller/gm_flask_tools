@@ -392,7 +392,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                         # the admin session has expired
                         session['code'] = 'nope'
                         adminUser['code'] = None
-                        flash('You admin session has expired')
+                        flash('You admin session has expired', 'alert')
                         return redirect(url_for('FlaskToolsAdmin'))
 
                     # the admin has clicked on a magic link, or is logged in
@@ -725,7 +725,7 @@ def VerifyLogin(func):
         if user is None:
             cookieAuthToken = request.values.get('authToken', None)
             #print('495 cookieAuthToken=', cookieAuthToken)
-            flash('You must be logged in for that.')
+            flash('You must be logged in for that.', 'alert')
             return redirect('/login')
         else:
             return func(*args, **kwargs)

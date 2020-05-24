@@ -1,1 +1,2 @@
 requests
+dictabase 3.0.4
