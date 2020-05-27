@@ -42,7 +42,7 @@ AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
 DEBUG = True
-if DEBUG is False:
+if DEBUG is False or sys.platform.startswith('linux'):
     print = lambda *a, **k: None
 
 
@@ -129,13 +129,18 @@ def GetMachineUniqueID():
     return ret
 
 
-def HashIt(strng=None, salt=str(uniqueID)):
+def HashIt(strng=None, salt=None):
     '''
     This function takes in a string and converts it to a unique hash.
     Note: this is a one-way conversion. The value cannot be converted from hash to the original string
     :param strng: str, if None a random hash will be returned
     :return: str
     '''
+    if salt is None:
+        salt = GetConfigVar('SECRET_KEY')
+        if salt is None:
+            salt = str(uniqueID)
+
     if strng is None:
         # if None a random hash will be returned
         strng = uuid.uuid4()
