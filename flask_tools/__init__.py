@@ -1081,7 +1081,7 @@ Reset My Password Now
             '''.format(resetLink)
 
             AddJob(_SendEmailFunction, to=email, frm=frm, subject='Password Reset', body=body)
-            flash('A reset link has been emailed to you.')
+            flash('A reset link has been emailed to you.', 'info')
             return redirect('/')
 
         else:
@@ -1097,7 +1097,7 @@ Reset My Password Now
                 user['passwordHash'] = tempHash
                 user['resetToken'] = None
                 user['tempPasswordHash'] = None
-                flash('Your password has been changed.')
+                flash('Your password has been changed.', 'info')
         else:
             flash('(Info 847) Your password has been changed', 'success')
 
