@@ -3,8 +3,7 @@ import io
 import random
 import re
 import string
-import threading
-from subprocess import Popen, PIPE, check_output
+from subprocess import Popen, PIPE
 from email.mime.text import MIMEText
 import sys
 import time
@@ -720,16 +719,16 @@ def VerifyLogin(func):
     :return:
     '''
 
-    #print('53 VerifyLogin(', func)
+    # print('53 VerifyLogin(', func)
 
     @functools.wraps(func)
     def VerifyLoginWrapper(*args, **kwargs):
-        #print('VerifyLoginWrapper(', args, kwargs)
+        # print('VerifyLoginWrapper(', args, kwargs)
         user = GetUser()
-        #print('57 user=', user)
+        # print('57 user=', user)
         if user is None:
             cookieAuthToken = request.values.get('authToken', None)
-            #print('495 cookieAuthToken=', cookieAuthToken)
+            # print('495 cookieAuthToken=', cookieAuthToken)
             flash('You must be logged in for that.', 'danger')
             return redirect('/login')
         else:
@@ -891,7 +890,7 @@ def SetupRegisterAndLoginPageWithPassword(
                 print('572 userObj=', userObj)
                 if userObj is None:
                     # username not found
-                    flash('Error 662:' + LOGIN_FAILED_FLASH_MESSAGE, 'error')
+                    flash('Error 662:' + LOGIN_FAILED_FLASH_MESSAGE, 'danger')
                     if callable(callbackFailedLogin):
                         callbackFailedLogin()
 
@@ -1395,6 +1394,34 @@ class SystemFile(File):
     @property
     def Path(self):
         return self._path
+
+    def MakeResponse(self, asAttachment=False):
+        # print('MakeResponse self.Data=', self.Data[:50])
+        typeMap = {
+            'jpg': 'image',
+            'png': 'image',
+            'jpeg': 'image',
+            'gif': 'image',
+
+            'flv': 'video',
+            'mov': 'video',
+            'mp4': 'video',
+            'wmv': 'video',
+
+            'mp3': 'audio',
+            'wav': 'audio',
+            'm4a': 'audio',
+        }
+        return send_file(
+            filename_or_fp=self.Path,
+            mimetype='{}/{}'.format(
+                typeMap.get(self.Extension.lower(), 'image'),
+                self.Extension,
+            ),
+            as_attachment=True if typeMap.get(self.Extension.lower(), 'image') == 'video' else asAttachment,
+            attachment_filename=self.Name,
+            cache_timeout=1
+        )
 
 
 class DatabaseFile(BaseTable):
