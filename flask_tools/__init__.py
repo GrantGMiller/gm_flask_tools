@@ -1,6 +1,5 @@
 import hashlib
 import io
-import random
 import re
 import string
 from subprocess import Popen, PIPE
@@ -36,6 +35,7 @@ import os
 from pathlib import Path as _PathlibPath
 import traceback
 import base64
+import threading
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
@@ -926,7 +926,7 @@ def SetupRegisterAndLoginPageWithPassword(
                         # print('userObj.get("passwordHash")=', userObj.get('passwordHash', None))
                         # print('passwordHash=', passwordHash)
 
-                        flash('Error 694:' + LOGIN_FAILED_FLASH_MESSAGE, 'error')
+                        flash('Error 694:' + LOGIN_FAILED_FLASH_MESSAGE, 'danger')
                         if callable(callbackFailedLogin):
                             callbackFailedLogin()
 

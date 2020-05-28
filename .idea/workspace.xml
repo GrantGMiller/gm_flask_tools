@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="added requirements.txt">
-      <change beforePath="$PROJECT_DIR$/.idea/flask-tools.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/flask-tools.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
