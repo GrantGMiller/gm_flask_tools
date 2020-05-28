@@ -22,8 +22,6 @@ from flask import (
 from dictabase import (
     FindOne,
     FindAll,
-    Delete,
-    Drop,
     BaseTable,
     RegisterDBURI,
     New,
@@ -485,7 +483,7 @@ def SetupLoginPage(
         templatePath = 'login.html'
         print('templatePath=', templatePath)
 
-    SetDB_URI(DB_URI)
+    RegisterDBURI(DB_URI)
 
     @app.route(loginURL, methods=['GET', 'POST'])
     def Login(*a, **k):
@@ -494,8 +492,6 @@ def SetupLoginPage(
         if email is None:
             email = request.cookies.get('email', None)
         print('email=', email)
-
-        # flash(request.cookies)
 
         authToken = request.form.get('authToken', None)
 
@@ -589,7 +585,7 @@ def SetupLoginPage(
 
                     AddJob(_SendEmailFunction, to=email, frm='login@{}'.format(referrerDomain), subject='Login',
                            body=body)
-                    flash('An email was sent to {}. Please click the link in the email to login.'.format(email))
+                    flash('An email was sent to {}. Please click the link in the email to login.'.format(email), 'info')
             else:
                 print('no auth token, show login page')
 
@@ -656,15 +652,15 @@ def SetupLoginPage(
 
                 else:
                     # auth token expired
-                    flash('Auth Token expired. Please log in again.')
+                    flash('Auth Token expired. Please log in again.', 'danger')
                     return redirect(url_for(Login))
 
             else:
-                flash('Auth Token has no expiration. This is invalid. Please log in again.')
+                flash('Auth Token has no expiration. This is invalid. Please log in again.', 'danger')
                 return redirect(url_for(Login))
 
         else:
-            flash('Error 348. Login Failed')
+            flash('Error 348. Login Failed', 'danger')
             return render_template('login_failed.html')
 
 
@@ -877,12 +873,11 @@ def SetupRegisterAndLoginPageWithPassword(
         print('rememberMe=', rememberMe)
 
         if request.method == 'POST':
-            # flash messages if needed
             if password is None:
-                flash('Please enter a password.')
+                flash('Please enter a password.', 'danger')
 
             if email is None:
-                flash('Please enter a username.')
+                flash('Please enter a username.', 'danger')
 
             if email is not None and password is not None:
                 passwordHash = HashIt(password)
@@ -965,13 +960,13 @@ def SetupRegisterAndLoginPageWithPassword(
 
         if request.method == 'POST':
             if email is None:
-                flash('Please provide an email address.', 'error')
+                flash('Please provide an email address.', 'danger')
             if password != passwordConfirm:
-                flash('Passwords do not match.', 'error')
+                flash('Passwords do not match.', 'danger')
 
             existingUser = FindOne(UserClass, email=email)
             if existingUser is not None:
-                flash('An account with this email already exists.')
+                flash('Error 969: Invalid Email', 'danger')
 
             else:
                 if passwordConfirm == password:
@@ -983,7 +978,7 @@ def SetupRegisterAndLoginPageWithPassword(
                     if callable(callbackNewUserRegistered):
                         callbackNewUserRegistered(newUser)
                     session['email'] = email
-                    flash('Your account has been created. Thank you.')
+                    flash('Your account has been created. Thank you.', 'danger')
                     return redirect(redirectSuccess)
 
             return render_template(
@@ -1043,7 +1038,7 @@ def SetupRegisterAndLoginPageWithPassword(
             #     print(item, '=', getattr(request, item))
 
             if request.form.get('password', None) != request.form.get('passwordConfirm', None):
-                flash('Passwords do not match.')
+                flash('Passwords do not match.', 'danger')
                 return render_template(forgotTemplate)
 
             # send them a reset email
