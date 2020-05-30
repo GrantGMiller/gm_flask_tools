@@ -85,7 +85,7 @@ def IsValidPhone(phone):
     match = RE_PHONE_NUMBER.search(phone)
     print('match=', match)
 
-    ret = match is not None and len(phone) is 12
+    ret = match is not None and len(phone) == 12
     print('78 ret=', ret)
     return ret
 
@@ -352,6 +352,8 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app = Flask(
         appName,
         *a,
+        static_folder='static',
+        static_url_path='/',
         **k,
     )
     app.engineURI = engineURI
@@ -862,6 +864,9 @@ def SetupRegisterAndLoginPageWithPassword(
 
     @app.route('/login', methods=['GET', 'POST'])
     def Login():
+        if GetUser():
+            return redirect('/')
+
         email = request.form.get('email', None)
         password = request.form.get('password', None)
         rememberMe = request.form.get('rememberMe', False)
@@ -1190,7 +1195,7 @@ def _ProcessOneQueueItem():
     completedJobs.append(ID)
     q.task_done()
 
-    if q.qsize() is 0:
+    if q.qsize() == 0:
         workerTimer = None
     else:
         workerTimer = threading.Timer(0, _ProcessOneQueueItem)
