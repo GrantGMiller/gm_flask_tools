@@ -38,7 +38,7 @@ import threading
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
-DEBUG = True
+DEBUG = False
 if DEBUG is False or sys.platform.startswith('linux'):
     print = lambda *a, **k: None
 
