@@ -1292,6 +1292,7 @@ def PathString(path):
                 return str(path)
         else:
             if 'virtualenv' in path:
+                # when using pipenv
                 return str(_PathlibPath(path))[1:]
             else:
                 newPath = mainPath / path
