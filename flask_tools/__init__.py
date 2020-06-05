@@ -1281,17 +1281,21 @@ def PathString(path):
             return str(path)[1:]
         else:
             return str(path)
-    else:
+    else:  # linux
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__)).parent
 
         if 'app/.heroku' in str(mainPath):
+            # for heroku
             if str(path).startswith('/'):
                 return str(path)[1:]
             else:
                 return str(path)
         else:
-            newPath = mainPath / path
-            return str(newPath)[1:]
+            if 'virtualenv' in path:
+                return str(_PathlibPath(path))[1:]
+            else:
+                newPath = mainPath / path
+                return str(newPath)[1:]
 
 
 class File:
