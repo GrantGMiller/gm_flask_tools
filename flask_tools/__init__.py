@@ -761,6 +761,9 @@ def GetMenu(active=None):
     return ret
 
 
+PROJECT_PATH = ''
+
+
 def SetupRegisterAndLoginPageWithPassword(
         app,
         mainTemplate,  # should be like mainTemplate='main.html',
@@ -771,6 +774,7 @@ def SetupRegisterAndLoginPageWithPassword(
         loginTemplate=None,
         registerTemplate=None,
         forgotTemplate=None,
+        projectPath=None,
 ):
     '''
     Use this function with the @VerifyLogin decorator to simplify login auth
@@ -778,6 +782,8 @@ def SetupRegisterAndLoginPageWithPassword(
     form should have at least two elements
 
     '''
+    global PROJECT_PATH
+    PROJECT_PATH = projectPath
 
     if 'win' in sys.platform:
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__))
@@ -1293,7 +1299,7 @@ def PathString(path):
         else:
             if 'virtualenv' in mainPath:
                 # when using pipenv
-                return str(_PathlibPath(path))[1:]
+                return str(_PathlibPath(PROJECT_PATH) / path)[:1]
             else:
                 newPath = mainPath / path
                 return str(newPath)[1:]
