@@ -35,6 +35,7 @@ import traceback
 import base64
 import threading
 
+VERSION = '0.0.1'
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
