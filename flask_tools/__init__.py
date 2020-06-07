@@ -1300,7 +1300,7 @@ def PathString(path):
             else:
                 return str(path)
         else:
-            if 'virtualenv' in mainPath:
+            if 'virtualenv' in str(mainPath):
                 # when using pipenv
                 return str(_PathlibPath(PROJECT_PATH) / path)[:1]
             else:
