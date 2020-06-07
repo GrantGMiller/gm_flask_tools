@@ -774,7 +774,7 @@ def SetupRegisterAndLoginPageWithPassword(
         loginTemplate=None,
         registerTemplate=None,
         forgotTemplate=None,
-        projectPath=None,
+        projectPath=None,  # added for pipenv
 ):
     '''
     Use this function with the @VerifyLogin decorator to simplify login auth
