@@ -309,24 +309,12 @@ def ModIndexLoop(num, min_, max_):
 
 
 class UserClass(BaseTable):
-    uniqueKeys = ['email']
     '''
     OTHER KEYS
 
     authToken - unique 512 char string
     lastAuthTokenTime - datatime.datetime that authToken was issued
     '''
-
-    def __setitem__(self, key, value):
-        if key == 'email':
-            value = value.lower()  # force emails to be lower case
-
-        return super().__setitem__(key, value)
-
-    def __getitem__(self, item):
-        if item == 'email':
-            item = item.lower()
-        return super().__getitem__(item)
 
 
 def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
@@ -670,7 +658,7 @@ def SetupLoginPage(
 
 
 def SetUser(userObj):
-    session['email'] = userObj.email
+    session['email'] = userObj['email']
 
 
 def GetUser(email=None):
@@ -877,6 +865,8 @@ def SetupRegisterAndLoginPageWithPassword(
             return redirect('/')
 
         email = request.form.get('email', None)
+        if email:
+            email = email.lower()
         password = request.form.get('password', None)
         rememberMe = request.form.get('rememberMe', False)
         if rememberMe is not False:
@@ -968,6 +958,8 @@ def SetupRegisterAndLoginPageWithPassword(
     @app.route('/register', methods=['GET', 'POST'])
     def Register():
         email = request.form.get('email', None)
+        if email:
+            email = email.lower()
         password = request.form.get('password', None)
         passwordConfirm = request.form.get('passwordConfirm', None)
         rememberMe = request.form.get('rememberMe', False)
@@ -992,7 +984,7 @@ def SetupRegisterAndLoginPageWithPassword(
                     if callable(callbackNewUserRegistered):
                         callbackNewUserRegistered(newUser)
                     session['email'] = email
-                    flash('Your account has been created. Thank you.', 'danger')
+                    flash('Your account has been created. Thank you.', 'success')
                     return redirect(redirectSuccess)
 
             return render_template(

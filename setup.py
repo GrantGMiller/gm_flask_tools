@@ -9,12 +9,14 @@ packages = ['flask_tools']
 print('packages=', packages)
 
 setup(
-    name="flask_tools",
+    name="gm_flask_tools",
 
-    version="1.1",
+    version="1.0.1",
+    # 1.0.1 - bug fix. UserClass 'email' key forced to .lower()
+    # 1.0.0 - init release to pypi
 
     packages=packages,
-    install_requires=['flask'],
+    install_requires=['flask', 'dictabase==4.0.9', 'requests'],
     # scripts=['say_hello.py'],
 
     # Project uses reStructuredText, so ensure that the docutils get
