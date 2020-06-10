@@ -925,7 +925,7 @@ def SetupRegisterAndLoginPageWithPassword(
                         # print('userObj.get("passwordHash")=', userObj.get('passwordHash', None))
                         # print('passwordHash=', passwordHash)
 
-                        flash('Error 694:' + LOGIN_FAILED_FLASH_MESSAGE, 'danger')
+                        flash(LOGIN_FAILED_FLASH_MESSAGE, 'danger')
                         if callable(callbackFailedLogin):
                             callbackFailedLogin()
 

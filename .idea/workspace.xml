@@ -19,12 +19,10 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="added requirements.txt">
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="# 1.0.1 - bug fix. UserClass 'email' key forced to .lower()">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +180,14 @@
       <option name="project" value="LOCAL" />
       <updated>1585170291904</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="# 1.0.1 - bug fix. UserClass 'email' key forced to .lower()">
+      <created>1591582405480</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1591582405480</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -204,7 +209,8 @@
     <MESSAGE value="added setup.py" />
     <MESSAGE value="converted to package" />
     <MESSAGE value="added requirements.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="added requirements.txt" />
+    <MESSAGE value="# 1.0.1 - bug fix. UserClass 'email' key forced to .lower()" />
+    <option name="LAST_COMMIT_MESSAGE" value="# 1.0.1 - bug fix. UserClass 'email' key forced to .lower()" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2564" y="131" key="CommitChangelistDialog2" timestamp="1585170290774">
@@ -215,7 +221,6 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1588856292973" />
-    <state x="740" y="274" key="FileChooserDialogImpl/1920.0.1920.1040/0.0.1920.1040/3840.1080.1366.768@0.0.1920.1040" timestamp="1582917151164" />
     <state width="922" height="216" key="GridCell.Tab.0.bottom" timestamp="1588857779490">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -240,9 +245,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="461" y="165" key="SettingsEditor/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1590700288521" />
-    <state x="2472" y="272" key="Vcs.Push.Dialog.v2" timestamp="1585170294285">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="552" y="272" key="Vcs.Push.Dialog.v2" timestamp="1591582406681">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="552" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040/1014.1080.1920.1040@0.0.1920.1040" timestamp="1591582406681" />
     <state x="2472" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170294285" />
     <state x="2577" y="257" width="606" height="526" key="find.popup" timestamp="1585169897839">
       <screen x="1920" y="0" width="1920" height="1040" />
