@@ -28,7 +28,7 @@ from dictabase import (
 )
 import uuid
 import functools
-from collections import namedtuple, deque, OrderedDict
+from collections import namedtuple, deque, OrderedDict, defaultdict
 import os
 from pathlib import Path as _PathlibPath
 import traceback
@@ -1594,3 +1594,43 @@ def GetConfigVar(key):
     except Exception as e:
         print('flask_tools Exception 1557:', e)
         return None
+
+
+scheduledJobs = defaultdict(list)  # {
+# datetime(): [(callback, args, kwargs), ...],
+# }
+timerNextScheduledJob = None
+
+
+def ScheduleJob(dt, callback, *args, **kwargs):
+    scheduledJobs[dt].append((callback, args, kwargs))
+    _ResetScheduleJobTimer()
+
+
+def _ResetScheduleJobTimer():
+    global timerNextScheduledJob
+    nextDt = None
+    for dt, job in scheduledJobs.items():
+        if nextDt is None or dt < nextDt:
+            nextDt = dt
+
+    if nextDt:
+        if timerNextScheduledJob:
+            timerNextScheduledJob.cancel()
+
+        delta = (nextDt - datetime.datetime.now()).total_seconds()
+        if delta < 0:
+            delta = 0
+
+        timerNextScheduledJob = threading.Timer(
+            delta,
+            _DoScheduledJobs, (nextDt,)
+        ).start()
+
+
+def _DoScheduledJobs(dt):
+    jobList = scheduledJobs.pop(dt, [])
+    for jobTup in jobList:
+        callback, args, kwargs = jobTup
+        AddJob(callback, *args, **kwargs)
+    _ResetScheduleJobTimer()
