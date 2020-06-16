@@ -60,7 +60,7 @@
             project: {
               name: 'p5',
               description:
-                '[![Build Status](https://travis-ci.org/processing/p5.js.svg?branch=master)](https://travis-ci.org/processing/p5.js) [![npm version](https://badge.fury.io/js/p5.svg)](https://www.npmjs.com/package/p5)',
+                '[![Build Status](https://travis-ci.org/processing/p5.js.svg?branch=master)](https://travis-ci.org/processing/p5.js) [![npm version](https://badge.fury.io//p5.svg)](https://www.npmjs.com/package/p5)',
               version: '0.9.0',
               url: 'https://github.com/processing/p5.js#readme'
             },
@@ -1676,7 +1676,7 @@
                 line: 209,
                 requires: ['core'],
                 description:
-                  '<p>This class describes a camera for use in p5&#39;s\n<a href="https://github.com/processing/p5.js/wiki/Getting-started-with-WebGL-in-p5">\nWebGL mode</a>. It contains camera position, orientation, and projection\ninformation necessary for rendering a 3D scene.</p>\n<p>New p5.Camera objects can be made through the\n<a href="#/p5/createCamera">createCamera()</a> function and controlled through\nthe methods described below. A camera created in this way will use a default\nposition in the scene and a default perspective projection until these\nproperties are changed through the various methods available. It is possible\nto create multiple cameras, in which case the current camera\ncan be set through the <a href="#/p5/setCamera">setCamera()</a> method.</p>\n<p>Note:\nThe methods below operate in two coordinate systems: the &#39;world&#39; coordinate\nsystem describe positions in terms of their relationship to the origin along\nthe X, Y and Z axes whereas the camera&#39;s &#39;local&#39; coordinate system\ndescribes positions from the camera&#39;s point of view: left-right, up-down,\nand forward-backward. The <a href="#/p5.Camera/move">move()</a> method,\nfor instance, moves the camera along its own axes, whereas the\n<a href="#/p5.Camera/setPosition">setPosition()</a>\nmethod sets the camera&#39;s position in world-space.</p>\n'
+                  '<p>This class describes a camera for use in p5&#39;s\n<a href="https://github.com/processing/p5./wiki/Getting-started-with-WebGL-in-p5">\nWebGL mode</a>. It contains camera position, orientation, and projection\ninformation necessary for rendering a 3D scene.</p>\n<p>New p5.Camera objects can be made through the\n<a href="#/p5/createCamera">createCamera()</a> function and controlled through\nthe methods described below. A camera created in this way will use a default\nposition in the scene and a default perspective projection until these\nproperties are changed through the various methods available. It is possible\nto create multiple cameras, in which case the current camera\ncan be set through the <a href="#/p5/setCamera">setCamera()</a> method.</p>\n<p>Note:\nThe methods below operate in two coordinate systems: the &#39;world&#39; coordinate\nsystem describe positions in terms of their relationship to the origin along\nthe X, Y and Z axes whereas the camera&#39;s &#39;local&#39; coordinate system\ndescribes positions from the camera&#39;s point of view: left-right, up-down,\nand forward-backward. The <a href="#/p5.Camera/move">move()</a> method,\nfor instance, moves the camera along its own axes, whereas the\n<a href="#/p5.Camera/setPosition">setPosition()</a>\nmethod sets the camera&#39;s position in world-space.</p>\n'
               },
               Shaders: {
                 name: 'Shaders',
@@ -1714,7 +1714,7 @@
                 file: 'lib/addons/p5.dom.js',
                 line: 3323,
                 description:
-                  "<p><p>The web is much more than just canvas and p5.dom makes it easy to interact\nwith other HTML5 objects, including text, hyperlink, image, input, video,\naudio, and webcam.</p></p>\n<p><p>There is a set of creation methods, DOM manipulation methods, and\nan extended <a href=\"#/p5.Element\">p5.Element</a> that supports a range of HTML elements. See the\n<a href='https://github.com/processing/p5.js/wiki/Beyond-the-canvas'>\nbeyond the canvas tutorial</a> for a full overview of how this addon works.</p>\n<p><p>Methods and properties shown in black are part of the p5.js core, items in\nblue are part of the p5.dom library. You will need to include an extra file\nin order to access the blue functions. See the\n<a href='http://p5js.org/libraries/#using-a-library'>using a library</a>\nsection for information on how to include this library. p5.dom comes with\n<a href='http://p5js.org/download'>p5 complete</a> or you can download the single file\n<a href='https://raw.githubusercontent.com/lmccart/p5.js/master/lib/addons/p5.dom.js'>\nhere</a>.</p></p>\n<p><p>See <a href='https://github.com/processing/p5.js/wiki/Beyond-the-canvas'>tutorial: beyond the canvas</a>\nfor more info on how to use this library.</a></p>\n",
+                  "<p><p>The web is much more than just canvas and p5.dom makes it easy to interact\nwith other HTML5 objects, including text, hyperlink, image, input, video,\naudio, and webcam.</p></p>\n<p><p>There is a set of creation methods, DOM manipulation methods, and\nan extended <a href=\"#/p5.Element\">p5.Element</a> that supports a range of HTML elements. See the\n<a href='https://github.com/processing/p5./wiki/Beyond-the-canvas'>\nbeyond the canvas tutorial</a> for a full overview of how this addon works.</p>\n<p><p>Methods and properties shown in black are part of the p5.js core, items in\nblue are part of the p5.dom library. You will need to include an extra file\nin order to access the blue functions. See the\n<a href='http://p5js.org/libraries/#using-a-library'>using a library</a>\nsection for information on how to include this library. p5.dom comes with\n<a href='http://p5js.org/download'>p5 complete</a> or you can download the single file\n<a href='https://raw.githubusercontent.com/lmccart/p5./master/lib/addons/p5.dom.js'>\nhere</a>.</p></p>\n<p><p>See <a href='https://github.com/processing/p5./wiki/Beyond-the-canvas'>tutorial: beyond the canvas</a>\nfor more info on how to use this library.</a></p>\n",
                 tag: 'main',
                 itemtype: 'main'
               },
@@ -2194,7 +2194,7 @@
                 file: 'src/webgl/p5.Camera.js',
                 line: 209,
                 description:
-                  '<p>This class describes a camera for use in p5&#39;s\n<a href="https://github.com/processing/p5.js/wiki/Getting-started-with-WebGL-in-p5">\nWebGL mode</a>. It contains camera position, orientation, and projection\ninformation necessary for rendering a 3D scene.</p>\n<p>New p5.Camera objects can be made through the\n<a href="#/p5/createCamera">createCamera()</a> function and controlled through\nthe methods described below. A camera created in this way will use a default\nposition in the scene and a default perspective projection until these\nproperties are changed through the various methods available. It is possible\nto create multiple cameras, in which case the current camera\ncan be set through the <a href="#/p5/setCamera">setCamera()</a> method.</p>\n<p>Note:\nThe methods below operate in two coordinate systems: the &#39;world&#39; coordinate\nsystem describe positions in terms of their relationship to the origin along\nthe X, Y and Z axes whereas the camera&#39;s &#39;local&#39; coordinate system\ndescribes positions from the camera&#39;s point of view: left-right, up-down,\nand forward-backward. The <a href="#/p5.Camera/move">move()</a> method,\nfor instance, moves the camera along its own axes, whereas the\n<a href="#/p5.Camera/setPosition">setPosition()</a>\nmethod sets the camera&#39;s position in world-space.</p>\n',
+                  '<p>This class describes a camera for use in p5&#39;s\n<a href="https://github.com/processing/p5./wiki/Getting-started-with-WebGL-in-p5">\nWebGL mode</a>. It contains camera position, orientation, and projection\ninformation necessary for rendering a 3D scene.</p>\n<p>New p5.Camera objects can be made through the\n<a href="#/p5/createCamera">createCamera()</a> function and controlled through\nthe methods described below. A camera created in this way will use a default\nposition in the scene and a default perspective projection until these\nproperties are changed through the various methods available. It is possible\nto create multiple cameras, in which case the current camera\ncan be set through the <a href="#/p5/setCamera">setCamera()</a> method.</p>\n<p>Note:\nThe methods below operate in two coordinate systems: the &#39;world&#39; coordinate\nsystem describe positions in terms of their relationship to the origin along\nthe X, Y and Z axes whereas the camera&#39;s &#39;local&#39; coordinate system\ndescribes positions from the camera&#39;s point of view: left-right, up-down,\nand forward-backward. The <a href="#/p5.Camera/move">move()</a> method,\nfor instance, moves the camera along its own axes, whereas the\n<a href="#/p5.Camera/setPosition">setPosition()</a>\nmethod sets the camera&#39;s position in world-space.</p>\n',
                 params: [
                   {
                     name: 'rendererGL',
@@ -7540,7 +7540,7 @@
                 file: 'src/core/main.js',
                 line: 577,
                 description:
-                  "<p>Allows for the friendly error system (FES) to be turned off when creating a sketch,\nwhich can give a significant boost to performance when needed.\nSee <a href='https://github.com/processing/p5.js/wiki/Optimizing-p5.js-Code-for-Performance#disable-the-friendly-error-system-fes'>\ndisabling the friendly error system</a>.</p>\n",
+                  "<p>Allows for the friendly error system (FES) to be turned off when creating a sketch,\nwhich can give a significant boost to performance when needed.\nSee <a href='https://github.com/processing/p5./wiki/Optimizing-p5.js-Code-for-Performance#disable-the-friendly-error-system-fes'>\ndisabling the friendly error system</a>.</p>\n",
                 itemtype: 'property',
                 name: 'disableFriendlyErrors',
                 type: 'Boolean',
@@ -7570,7 +7570,7 @@
                 file: 'src/core/p5.Element.js',
                 line: 52,
                 description:
-                  "<p>Attaches the element to the parent specified. A way of setting\n the container for the element. Accepts either a string ID, DOM\n node, or <a href=\"#/p5.Element\">p5.Element</a>. If no arguments given, parent node is returned.\n For more ways to position the canvas, see the\n <a href='https://github.com/processing/p5.js/wiki/Positioning-your-canvas'>\n positioning the canvas</a> wiki page.\nAll above examples except for the first one require the inclusion of\n the p5.dom library in your index.html. See the\n <a href='http://p5js.org/libraries/#using-a-library'>using a library</a>\n section for information on how to include this library.</p>\n",
+                  "<p>Attaches the element to the parent specified. A way of setting\n the container for the element. Accepts either a string ID, DOM\n node, or <a href=\"#/p5.Element\">p5.Element</a>. If no arguments given, parent node is returned.\n For more ways to position the canvas, see the\n <a href='https://github.com/processing/p5./wiki/Positioning-your-canvas'>\n positioning the canvas</a> wiki page.\nAll above examples except for the first one require the inclusion of\n the p5.dom library in your index.html. See the\n <a href='http://p5js.org/libraries/#using-a-library'>using a library</a>\n section for information on how to include this library.</p>\n",
                 itemtype: 'method',
                 name: 'parent',
                 chainable: 1,
@@ -8078,7 +8078,7 @@
                 file: 'src/core/rendering.js',
                 line: 17,
                 description:
-                  '<p>Creates a canvas element in the document, and sets the dimensions of it\nin pixels. This method should be called only once at the start of setup.\nCalling <a href="#/p5/createCanvas">createCanvas</a> more than once in a sketch will result in very\nunpredictable behavior. If you want more than one drawing canvas\nyou could use <a href="#/p5/createGraphics">createGraphics</a> (hidden by default but it can be shown).\n<br><br>\nThe system variables width and height are set by the parameters passed\nto this function. If <a href="#/p5/createCanvas">createCanvas()</a> is not used, the window will be\ngiven a default size of 100x100 pixels.\n<br><br>\nFor more ways to position the canvas, see the\n<a href=\'https://github.com/processing/p5.js/wiki/Positioning-your-canvas\'>\npositioning the canvas</a> wiki page.</p>\n',
+                  '<p>Creates a canvas element in the document, and sets the dimensions of it\nin pixels. This method should be called only once at the start of setup.\nCalling <a href="#/p5/createCanvas">createCanvas</a> more than once in a sketch will result in very\nunpredictable behavior. If you want more than one drawing canvas\nyou could use <a href="#/p5/createGraphics">createGraphics</a> (hidden by default but it can be shown).\n<br><br>\nThe system variables width and height are set by the parameters passed\nto this function. If <a href="#/p5/createCanvas">createCanvas()</a> is not used, the window will be\ngiven a default size of 100x100 pixels.\n<br><br>\nFor more ways to position the canvas, see the\n<a href=\'https://github.com/processing/p5./wiki/Positioning-your-canvas\'>\npositioning the canvas</a> wiki page.</p>\n',
                 itemtype: 'method',
                 name: 'createCanvas',
                 params: [
@@ -10276,7 +10276,7 @@
                 file: 'src/image/image.js',
                 line: 195,
                 description:
-                  '<p>Capture a sequence of frames that can be used to create a movie.\nAccepts a callback. For example, you may wish to send the frames\nto a server where they can be stored or converted into a movie.\nIf no callback is provided, the browser will pop up save dialogues in an\nattempt to download all of the images that have just been created. With the\ncallback provided the image data isn&#39;t saved by default but instead passed\nas an argument to the callback function as an array of objects, with the\nsize of array equal to the total number of frames.</p>\n<p>Note that <a href="#/p5.Image/saveFrames">saveFrames()</a> will only save the first 15 frames of an animation.\nTo export longer animations, you might look into a library like\n<a href="https://github.com/spite/ccapture.js/">ccapture.js</a>.</p>\n',
+                  '<p>Capture a sequence of frames that can be used to create a movie.\nAccepts a callback. For example, you may wish to send the frames\nto a server where they can be stored or converted into a movie.\nIf no callback is provided, the browser will pop up save dialogues in an\nattempt to download all of the images that have just been created. With the\ncallback provided the image data isn&#39;t saved by default but instead passed\nas an argument to the callback function as an array of objects, with the\nsize of array equal to the total number of frames.</p>\n<p>Note that <a href="#/p5.Image/saveFrames">saveFrames()</a> will only save the first 15 frames of an animation.\nTo export longer animations, you might look into a library like\n<a href="https://github.com/spite/ccapture./">ccapture.js</a>.</p>\n',
                 itemtype: 'method',
                 name: 'saveFrames',
                 params: [
@@ -21959,7 +21959,7 @@
                 file: 'lib/addons/p5.sound.js',
                 line: 1763,
                 description:
-                  '<p>loadSound() returns a new p5.SoundFile from a specified\npath. If called during preload(), the p5.SoundFile will be ready\nto play in time for setup() and draw(). If called outside of\npreload, the p5.SoundFile will not be ready immediately, so\nloadSound accepts a callback as the second parameter. Using a\n<a href="https://github.com/processing/p5.js/wiki/Local-server">\nlocal server</a> is recommended when loading external files.</p>\n',
+                  '<p>loadSound() returns a new p5.SoundFile from a specified\npath. If called during preload(), the p5.SoundFile will be ready\nto play in time for setup() and draw(). If called outside of\npreload, the p5.SoundFile will not be ready immediately, so\nloadSound accepts a callback as the second parameter. Using a\n<a href="https://github.com/processing/p5./wiki/Local-server">\nlocal server</a> is recommended when loading external files.</p>\n',
                 itemtype: 'method',
                 name: 'loadSound',
                 params: [
@@ -25761,7 +25761,7 @@
                 file: 'lib/addons/p5.sound.js',
                 line: 10982,
                 description:
-                  '<p>musicalTimeMode uses <a href = "https://github.com/Tonejs/Tone.js/wiki/Time">Tone.Time</a> convention\ntrue if string, false if number</p>\n',
+                  '<p>musicalTimeMode uses <a href = "https://github.com/Tone/Tone./wiki/Time">Tone.Time</a> convention\ntrue if string, false if number</p>\n',
                 itemtype: 'property',
                 name: 'musicalTimeMode',
                 type: 'Boolean',
@@ -26432,7 +26432,7 @@
                   {
                     name: 'note',
                     description:
-                      '<p>the note you want to play, specified as a\n                               frequency in Hertz (Number) or as a midi\n                               value in Note/Octave format (&quot;C4&quot;, &quot;Eb3&quot;...etc&quot;)\n                               See <a href = "https://github.com/Tonejs/Tone.js/wiki/Instruments">\n                               Tone</a>. Defaults to 440 hz.</p>\n',
+                      '<p>the note you want to play, specified as a\n                               frequency in Hertz (Number) or as a midi\n                               value in Note/Octave format (&quot;C4&quot;, &quot;Eb3&quot;...etc&quot;)\n                               See <a href = "https://github.com/Tone/Tone./wiki/Instruments">\n                               Tone</a>. Defaults to 440 hz.</p>\n',
                     type: 'String | Number'
                   },
                   {
@@ -26471,7 +26471,7 @@
                   {
                     name: 'note',
                     description:
-                      '<p>the note you want to play, specified as a\n                               frequency in Hertz (Number) or as a midi\n                               value in Note/Octave format (&quot;C4&quot;, &quot;Eb3&quot;...etc&quot;)\n                               See <a href = "https://github.com/Tonejs/Tone.js/wiki/Instruments">\n                               Tone</a>. Defaults to 440 hz</p>\n',
+                      '<p>the note you want to play, specified as a\n                               frequency in Hertz (Number) or as a midi\n                               value in Note/Octave format (&quot;C4&quot;, &quot;Eb3&quot;...etc&quot;)\n                               See <a href = "https://github.com/Tone/Tone./wiki/Instruments">\n                               Tone</a>. Defaults to 440 hz</p>\n',
                     type: 'String | Number'
                   },
                   {
@@ -29314,7 +29314,7 @@
             }
 
             // Trim off extra bytes after placeholder bytes are found
-            // See: https://github.com/beatgammit/base64-js/issues/42
+            // See: https://github.com/beatgammit/base64-/issues/42
             var validLen = b64.indexOf('=');
             if (validLen === -1) validLen = len;
 
@@ -31408,7 +31408,7 @@
               // node
               function useNextTick() {
                 // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-                // see https://github.com/cujojs/when/issues/410 for details
+                // see https://github.com/cujo/when/issues/410 for details
                 return function() {
                   return process.nextTick(flush);
                 };
@@ -32704,13 +32704,13 @@
  *
  * By Eli Grey, http://eligrey.com
  * License: MIT
- *   See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
+ *   See https://github.com/eligrey/FileSaver./blob/master/LICENSE.md
  */
 
           /*global self */
           /*jslint bitwise: true, indent: 4, laxbreak: true, laxcomma: true, smarttabs: true, plusplus: true */
 
-          /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
+          /*! @source http://purl.eligrey.com/github/FileSaver./blob/master/FileSaver.js */
 
           var saveAs =
             saveAs ||
@@ -54066,7 +54066,7 @@
                 console.log(
                   '> p5.js says: ' +
                     message +
-                    '[https://github.com/processing/p5.js/wiki/Local-server]'
+                    '[https://github.com/processing/p5./wiki/Local-server]'
                 );
               } else {
                 console.log(
@@ -54651,10 +54651,10 @@
           // to detect these errors and help the user by suggesting they move them
           // into setup/draw.
           //
-          // For more details, see https://github.com/processing/p5.js/issues/1121.
+          // For more details, see https://github.com/processing/p5./issues/1121.
           var misusedAtTopLevelCode = null;
           var FAQ_URL =
-            'https://github.com/processing/p5.js/wiki/p5.js-overview' +
+            'https://github.com/processing/p5./wiki/p5.js-overview' +
             '#why-cant-i-assign-variables-using-p5-functions-and-' +
             'variables-before-setup';
 
@@ -55466,7 +55466,7 @@
           /**
            * Allows for the friendly error system (FES) to be turned off when creating a sketch,
            * which can give a significant boost to performance when needed.
-           * See <a href='https://github.com/processing/p5.js/wiki/Optimizing-p5.js-Code-for-Performance#disable-the-friendly-error-system-fes'>
+           * See <a href='https://github.com/processing/p5./wiki/Optimizing-p5.js-Code-for-Performance#disable-the-friendly-error-system-fes'>
            * disabling the friendly error system</a>.
            *
            * @property {Boolean} disableFriendlyErrors
@@ -55552,7 +55552,7 @@
                   //
                   // For more information, see:
                   //
-                  //   https://github.com/processing/p5.js/issues/1317
+                  //   https://github.com/processing/p5./issues/1317
 
                   if (prop in globalObject && !(prop in propsToForciblyOverwrite)) {
                     throw new Error('global "' + prop + '" already exists');
@@ -55667,7 +55667,7 @@
            * the container for the element. Accepts either a string ID, DOM
            * node, or <a href="#/p5.Element">p5.Element</a>. If no arguments given, parent node is returned.
            * For more ways to position the canvas, see the
-           * <a href='https://github.com/processing/p5.js/wiki/Positioning-your-canvas'>
+           * <a href='https://github.com/processing/p5./wiki/Positioning-your-canvas'>
            * positioning the canvas</a> wiki page.
            *
            * All above examples except for the first one require the inclusion of
@@ -55855,7 +55855,7 @@
           p5.Element.prototype.mousePressed = function(fxn) {
             // Prepend the mouse property setters to the event-listener.
             // This is required so that mouseButton is set correctly prior to calling the callback (fxn).
-            // For details, see https://github.com/processing/p5.js/issues/3087.
+            // For details, see https://github.com/processing/p5./issues/3087.
             var eventPrependedFxn = function eventPrependedFxn(event) {
               this._pInst._setProperty('mouseIsPressed', true);
               this._pInst._setMouseButton(event);
@@ -58418,7 +58418,7 @@
            * given a default size of 100x100 pixels.
            * <br><br>
            * For more ways to position the canvas, see the
-           * <a href='https://github.com/processing/p5.js/wiki/Positioning-your-canvas'>
+           * <a href='https://github.com/processing/p5./wiki/Positioning-your-canvas'>
            * positioning the canvas</a> wiki page.
            *
            * @method createCanvas
@@ -66446,7 +66446,7 @@
     *
     *  Note that <a href="#/p5.Image/saveFrames">saveFrames()</a> will only save the first 15 frames of an animation.
     *  To export longer animations, you might look into a library like
-    *  <a href="https://github.com/spite/ccapture.js/">ccapture.js</a>.
+    *  <a href="https://github.com/spite/ccapture./">ccapture.js</a>.
     *
     *  @method saveFrames
     *  @param  {String}   filename
@@ -66821,8 +66821,8 @@
             _sh = _sAssign(_sh, defH);
 
             // This part needs cleanup and unit tests
-            // see issues https://github.com/processing/p5.js/issues/1741
-            // and https://github.com/processing/p5.js/issues/1673
+            // see issues https://github.com/processing/p5./issues/1741
+            // and https://github.com/processing/p5./issues/1673
             var pd = 1;
 
             if (img.elt && !img.canvas && img.elt.style.width) {
@@ -73916,7 +73916,7 @@
             }
 
             // Otherwise use the V8 implementation
-            // https://github.com/v8/v8/blob/8cd3cf297287e581a49e487067f5cbd991b27123/src/js/math.js#L217
+            // https://github.com/v8/v8/blob/8cd3cf297287e581a49e487067f5cbd991b27123/src//math.js#L217
             var length = arguments.length;
             var args = [];
             var max = 0;
@@ -74019,7 +74019,7 @@
 
           // someday we might consider using "improved noise"
           // http://mrl.nyu.edu/~perlin/paper445.pdf
-          // See: https://github.com/shiffman/The-Nature-of-Code-Examples-p5.js/
+          // See: https://github.com/shiffman/The-Nature-of-Code-Examples-p5./
           //      blob/master/introduction/Noise1D/noise.js
 
           /**
@@ -81685,7 +81685,7 @@
            */
 
           // implementation based on three.js 'orbitControls':
-          // https://github.com/mrdoob/three.js/blob/dev/examples/js/controls/OrbitControls.js
+          // https://github.com/mrdoob/three./blob/dev/examples//controls/OrbitControls.js
           p5.prototype.orbitControl = function(sensitivityX, sensitivityY) {
             this._assert3d('orbitControl');
             p5._validateParameters('orbitControl', arguments);
@@ -84282,7 +84282,7 @@
 
           /**
            * This class describes a camera for use in p5's
-           * <a href="https://github.com/processing/p5.js/wiki/Getting-started-with-WebGL-in-p5">
+           * <a href="https://github.com/processing/p5./wiki/Getting-started-with-WebGL-in-p5">
            * WebGL mode</a>. It contains camera position, orientation, and projection
            * information necessary for rendering a 3D scene.
            *
@@ -85110,7 +85110,7 @@
 
             // get spherical coorinates for current camera position about origin
             var camRadius = Math.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
-            // from https://github.com/mrdoob/three.js/blob/dev/src/math/Spherical.js#L72-L73
+            // from https://github.com/mrdoob/three./blob/dev/src/math/Spherical.js#L72-L73
             var camTheta = Math.atan2(diffX, diffZ); // equatorial angle
             var camPhi = Math.acos(Math.max(-1, Math.min(1, diffY / camRadius))); // polar angle
 
@@ -85131,7 +85131,7 @@
               camPhi = 0.001;
             }
 
-            // from https://github.com/mrdoob/three.js/blob/dev/src/math/Vector3.js#L628-L632
+            // from https://github.com/mrdoob/three./blob/dev/src/math/Vector3.js#L628-L632
             var _x = Math.sin(camPhi) * camRadius * Math.sin(camTheta);
             var _y = Math.cos(camPhi) * camRadius;
             var _z = Math.sin(camPhi) * camRadius * Math.cos(camTheta);

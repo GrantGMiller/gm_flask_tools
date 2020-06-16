@@ -4,10 +4,10 @@ function setup() {
   availablePage = new AvailablePage(canvasSize.x, canvasSize.y);
 
     // background images
-    backgroundGreenURL= "/static/images/green_background.png";
+    backgroundGreenURL= "//green_background.png";
     imageBackgroundGreen = loadImage(backgroundGreenURL);
     
-    backgroundRedURL= "/static/images/red_background.png";
+    backgroundRedURL= "//red_background.png";
     imageBackgroundRed = loadImage(backgroundRedURL);
 
   // testing values
