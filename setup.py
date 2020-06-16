@@ -11,7 +11,8 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.0.1",
+    version="1.1.1",
+    # 1.1.1 - New feature: ScheduleJob()
     # 1.0.1 - bug fix. UserClass 'email' key forced to .lower()
     # 1.0.0 - init release to pypi
 

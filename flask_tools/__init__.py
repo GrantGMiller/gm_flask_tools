@@ -34,8 +34,9 @@ from pathlib import Path as _PathlibPath
 import traceback
 import base64
 import threading
+import atexit
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 print('flask_tools.VERSION=', VERSION)
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
@@ -1634,3 +1635,12 @@ def _DoScheduledJobs(dt):
         callback, args, kwargs = jobTup
         AddJob(callback, *args, **kwargs)
     _ResetScheduleJobTimer()
+
+
+def _ExitHandler():
+    print(__name__, '_ExitHandler')
+    if timerNextScheduledJob and timerNextScheduledJob.is_alive():
+        timerNextScheduledJob.cancel()
+
+
+atexit.register(_ExitHandler)
