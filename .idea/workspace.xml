@@ -19,11 +19,14 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="Added ScheduleJob()">
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="Changed SendEmail() to use AddJob()">
+      <change afterPath="$PROJECT_DIR$/test_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/flask-tools.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/flask-tools.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/flask_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test_sheduleJob.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,56 +52,14 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\gmiller\PycharmProjects\flask-tools" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test_sheduleJob">
-    <configuration name="database_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="flask-tools" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/database_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="flask-tools" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python tests.pytest in test_all.py">
     <configuration name="ses_email_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="flask-tools" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -141,12 +102,61 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="pytest for test_all.test_JobFail" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="flask-tools" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_all.test_JobFail&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for test_all.test_Log" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="flask-tools" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_all.test_Log&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in test_all.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="flask-tools" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test_all.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.pytest in test_all.py" />
+        <item itemvalue="Python tests.pytest for test_all.test_JobFail" />
+        <item itemvalue="Python tests.pytest for test_all.test_Log" />
         <item itemvalue="Python.test_sheduleJob" />
         <item itemvalue="Python.ses_email_test" />
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.database_test" />
       </list>
     </recent_temporary>
   </component>
@@ -217,7 +227,14 @@
       <option name="project" value="LOCAL" />
       <updated>1592227179073</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Changed SendEmail() to use AddJob()">
+      <created>1592838694942</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1592838694942</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -241,9 +258,14 @@
     <MESSAGE value="added requirements.txt" />
     <MESSAGE value="# 1.0.1 - bug fix. UserClass 'email' key forced to .lower()" />
     <MESSAGE value="Added ScheduleJob()" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added ScheduleJob()" />
+    <MESSAGE value="Changed SendEmail() to use AddJob()" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed SendEmail() to use AddJob()" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1592840531012">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1592840531012" />
     <state x="2564" y="131" key="CommitChangelistDialog2" timestamp="1585170290774">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -252,44 +274,44 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1588856292973" />
-    <state width="1899" height="282" key="GridCell.Tab.0.bottom" timestamp="1592240555511">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state width="1899" height="282" key="GridCell.Tab.0.bottom" timestamp="1592840779814">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="348" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1592227280181" />
+    <state width="1899" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1592840779814" />
     <state width="1899" height="282" key="GridCell.Tab.0.bottom/1014.1080.1920.1040/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1592240555511" />
     <state width="1898" height="232" key="GridCell.Tab.0.bottom/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
-    <state width="1899" height="282" key="GridCell.Tab.0.center" timestamp="1592240555511">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state width="1899" height="282" key="GridCell.Tab.0.center" timestamp="1592840779814">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="348" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1592227280180" />
+    <state width="1899" height="282" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1592840779814" />
     <state width="1899" height="282" key="GridCell.Tab.0.center/1014.1080.1920.1040/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1592240555511" />
     <state width="1898" height="232" key="GridCell.Tab.0.center/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
-    <state width="1899" height="282" key="GridCell.Tab.0.left" timestamp="1592240555511">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state width="1899" height="282" key="GridCell.Tab.0.left" timestamp="1592840779814">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="348" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1592227280180" />
+    <state width="1899" height="282" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1592840779814" />
     <state width="1899" height="282" key="GridCell.Tab.0.left/1014.1080.1920.1040/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1592240555511" />
     <state width="1898" height="232" key="GridCell.Tab.0.left/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
-    <state width="1899" height="282" key="GridCell.Tab.0.right" timestamp="1592240555511">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state width="1899" height="282" key="GridCell.Tab.0.right" timestamp="1592840779814">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="348" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1592227280180" />
+    <state width="1899" height="282" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1592840779814" />
     <state width="1899" height="282" key="GridCell.Tab.0.right/1014.1080.1920.1040/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1592240555511" />
     <state width="1898" height="232" key="GridCell.Tab.0.right/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170307497" />
-    <state x="461" y="165" key="SettingsEditor" timestamp="1590700288521">
+    <state x="461" y="165" key="SettingsEditor" timestamp="1592840085733">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="461" y="165" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1592840085733" />
     <state x="461" y="165" key="SettingsEditor/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1590700288521" />
-    <state x="552" y="272" key="Vcs.Push.Dialog.v2" timestamp="1592227183784">
+    <state x="552" y="272" key="Vcs.Push.Dialog.v2" timestamp="1592838696788">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="552" y="272" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1592227183784" />
+    <state x="552" y="272" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1592838696788" />
     <state x="552" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040/1014.1080.1920.1040@0.0.1920.1040" timestamp="1591582406681" />
     <state x="2472" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170294285" />
     <state x="2577" y="257" width="606" height="526" key="find.popup" timestamp="1585169897839">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state x="657" y="257" width="606" height="526" key="find.popup/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1583766837588" />
     <state x="2577" y="257" width="606" height="526" key="find.popup/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585169897838" />
   </component>
   <component name="XDebuggerManager">

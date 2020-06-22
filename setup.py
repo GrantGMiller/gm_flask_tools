@@ -11,7 +11,8 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.3",
+    version="1.1.4",
+    # 1.1.4 - Added Job logging
     # 1.1.3 - Added dictabase==* to pipfile
     # 1.1.1 - New feature: ScheduleJob()
     # 1.0.1 - bug fix. UserClass 'email' key forced to .lower()

@@ -1172,7 +1172,8 @@ def _ProcessOneQueueItem():
 
     callback, args, kwargs, ID = q.get()
     try:
-        callback(*args, **kwargs)
+        res = callback(*args, **kwargs)
+        Log('Job callback=', callback, ', args=', args, ', kwargs=', kwargs, ', res=', res)
     except Exception as e:
         print('_ProcessOneQueueItem Exception:', e)
         msg = '''
@@ -1193,6 +1194,7 @@ def _ProcessOneQueueItem():
                 jobFailedCallback(msg)
             except Exception as e:
                 print(e)
+        Log(msg)
 
     completedJobs.append(ID)
     q.task_done()
@@ -1644,3 +1646,8 @@ def _ExitHandler():
 
 
 atexit.register(_ExitHandler)
+
+
+def Log(*args):
+    with open('ft.log', mode='at') as file:
+        file.write(f'{datetime.datetime.now()}: {" ".join([str(a) for a in args])}\r\n')
