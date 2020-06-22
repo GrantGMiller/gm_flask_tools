@@ -242,7 +242,7 @@ _SendEmailFunction = FTSendEmail
 
 def SendEmail(*a, **k):
     try:
-        _SendEmailFunction(*a, **k)
+        AddJob(_SendEmailFunction, *a, **k)
     except Exception as e:
         print('239 Exception:', e)
 

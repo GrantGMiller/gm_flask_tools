@@ -11,13 +11,14 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.1",
+    version="1.1.3",
+    # 1.1.3 - Added dictabase==* to pipfile
     # 1.1.1 - New feature: ScheduleJob()
     # 1.0.1 - bug fix. UserClass 'email' key forced to .lower()
     # 1.0.0 - init release to pypi
 
     packages=packages,
-    install_requires=['flask', 'dictabase==4.0.9', 'requests'],
+    install_requires=['flask', 'dictabase', 'requests'],
     # scripts=['say_hello.py'],
 
     # Project uses reStructuredText, so ensure that the docutils get
