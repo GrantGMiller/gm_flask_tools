@@ -18,7 +18,7 @@ from flask import (
     flash,
     Markup,
     url_for,
-    send_file)
+    send_file, jsonify)
 from dictabase import (
     FindOne,
     FindAll,
@@ -357,97 +357,14 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
 
     app.domainName = domainName
 
-    # Setup Admin pages
-    class FlaskToolsAdminUser(BaseTable):
-        pass
+    @app.route('/echo')
+    def Echo():
+        d = {}
+        for k in dir(request):
+            if not k.startswith('_'):
+                d[k] = str(getattr(request, k))
 
-    @app.route('/flask_tools_admin', methods=['GET', 'POST'])
-    def FlaskToolsAdmin():
-        print('FlaskToolsAdmin', request.method, request.args, request.form)
-        adminUser = FindOne(FlaskToolsAdminUser)
-
-        if request.method == 'GET':
-            if adminUser is None:
-                # no admin user exist request an admin email from the user
-                return '''
-                    <html>
-                        <body>
-                            <form method="POST">
-                                Enter the Admin email address: <input name="adminEmail" type="email"><br>
-                                <input type="submit">
-                            </form>
-                        </body>
-                    </html>
-                '''
-            else:
-                # an admin user exist already
-                if adminUser.get('code', None) == session.get('code', 'nope') or \
-                        request.args.get('code', None) is not None:
-
-                    if adminUser.get('expiresAt', time.time() - 1) < time.time():
-                        # the admin session has expired
-                        session['code'] = 'nope'
-                        adminUser['code'] = None
-                        flash('You admin session has expired', 'danger')
-                        return redirect(url_for('FlaskToolsAdmin'))
-
-                    # the admin has clicked on a magic link, or is logged in
-                    code = request.args.get('code', None)
-                    if adminUser.get('code', None) == code:
-                        # the admin is now logged in
-                        # the session should persist
-                        session['code'] = code
-
-                        # here is where to show the admin page
-
-                        return render_template(
-                            'admin_page.html',
-                            numOfJobs=GetNumOfJobs(),
-                            jobs=q.queue,
-                            worker=workerTimer,
-                            otherStuff=OtherAdminStuff(),
-                        )
-
-                else:
-                    # generate a magic link, email it to admin
-                    code = GetRandomID()
-                    adminUser['code'] = code
-                    adminUser['expiresAt'] = time.time() + 8 * 60 * 60
-                    print('adminUser=', adminUser)
-                    url = '{}/{}?code={}'.format(
-                        request.host_url,
-                        url_for('FlaskToolsAdmin'),
-                        code
-                    )
-                    print('url=', url)
-                    AddJob(_SendEmailFunction,
-                           to=adminUser.get('email'),
-                           frm='system@{}'.format(app.domainName),
-                           subject='Admin Magic Link',
-                           body='''
-                        You can access the admin portal by clicking on the magic link below.
-
-                        ''' + url
-                           )
-                    return render_template(
-                        'content.html',
-                        content='A magic link has been emailed to the admin. Go click it!'
-                    )
-
-        elif request.method == 'POST':
-            if adminUser is None:
-                # create the new admin user
-                adminEmailAddress = request.form.get('adminEmail', None)
-                if adminEmailAddress:
-                    newAdminUser = New(FlaskToolsAdminUser, email=adminEmailAddress)
-                    print('new admin user created. email={}'.format(adminEmailAddress))
-
-                else:
-                    print('no adminEmailAddress submited')
-
-                return redirect(url_for('FlaskToolsAdmin'))
-            else:
-                return 'an admin already exist, you cannot create another'
+        return jsonify(d)
 
     return app
 
