@@ -9,6 +9,7 @@ verify_ssl = true
 twine = "*"
 dictabase = "*"
 pytest = "*"
+flask-apscheduler = "*"
 
 [requires]
 python_version = "3.8"

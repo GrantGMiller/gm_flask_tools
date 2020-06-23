@@ -11,7 +11,10 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.4",
+    version="1.1.8",
+    # 1.1.8 - Made OnExit public function
+    # 1.1.7 - Bug fix in GetConfigVar
+    # 1.1.5 - Added Echo url
     # 1.1.4 - Added Job logging
     # 1.1.3 - Added dictabase==* to pipfile
     # 1.1.1 - New feature: ScheduleJob()

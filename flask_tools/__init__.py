@@ -34,10 +34,7 @@ from pathlib import Path as _PathlibPath
 import traceback
 import base64
 import threading
-import atexit
-
-VERSION = '0.0.2'
-print('flask_tools.VERSION=', VERSION)
+import flask_apscheduler
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
@@ -318,9 +315,13 @@ class UserClass(BaseTable):
     '''
 
 
+global app
+
+
 def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     # OtherAdminStuff should return dict that will be used to render_template for admin page
     global DB_URI
+    global app
 
     displayableAppName = appName
 
@@ -365,6 +366,12 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                 d[k] = str(getattr(request, k))
 
         return jsonify(d)
+
+    scheduler = flask_apscheduler.APScheduler()
+    scheduler.init_app(app)
+    scheduler.scheduler.add_jobstore('sqlalchemy',
+                                     url=engineURI)  # Store jobs in the database so they persist between restarts
+    scheduler.start()
 
     return app
 
@@ -619,6 +626,14 @@ def LogoutUser():
         user['authToken'] = None
 
 
+global adminEmails
+adminEmails = set()
+
+
+def SetAdmin(email):
+    adminEmails.add(email)
+
+
 def VerifyLogin(func):
     '''
     Use this decorator on view's that require a log in, it will auto redirect to login page
@@ -640,6 +655,27 @@ def VerifyLogin(func):
             return redirect('/login')
         else:
             return func(*args, **kwargs)
+
+    return VerifyLoginWrapper
+
+
+def VerifyAdmin(func):
+    '''
+    Use this decorator on view's that require a log in, it will auto redirect to login page
+    :param func:
+    :return:
+    '''
+
+    # print('53 VerifyLogin(', func)
+
+    @functools.wraps(func)
+    def VerifyAdminWrapper(*args, **kwargs):
+        user = GetUser()
+        if user and user['email'] in adminEmails:
+            return func(*args, **kwargs)
+        else:
+            flash('You are not an admin', 'danger')
+            return redirect('/login')
 
     return VerifyLoginWrapper
 
@@ -980,7 +1016,8 @@ def SetupRegisterAndLoginPageWithPassword(
             if 'Signage' in app.name:
                 referrerDomain = 'signage.grant-miller.com'
 
-            resetLink = '{}/reset_password/{}'.format(request.host_url, resetToken)
+            resetLink = '{}/reset_password/{}'.format('http://{}'.format(app.domainName) or request.host_url,
+                                                      resetToken)
             print('resetLink=', resetLink)
 
             user = FindOne(UserClass, email=email)
@@ -1077,76 +1114,18 @@ def EncodeLiteral(string):
     return string.encode(encoding='iso-8859-1')
 
 
-# jobs queue
-q = Queue()
-
-workerTimer = None
-
-
-def _ProcessOneQueueItem():
-    # print('_ProcessOneQueueItem()')
-    global workerTimer
-
-    callback, args, kwargs, ID = q.get()
-    try:
-        res = callback(*args, **kwargs)
-        Log('Job callback=', callback, ', args=', args, ', kwargs=', kwargs, ', res=', res)
-    except Exception as e:
-        print('_ProcessOneQueueItem Exception:', e)
-        msg = '''
-    callback={}
-    a={}
-    k={}
-    e={}
-    traceback={}
-                '''.format(
-            callback,
-            args,
-            kwargs,
-            e,
-            traceback.format_exc())
-        if jobFailedCallback:
-            try:
-                print(msg)
-                jobFailedCallback(msg)
-            except Exception as e:
-                print(e)
-        Log(msg)
-
-    completedJobs.append(ID)
-    q.task_done()
-
-    if q.qsize() == 0:
-        workerTimer = None
-    else:
-        workerTimer = threading.Timer(0, _ProcessOneQueueItem)
-        workerTimer.start()
-
-    # print('workerTime=', workerTimer)
-
-
 def GetNumOfJobs():
-    size = q.qsize()
-    # print('GetNumOfJobs return {}'.format(size))
-    return size
-
-
-global completedJobs
-completedJobs = deque(maxlen=100)
+    return len(GetJobs())
 
 
 def AddJob(callback, *args, **kwargs):
     # print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
-    global workerTimer
-    ID = kwargs.pop('ID', None) or GetRandomID()
-    q.put((callback, args, kwargs, ID))
-    jobProgress[ID] = 0
-
-    if workerTimer is None:
-        workerTimer = threading.Timer(0, _ProcessOneQueueItem)
-        workerTimer.start()
-
-    return ID
+    ScheduleJob(
+        dt=None,
+        callback=callback,
+        *args,
+        **kwargs,
+    )
 
 
 class LimitedSizeDict(OrderedDict):
@@ -1178,21 +1157,10 @@ def GetJobProgress(ID):
 
 
 def IsJobComplete(ID):
-    if ID in completedJobs:
-        return True
-    else:
-        for job in q.queue:
-            if ID == job[3]:
-                return False
-    return False
-
-
-jobFailedCallback = None
-
-
-def JobFailedCallback(func):
-    global jobFailedCallback
-    jobFailedCallback = func
+    for job in GetJobs():
+        if ID == job.id:
+            return False
+    return True
 
 
 def PathString(path):
@@ -1506,63 +1474,85 @@ def RemoveNonLetters(word):
 
 def GetConfigVar(key):
     try:
-        if sys.platform.startswith('win'):
+        try:
             import config
             return getattr(config, key)
-        else:
+        except Exception as e2:
+            print('flask_tools Exception 1557:', e2)
             return os.environ.get(key, None)
     except Exception as e:
         print('flask_tools Exception 1557:', e)
         return None
 
 
-scheduledJobs = defaultdict(list)  # {
-# datetime(): [(callback, args, kwargs), ...],
-# }
-timerNextScheduledJob = None
-
-
 def ScheduleJob(dt, callback, *args, **kwargs):
-    scheduledJobs[dt].append((callback, args, kwargs))
-    _ResetScheduleJobTimer()
+    '''
+    Schedule a job at a specific datetime
+    :param dt: datetime
+    :param callback:
+    :param args:
+    :param kwargs:
+    :return:
+    '''
+    print('SchedulJob(', dt, callback, args, kwargs)
+    jobID = GetRandomID(length=8)
+    # https://apscheduler.readthedocs.io/en/stable/modules/schedulers/base.html#apscheduler.schedulers.base.BaseScheduler.add_job
+
+    app.apscheduler.add_job(
+        id=jobID,
+        func=callback,
+        trigger='date',  # once at a specific datetime
+        next_run_time=dt,
+        args=args,
+        kwargs=kwargs
+    )
+    return jobID
 
 
-def _ResetScheduleJobTimer():
-    global timerNextScheduledJob
-    nextDt = None
-    for dt, job in scheduledJobs.items():
-        if nextDt is None or dt < nextDt:
-            nextDt = dt
+def ScheduleIntervalJob(
+        callback,
+        *args,
+        startDT=None,  # None means datetime.now() + interval
+        timezone='Eastern Standard Time',
+        weeks=0,
+        days=0,
+        hours=0,
+        minutes=0,
+        seconds=0,
+        **kwargs
+):
+    '''
+    Schedule a recurring job
+    :return:
+    '''
+    jobID = GetRandomID(length=8)
+    # https://apscheduler.readthedocs.io/en/stable/modules/schedulers/base.html#apscheduler.schedulers.base.BaseScheduler.add_job
+    app.apscheduler.add_job(
+        id=jobID,
+        func=callback,
+        trigger='interval',
+        start_date=startDT,
+        weeks=weeks,
+        days=days,
+        hours=hours,
+        minutes=minutes,
+        seconds=seconds,
+        args=args,
+        kwargs=kwargs
+    )
+    return jobID
 
-    if nextDt:
-        if timerNextScheduledJob:
-            timerNextScheduledJob.cancel()
 
-        delta = (nextDt - datetime.datetime.now()).total_seconds()
-        if delta < 0:
-            delta = 0
-
-        timerNextScheduledJob = threading.Timer(
-            delta,
-            _DoScheduledJobs, (nextDt,)
-        ).start()
+def GetJobs():
+    return app.apscheduler.get_jobs()
 
 
-def _DoScheduledJobs(dt):
-    jobList = scheduledJobs.pop(dt, [])
-    for jobTup in jobList:
-        callback, args, kwargs = jobTup
-        AddJob(callback, *args, **kwargs)
-    _ResetScheduleJobTimer()
+def RemoveJob(jobID):
+    return app.apscheduler.remove_job(jobID)
 
 
-def _ExitHandler():
-    print(__name__, '_ExitHandler')
-    if timerNextScheduledJob and timerNextScheduledJob.is_alive():
-        timerNextScheduledJob.cancel()
-
-
-atexit.register(_ExitHandler)
+def OnExit():
+    Log('OnExit')
 
 
 def Log(*args):
