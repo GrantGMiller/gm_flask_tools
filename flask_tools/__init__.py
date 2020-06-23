@@ -1119,13 +1119,14 @@ def GetNumOfJobs():
 
 
 def AddJob(callback, *args, **kwargs):
-    # print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
-    ScheduleJob(
-        dt=None,
-        callback=callback,
+    print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
+    jobID = ScheduleJob(
+        datetime.datetime.now(),
+        callback,
         *args,
         **kwargs,
     )
+    return jobID
 
 
 class LimitedSizeDict(OrderedDict):

@@ -16,6 +16,7 @@ from flask_tools import (
     ScheduleJob,
     ScheduleIntervalJob,
     RemoveJob,
+    AddJob,
     SetAdmin,
 )
 import time
@@ -64,6 +65,13 @@ def Schedule_Job():
         'scheduleJob.html',
         jobs=GetJobs(),
     )
+
+
+AddJob(
+    ScheduleCallback,
+    'addjob',
+    kw1='kw add job' + time.asctime()
+)
 
 
 @app.route('/remove/job/<jobID>')
