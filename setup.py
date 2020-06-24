@@ -11,7 +11,9 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.8",
+    version="1.1.11",
+    # 1.1.11 - Added misfire_grace_time to ScheduleJob
+    # 1.1.10 - Added APScheduler
     # 1.1.8 - Made OnExit public function
     # 1.1.7 - Bug fix in GetConfigVar
     # 1.1.5 - Added Echo url
@@ -22,7 +24,7 @@ setup(
     # 1.0.0 - init release to pypi
 
     packages=packages,
-    install_requires=['flask', 'dictabase', 'requests'],
+    install_requires=['flask', 'dictabase', 'requests', 'flask-apscheduler'],
     # scripts=['say_hello.py'],
 
     # Project uses reStructuredText, so ensure that the docutils get

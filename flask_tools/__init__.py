@@ -369,8 +369,10 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
 
     scheduler = flask_apscheduler.APScheduler()
     scheduler.init_app(app)
-    scheduler.scheduler.add_jobstore('sqlalchemy',
-                                     url=engineURI)  # Store jobs in the database so they persist between restarts
+    # Store jobs in the database so they persist between restarts
+    scheduler.scheduler.add_jobstore(
+        'sqlalchemy',
+        url='sqlite:///{}_jobstore.db'.format(dbName))
     scheduler.start()
 
     return app
@@ -1486,9 +1488,10 @@ def GetConfigVar(key):
         return None
 
 
-def ScheduleJob(dt, callback, *args, **kwargs):
+def ScheduleJob(dt, callback, *args, misfire_grace_time=60 * 60, **kwargs):
     '''
     Schedule a job at a specific datetime
+    :param misfire_grace_time:
     :param dt: datetime
     :param callback:
     :param args:
@@ -1505,7 +1508,8 @@ def ScheduleJob(dt, callback, *args, **kwargs):
         trigger='date',  # once at a specific datetime
         next_run_time=dt,
         args=args,
-        kwargs=kwargs
+        kwargs=kwargs,
+        misfire_grace_time=misfire_grace_time,  # seconds
     )
     return jobID
 
