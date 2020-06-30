@@ -20,10 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="replaced AddJob backend with APScheduler">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -277,7 +274,14 @@
       <option name="project" value="LOCAL" />
       <updated>1593027505476</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="replaced AddJob backend with APScheduler">
+      <created>1593526756043</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1593526756043</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -364,10 +368,10 @@
     </state>
     <state x="461" y="165" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1592840085733" />
     <state x="461" y="165" key="SettingsEditor/1920.0.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1590700288521" />
-    <state x="552" y="272" key="Vcs.Push.Dialog.v2" timestamp="1593027507044">
+    <state x="552" y="272" key="Vcs.Push.Dialog.v2" timestamp="1593526758186">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="552" y="272" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1592941244383" />
+    <state x="552" y="272" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1593526758186" />
     <state x="552" y="272" key="Vcs.Push.Dialog.v2/1920.-18.1920.1040/0.0.1920.1040/1005.1080.1920.1040@0.0.1920.1040" timestamp="1593027507044" />
     <state x="552" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040/1014.1080.1920.1040@0.0.1920.1040" timestamp="1591582406681" />
     <state x="2472" y="272" key="Vcs.Push.Dialog.v2/1920.0.1920.1040/0.0.1920.1040@1920.0.1920.1040" timestamp="1585170294285" />
