@@ -680,7 +680,7 @@ def VerifyAdmin(func):
             flash('You are not an admin', 'danger')
             return redirect('/login')
 
-    return VerifyLoginWrapper
+    return VerifyAdminWrapper
 
 
 MenuOptionClass = namedtuple('MenuOptionClass', ['title', 'url', 'active'])
@@ -1156,7 +1156,7 @@ def PathString(path):
         else:
             if 'virtualenv' in str(mainPath):
                 # when using pipenv
-                return str(_PathlibPath(PROJECT_PATH) / path)[1:]
+                return str(_PathlibPath(PROJECT_PATH) / path)
             else:
                 newPath = mainPath / path
                 return str(newPath)[1:]
