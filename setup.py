@@ -11,8 +11,8 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.19",
-    # 1.1.19 - Bug fix in PathString
+    version="1.1.21",
+    # 1.1.21 - Bug fix in PathString
     # 1.1.16 - Added misfire_grace_time to ScheduleJob
     # 1.1.10 - Added APScheduler
     # 1.1.8 - Made OnExit public function

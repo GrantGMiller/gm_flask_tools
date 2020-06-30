@@ -19,15 +19,26 @@ from flask_tools import (
     RemoveJob,
     AddJob,
     SetAdmin,
+    SetupRegisterAndLoginPageWithPassword,
+    VerifyLogin,
 )
 import time
 
 app = GetApp('Test Site')
 
+SetAdmin('grant@grant-miller.com')
+
+SetupRegisterAndLoginPageWithPassword(
+    app,
+    mainTemplate='main.html',
+    redirectSuccess='/'
+)
+
 AddMenuOption('Schedule Job', '/schedule/job')
 
 
 @app.route('/')
+@VerifyLogin
 def Index():
     return render_template(
         'main.html',
@@ -71,13 +82,13 @@ def Schedule_Job():
     )
 
 
-for i in range(100):
+for i in range(3):
     AddJob(
         ScheduleCallback,
         'addjob',
         kw1=f'{i} kw add job' + time.asctime()
     )
-for i in range(10):
+for i in range(3):
     ScheduleJob(
         datetime.datetime.now() + datetime.timedelta(seconds=i),
         ScheduleCallback,

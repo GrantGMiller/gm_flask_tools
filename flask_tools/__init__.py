@@ -714,8 +714,7 @@ PROJECT_PATH = ''
 
 def SetupRegisterAndLoginPageWithPassword(
         app,
-        mainTemplate,  # should be like mainTemplate='main.html',
-        templatesPath=None,  # should be like templatesPath='/home/grant/signage/templates',
+        mainTemplate,  # should be like mainTemplate='main.html', all templates should be in the PROJECT_PATH/templates
         redirectSuccess=None,
         callbackFailedLogin=None,
         callbackNewUserRegistered=None,
@@ -733,20 +732,11 @@ def SetupRegisterAndLoginPageWithPassword(
     global PROJECT_PATH
     PROJECT_PATH = projectPath
 
-    if 'win' in sys.platform:
-        mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__))
-        TEMPLATES_PATH = PathString(mainPath / 'templates')
-    else:
-        if templatesPath is None:
-            TEMPLATES_PATH = PathString('/templates')
-        else:
-            TEMPLATES_PATH = PathString(templatesPath)
-
     if loginTemplate is None:
         templateName = 'autogen_login.html'
         loginTemplate = templateName
 
-        thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
+        thisTemplatePath = PathString('templates/' + templateName)
         print('thisTemplatePath=', thisTemplatePath)
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
@@ -780,7 +770,7 @@ def SetupRegisterAndLoginPageWithPassword(
         templateName = 'autogen_register.html'
         registerTemplate = templateName
 
-        thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
+        thisTemplatePath = PathString('templates/' + templateName)
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
                 file.write('''
@@ -959,7 +949,7 @@ def SetupRegisterAndLoginPageWithPassword(
         templateName = 'autogen_forgot.html'
         forgotTemplate = templateName
 
-        thisTemplatePath = PathString(TEMPLATES_PATH + '/' + templateName)
+        thisTemplatePath = PathString('templates/' + templateName)
         if not os.path.exists(thisTemplatePath):
             with open(thisTemplatePath, mode='wt') as file:
                 file.write('''
