@@ -2,6 +2,7 @@
 A test site to verify functionality
 '''
 import datetime
+import random
 
 from flask import (
     render_template,
@@ -36,6 +37,9 @@ def Index():
 
 def ScheduleCallback(*args, **kwargs):
     print(time.asctime(), ': ScheduleCallback(args=', args, ', kwargs=', kwargs)
+    time.sleep(1)
+    # if random.randint(0, 10) == 0:
+    #     raise Exception('oops')
 
 
 @app.route('/schedule/job', methods=['GET', 'POST'])
@@ -67,11 +71,18 @@ def Schedule_Job():
     )
 
 
-AddJob(
-    ScheduleCallback,
-    'addjob',
-    kw1='kw add job' + time.asctime()
-)
+for i in range(100):
+    AddJob(
+        ScheduleCallback,
+        'addjob',
+        kw1=f'{i} kw add job' + time.asctime()
+    )
+for i in range(10):
+    ScheduleJob(
+        datetime.datetime.now() + datetime.timedelta(seconds=i),
+        ScheduleCallback,
+        f'i={i}'
+    )
 
 
 @app.route('/remove/job/<jobID>')

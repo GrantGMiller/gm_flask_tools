@@ -359,6 +359,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app.domainName = domainName
 
     @app.route('/echo')
+    @VerifyAdmin
     def Echo():
         d = {}
         for k in dir(request):
@@ -1120,50 +1121,20 @@ def GetNumOfJobs():
     return len(GetJobs())
 
 
-def AddJob(callback, *args, **kwargs):
+def AddJob(callback, *args, name=None, misfire_grace_time=10, **kwargs):
     print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
-    jobID = ScheduleJob(
-        datetime.datetime.now(),
-        callback,
-        *args,
-        **kwargs,
+    Log('AddJob', callback, args, kwargs, name)
+    jobID = GetRandomID(8)
+    app.apscheduler.add_job(
+        id=jobID,
+        name=name,
+        func=callback,
+        args=args,
+        kwargs=kwargs,
+        misfire_grace_time=misfire_grace_time,  # seconds
+        trigger='date',  # needed when running on ubuntu
     )
     return jobID
-
-
-class LimitedSizeDict(OrderedDict):
-    def __init__(self, *args, **kwds):
-        self.size_limit = kwds.pop("size_limit", None)
-        OrderedDict.__init__(self, *args, **kwds)
-        self._check_size_limit()
-
-    def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
-        self._check_size_limit()
-
-    def _check_size_limit(self):
-        if self.size_limit is not None:
-            while len(self) > self.size_limit:
-                self.popitem(last=False)
-
-
-jobProgress = LimitedSizeDict(size_limit=100)
-
-
-def LogJobProgress(ID, progress):
-    jobProgress[ID] = progress
-
-
-def GetJobProgress(ID):
-    print('jobProgress=', jobProgress)
-    return jobProgress.get(ID, 'Unknown')
-
-
-def IsJobComplete(ID):
-    for job in GetJobs():
-        if ID == job.id:
-            return False
-    return True
 
 
 def PathString(path):
@@ -1177,7 +1148,7 @@ def PathString(path):
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__)).parent
 
         if 'app/.heroku' in str(mainPath):
-            # for heroku
+            # for heroku, note: Heroku files are ephemeral
             if str(path).startswith('/'):
                 return str(path)[1:]
             else:
@@ -1185,7 +1156,7 @@ def PathString(path):
         else:
             if 'virtualenv' in str(mainPath):
                 # when using pipenv
-                return str(_PathlibPath(PROJECT_PATH) / path)[:1]
+                return str(_PathlibPath(PROJECT_PATH) / path)[1:]
             else:
                 newPath = mainPath / path
                 return str(newPath)[1:]
@@ -1488,7 +1459,7 @@ def GetConfigVar(key):
         return None
 
 
-def ScheduleJob(dt, callback, *args, misfire_grace_time=60 * 60, **kwargs):
+def ScheduleJob(dt, callback, *args, misfire_grace_time=60, name=None, **kwargs):
     '''
     Schedule a job at a specific datetime
     :param misfire_grace_time:
@@ -1499,17 +1470,22 @@ def ScheduleJob(dt, callback, *args, misfire_grace_time=60 * 60, **kwargs):
     :return:
     '''
     print('SchedulJob(', dt, callback, args, kwargs)
+    Log('ScheduleJob(', dt, callback, args, kwargs)
     jobID = GetRandomID(length=8)
     # https://apscheduler.readthedocs.io/en/stable/modules/schedulers/base.html#apscheduler.schedulers.base.BaseScheduler.add_job
+
+    if dt < datetime.datetime.now():
+        dt = datetime.datetime.now() + datetime.timedelta(seconds=1)
 
     app.apscheduler.add_job(
         id=jobID,
         func=callback,
         trigger='date',  # once at a specific datetime
-        next_run_time=dt,
+        run_date=dt,
         args=args,
         kwargs=kwargs,
         misfire_grace_time=misfire_grace_time,  # seconds
+        name=name,
     )
     return jobID
 
@@ -1518,22 +1494,24 @@ def ScheduleIntervalJob(
         callback,
         *args,
         startDT=None,  # None means datetime.now() + interval
-        timezone='Eastern Standard Time',
         weeks=0,
         days=0,
         hours=0,
         minutes=0,
         seconds=0,
+        name=None,
         **kwargs
 ):
     '''
     Schedule a recurring job
     :return:
     '''
+    Log('ScheduleIntervalJob(', callback, args, kwargs, name, startDT)
     jobID = GetRandomID(length=8)
     # https://apscheduler.readthedocs.io/en/stable/modules/schedulers/base.html#apscheduler.schedulers.base.BaseScheduler.add_job
     app.apscheduler.add_job(
         id=jobID,
+        name=name,
         func=callback,
         trigger='interval',
         start_date=startDT,
