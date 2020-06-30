@@ -342,6 +342,10 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     if secretKey is None:
         secretKey = GetMachineUniqueID()
 
+    projectPath = k.pop('projectPath', '')  # for pipenv file references within virtualenv
+    global PROJECT_PATH
+    PROJECT_PATH = projectPath
+
     app = Flask(
         appName,
         *a,
@@ -368,6 +372,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
 
         return jsonify(d)
 
+    # Flask-ApScheduler
     scheduler = flask_apscheduler.APScheduler()
     scheduler.init_app(app)
     # Store jobs in the database so they persist between restarts
@@ -721,7 +726,6 @@ def SetupRegisterAndLoginPageWithPassword(
         loginTemplate=None,
         registerTemplate=None,
         forgotTemplate=None,
-        projectPath=None,  # added for pipenv
 ):
     '''
     Use this function with the @VerifyLogin decorator to simplify login auth
@@ -729,8 +733,6 @@ def SetupRegisterAndLoginPageWithPassword(
     form should have at least two elements
 
     '''
-    global PROJECT_PATH
-    PROJECT_PATH = projectPath
 
     if loginTemplate is None:
         templateName = 'autogen_login.html'
@@ -1134,8 +1136,11 @@ def PathString(path):
             return str(path)[1:]
         else:
             return str(path)
+
     else:  # linux
+        Log('sys.platform=', sys.platform)
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__)).parent
+        Log('mainPath=', mainPath)
 
         if 'app/.heroku' in str(mainPath):
             # for heroku, note: Heroku files are ephemeral
@@ -1143,13 +1148,21 @@ def PathString(path):
                 return str(path)[1:]
             else:
                 return str(path)
+
+        elif 'virtualenv' in __file__:
+            Log('1153 virtualenv')
+            # when using pipenv
+            projPath = _PathlibPath(PROJECT_PATH)
+            Log('projPath=', projPath)
+            ret = projPath / path
+            Log('ret=', ret)
+            ret = str(ret)
+            Log('str(ret)=', ret)
+            return ret
+
         else:
-            if 'virtualenv' in str(mainPath):
-                # when using pipenv
-                return str(_PathlibPath(PROJECT_PATH) / path)
-            else:
-                newPath = mainPath / path
-                return str(newPath)[1:]
+            newPath = mainPath / path
+            return str(newPath)[1:]
 
 
 class File:
