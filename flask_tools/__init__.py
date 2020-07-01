@@ -1138,9 +1138,7 @@ def PathString(path):
             return str(path)
 
     else:  # linux
-        Log('sys.platform=', sys.platform)
         mainPath = _PathlibPath(os.path.dirname(sys.modules['__main__'].__file__)).parent
-        Log('mainPath=', mainPath)
 
         if 'app/.heroku' in str(mainPath):
             # for heroku, note: Heroku files are ephemeral
@@ -1150,14 +1148,18 @@ def PathString(path):
                 return str(path)
 
         elif 'virtualenv' in __file__:
-            Log('1153 virtualenv')
             # when using pipenv
             projPath = _PathlibPath(PROJECT_PATH)
-            Log('projPath=', projPath)
-            ret = projPath / path
-            Log('ret=', ret)
+
+            if path.startswith('/'):
+                if path.startswith(projPath):
+                    # path already starts with project path
+                    ret = path
+                else:
+                    path = path[1:]
+                    ret = projPath / path
+
             ret = str(ret)
-            Log('str(ret)=', ret)
             return ret
 
         else:
