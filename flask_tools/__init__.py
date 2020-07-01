@@ -1158,6 +1158,8 @@ def PathString(path):
                 else:
                     path = path[1:]
                     ret = projPath / path
+            else:
+                ret = projPath / path
 
             ret = str(ret)
             return ret
