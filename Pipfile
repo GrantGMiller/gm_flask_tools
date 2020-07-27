@@ -10,6 +10,8 @@ twine = "*"
 dictabase = "*"
 pytest = "*"
 flask-apscheduler = "*"
+flask-login = "*"
+flask-sqlalchemy = "*"
 
 [requires]
 python_version = "3.8"

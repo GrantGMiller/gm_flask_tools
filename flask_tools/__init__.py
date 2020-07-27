@@ -5,9 +5,7 @@ import string
 from subprocess import Popen, PIPE
 from email.mime.text import MIMEText
 import sys
-import time
 import datetime
-from queue import Queue
 import requests
 from flask import (
     Flask,
@@ -28,18 +26,17 @@ from dictabase import (
 )
 import uuid
 import functools
-from collections import namedtuple, deque, OrderedDict, defaultdict
+from collections import namedtuple
 import os
 from pathlib import Path as _PathlibPath
-import traceback
 import base64
-import threading
 import flask_apscheduler
+import flask_login
 
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
-DEBUG = False
+DEBUG = True
 if DEBUG is False or sys.platform.startswith('linux'):
     print = lambda *a, **k: None
 
@@ -239,7 +236,7 @@ _SendEmailFunction = FTSendEmail
 
 def SendEmail(*a, **k):
     try:
-        AddJob(_SendEmailFunction, *a, **k)
+        AddJob(_SendEmailFunction, *a, name='SendEmail', **k)
     except Exception as e:
         print('239 Exception:', e)
 
@@ -306,13 +303,20 @@ def ModIndexLoop(num, min_, max_):
     return min_ + mod
 
 
-class UserClass(BaseTable):
+class UserClass(flask_login.UserMixin, BaseTable):
     '''
     OTHER KEYS
 
     authToken - unique 512 char string
     lastAuthTokenTime - datatime.datetime that authToken was issued
     '''
+
+    def get_id(self, *a, **k):
+        print('UserClass.get_id(', a, k, self)
+        return self['id']
+
+    def __str__(self):
+        return BaseTable.__str__(self)
 
 
 global app
@@ -381,257 +385,33 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
         url='sqlite:///{}_jobstore.db'.format(dbName))
     scheduler.start()
 
+    # Flask-Login
+    loginManager = flask_login.LoginManager()
+    loginManager.login_view = '/login'
+    loginManager.init_app(app)
+
+    @loginManager.user_loader
+    def LoadUser(user_id):
+        return FindOne(UserClass, id=int(user_id))
+
     return app
-
-
-def SetupLoginPage(
-        app,
-        DB_URI=None,  # None or 'sqlite:///mydatabase.db'
-        loginURL='/login',  # used for @app.route
-        templatePath=None,  # path like '/login.html'
-        templateKey='loginContent',  # used to fill in page with messages
-        afterLoginRedirect='/',
-):
-    '''
-    This sets up the login page with no password
-    :param app:
-    :param DB_URI:
-    :param loginURL:
-    :param templatePath:
-    :param templateKey:
-    :param afterLoginRedirect:
-    :return:
-    '''
-    if DB_URI is None:
-        DB_URI = 'sqlite:///{}.db'.format(app.name)
-
-    if templatePath is None:
-        templatePath = 'login.html'
-        print('templatePath=', templatePath)
-
-    RegisterDBURI(DB_URI)
-
-    @app.route(loginURL, methods=['GET', 'POST'])
-    def Login(*a, **k):
-        print('Login', a, k)
-        email = request.form.get('email', None)
-        if email is None:
-            email = request.cookies.get('email', None)
-        print('email=', email)
-
-        authToken = request.form.get('authToken', None)
-
-        if email is None:
-            # The user loaded the page
-
-            # Present them with the login form
-            authToken = GetRandomID()
-
-            loginForm = '''
-                    <form method="POST" action="{0}">
-                        <div class="form-group">
-                        Email: <input type="email" name="email">
-                        </div><div class="form-group">
-                        <input type="hidden" name="authToken" value="{1}">
-                        </div><div class="form-group">
-                        <input type="submit" value="Send Login Email">
-                        </div>
-                    </form>
-                '''.format(loginURL, authToken)
-
-            return render_template(
-                templatePath,
-                **{templateKey: Markup(loginForm)},
-            )
-
-        else:
-            # The user submitted the form, or cookie email found
-            # Send an email to the address they entered with the authToken
-            # If they click the link in the email
-            # Check that the auth token and email match
-
-            authToken = request.form.get('authToken')
-            print('authToken=', authToken, type(authToken))
-
-            # for item in dir(request):
-            #     print(item, getattr(request, item))
-
-            existingUser = FindOne(UserClass, email=email)
-
-            print('199 existingUser=', existingUser, type(existingUser))
-
-            if authToken is not None:
-                if existingUser is not None:
-                    existingUser['authToken'] = authToken
-                    existingUser['lastAuthTokenTime'] = datetime.datetime.now()
-
-                else:
-                    print('no user exist, create a new one')
-                    newUser = New(UserClass,
-                                  email=email.lower(),
-                                  authToken=authToken,
-                                  lastAuthTokenTime=datetime.datetime.now(),
-                                  )
-                    print('221 newUser=', newUser)
-
-                print('Sending email to user to authenticate.')
-
-                if app.debug is True:
-                    print('app.debug is True, faking the login')
-                    print('redirecting to auth page')
-                    return redirect('/auth?email={}&authToken={}'.format(email, authToken))
-
-                else:
-                    print('Sending email to user. ')
-
-                    ref = request.referrer
-                    if ref is None:
-                        ref = 'www.grant-miller.com'
-                    referrerDomainMatch = DOMAIN_RE.search(ref)
-                    if referrerDomainMatch is not None:
-                        referrerDomain = referrerDomainMatch.group(1)
-                    else:
-                        referrerDomain = 'grant-miller.com'
-
-                    body = '''
-    Click here to login now:
-    http://{0}/auth?email={1}&authToken={2}
-
-                    '''.format(
-                        referrerDomain,
-                        email,
-                        authToken,
-                    )
-
-                    # body += '\r\n'
-                    #
-                    # for item in dir(request):
-                    #     print(item, getattr(request, item))
-                    #     body += '{}={}\r\n'.format(item, getattr(request, item))
-
-                    AddJob(_SendEmailFunction, to=email, frm='login@{}'.format(referrerDomain), subject='Login',
-                           body=body)
-                    flash('An email was sent to {}. Please click the link in the email to login.'.format(email), 'info')
-            else:
-                print('no auth token, show login page')
-
-                authToken = GetRandomID()
-
-                loginForm = '''
-                                    <form method="POST" action="{0}">
-                                        <div class="form-group">
-                                        Email: <input type="email" name="email">
-                                        </div><div class="form-group">
-                                        <input type="hidden" name="authToken" value="{1}">
-                                        </div><div class="form-group">
-                                        <input type="submit" value="Send Login Email">
-                                        </div>
-                                    </form>
-                                '''.format(loginURL, authToken)
-
-                return render_template(
-                    'login.html',
-                    **{templateKey: Markup(loginForm)},
-                )
-
-            return render_template('main.html')
-
-    @app.route('/auth')
-    def Auth(*a, **k):
-        print('Auth(', a, k)
-        email = request.values.get('email', None)
-        authToken = request.values.get('authToken', None)
-        if authToken is None:
-            authToken = request.cookies.get('authToken')
-        print('email=', email)
-        print('auth=', authToken)
-
-        print('227 FindAll=', list(FindAll(UserClass)))
-
-        user = FindOne(
-            UserClass,
-            email=email,
-            authToken=authToken,
-        )
-
-        print('246 user=', user)
-
-        if user is not None:
-            authDT = user.get('lastAuthTokenTime', None)
-            if authDT is not None:
-                delta = datetime.datetime.now() - authDT
-                if delta.total_seconds() < AUTH_TOKEN_EXPIRATION_SECONDS:
-                    # good
-                    session['email'] = user.get('email')
-
-                    user['authenticated'] = True
-
-                    resp = redirect(afterLoginRedirect)
-                    expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
-
-                    resp.set_cookie(
-                        'authToken', authToken,
-                        expires=expireDT,
-                        domain=app.domainName,
-                    )
-                    return resp
-
-                else:
-                    # auth token expired
-                    flash('Auth Token expired. Please log in again.', 'danger')
-                    return redirect(url_for(Login))
-
-            else:
-                flash('Auth Token has no expiration. This is invalid. Please log in again.', 'danger')
-                return redirect(url_for(Login))
-
-        else:
-            flash('Error 348. Login Failed', 'danger')
-            return render_template('login_failed.html')
-
-
-def SetUser(userObj):
-    session['email'] = userObj['email']
 
 
 def GetUser(email=None):
     # return user object if logged in, else return None
     # if user provides an email then return that user obj
     print('GetUser(', email)
-
-    if email:
-        return FindOne(UserClass, email=email)
-
-    email = session.get('email', None)
-    authToken = request.cookies.get('authToken')
-
-    print('258 session email=', email)
-    try:
-        if email is None:
-            userObj = FindOne(UserClass, authToken=authToken)
-        else:
-            userObj = FindOne(UserClass, email=email)
-        print('274 userObj=', userObj)
-
-        if userObj is not None:
-            if userObj.get('authenticated') is True:
-                return userObj
-            else:
-                return None
-
-    except Exception as e:
-        print(236, e)
+    user = flask_login.current_user
+    print('GetUser user=', user)
+    if user.is_authenticated is False:
         return None
+    else:
+        return user
 
 
 def LogoutUser():
     print('LogoutUser()')
-    user = GetUser()
-    print('288 user=', user)
-    if user is not None:
-        user['authenticated'] = False
-        session['email'] = None
-        user['authToken'] = None
+    flask_login.logout_user()
 
 
 global adminEmails
@@ -649,22 +429,7 @@ def VerifyLogin(func):
     :return:
     '''
 
-    # print('53 VerifyLogin(', func)
-
-    @functools.wraps(func)
-    def VerifyLoginWrapper(*args, **kwargs):
-        # print('VerifyLoginWrapper(', args, kwargs)
-        user = GetUser()
-        # print('57 user=', user)
-        if user is None:
-            cookieAuthToken = request.values.get('authToken', None)
-            # print('495 cookieAuthToken=', cookieAuthToken)
-            flash('You must be logged in for that.', 'danger')
-            return redirect('/login')
-        else:
-            return func(*args, **kwargs)
-
-    return VerifyLoginWrapper
+    return flask_login.login_required(func)
 
 
 def VerifyAdmin(func):
@@ -745,26 +510,27 @@ def SetupRegisterAndLoginPageWithPassword(
                 file.write('''
                 {{% extends "{0}" %}}
                 {{% block content %}}
-                <div class="container">
-
-                    <form class="form-signin" method="post">
-                        <h2 class="form-signin-heading">Please sign in</h2>
-
-                        <label for="inputEmail" class="sr-only">Email address</label>
-                        <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-
-                        <label for="inputPassword" class="sr-only">Password</label>
-                        <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-
-                        {{{{messages}}}}
-
-                    </form>
-                <br><br>
-                <a href="/register">New here? Create an account.</a><br><br>
-                <a href="/forgot">Forgot Password</a>
-                </div> <!-- /container -->
+                <div class="column is-4 is-offset-4">
+                    <h3 class="title">Login</h3>
+                    <div class="box">
+                        <form method="POST" >
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                                </div>
+                            </div>
+                
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                                </div>
+                            </div>
+                            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+                        </form>
+                    </div>
+                    <a href='/register'>New Here? Create an Account</a>
+                    <br><a href='/forgot'>Forgot Password</a>
+                </div>
                 {{% endblock %}}
         '''.format(mainTemplate))
 
@@ -778,31 +544,33 @@ def SetupRegisterAndLoginPageWithPassword(
                 file.write('''
             {{% extends "{0}" %}}
             {{% block content %}}
-            <div class="container">
-
-                <form class="form-signin" method="post">
-                    <h2 class="form-signin-heading">Create a new account:</h2>
-
-                    <label for="inputEmail" class="sr-only">Email address</label>
-                    <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-
-                    <label for="inputPassword" class="sr-only">Password</label>
-                    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-
-                    <label for="inputPassword" class="sr-only">Password</label>
-                    <input name="passwordConfirm" type="password" id="inputPasswordConfirm" class="form-control" placeholder="Password" required>
-
-
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">Register Now</button>
-
-                    {{{{messages}}}}
-
-                </form>
-                <br>
-                <a href="/forgot">Forgot Password</a><br>
-                <a href="/">Cancel</a><br>
-                <a href="/login">Sign In</a>
-            </div> <!-- /container -->
+            <div class="column is-4 is-offset-4">
+                    <h3 class="title">Register</h3>
+                    <div class="box">
+                        <form method="POST">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                                </div>
+                            </div>
+                
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                                </div>
+                            </div>
+                
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="password" name="passwordConfirm" placeholder="Confirm Password">
+                                </div>
+                            </div>
+                            <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
+                        </form>
+                    </div>
+                    <a href='/'>Cancel</a>
+                    <br><a href='/login'>Sign In</a>
+                </div>
             {{% endblock %}}
         '''.format(mainTemplate))
 
@@ -810,19 +578,23 @@ def SetupRegisterAndLoginPageWithPassword(
 
     @app.route('/login', methods=['GET', 'POST'])
     def Login():
-        if GetUser():
+        user = GetUser()
+        if user:
+            print('user already logged in, redirecting to "/"')
             return redirect('/')
 
         email = request.form.get('email', None)
         if email:
             email = email.lower()
+
         password = request.form.get('password', None)
+
         rememberMe = request.form.get('rememberMe', False)
         if rememberMe is not False:
             rememberMe = True
 
         print('email=', email)
-        print('password=', HashIt(password) if password else password)
+        print('password[:10]=', str(HashIt(password) if password else password)[:10])
         print('rememberMe=', rememberMe)
 
         if request.method == 'POST':
@@ -848,26 +620,19 @@ def SetupRegisterAndLoginPageWithPassword(
                     )
                 else:
                     if userObj.get('passwordHash', None) == passwordHash:
-                        userObj['authenticated'] = True
-                        session['email'] = email
+                        print('login successful')
 
-                        # login successful
-                        if redirectSuccess:
-                            resp = redirect(redirectSuccess)
-
-                        else:
-                            resp = redirect('/')
-
-                        expireDT = datetime.datetime.now() + datetime.timedelta(seconds=AUTH_TOKEN_EXPIRATION_SECONDS)
-                        if userObj.get('authToken', None) is None:
-                            userObj['authToken'] = GetRandomID()
-
-                        resp.set_cookie(
-                            'authToken', userObj['authToken'],
-                            expires=expireDT,
-                            domain=app.domainName,
+                        flask_login.login_user(
+                            userObj,
+                            remember=True,
+                            force=True,
                         )
-                        return resp
+
+                        return redirect(
+                            request.args.get('next', None) or
+                            redirectSuccess or
+                            '/'
+                        )
 
                     else:
                         # password mismatch
@@ -896,12 +661,10 @@ def SetupRegisterAndLoginPageWithPassword(
     @app.route('/logout')
     def Logout():
         user = GetUser()
-        if user:
-            user['authenticated'] = False
-        session['email'] = None
+
+        flask_login.logout_user()
 
         resp = redirect('/')
-        resp.delete_cookie('authToken', domain=app.domainName)
         return resp
 
     @app.route('/register', methods=['GET', 'POST'])
@@ -925,16 +688,28 @@ def SetupRegisterAndLoginPageWithPassword(
 
             else:
                 if passwordConfirm == password:
-                    newUser = New(UserClass,
-                                  email=email.lower(),
-                                  passwordHash=HashIt(password),
-                                  authenticated=True,
-                                  )
+                    newUser = New(
+                        UserClass,
+                        email=email.lower(),
+                        passwordHash=HashIt(password),
+                        authenticated=True,
+                    )
+
+                    flask_login.login_user(
+                        newUser,
+                        remember=True,
+                        force=True,
+                    )
+
                     if callable(callbackNewUserRegistered):
                         callbackNewUserRegistered(newUser)
-                    session['email'] = email
                     flash('Your account has been created. Thank you.', 'success')
-                    return redirect(redirectSuccess)
+
+                    return redirect(
+                        request.args.get('next', None) or
+                        redirectSuccess or
+                        '/'
+                    )
 
             return render_template(
                 registerTemplate,
@@ -957,31 +732,34 @@ def SetupRegisterAndLoginPageWithPassword(
                 file.write('''
             {{% extends "{0}" %}}
             {{% block content %}}
-            <div class="container">
-
-                <form class="form-signin" method="post">
-                    <h2 class="form-signin-heading">Forgot Password:</h2>
-                    <br>
-                    <b><i>Enter your new password twice below.</b></i>
-                    <br>
-                    <label for="inputEmail" class="sr-only">Email address</label>
-                    <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-
-                    <label for="inputPassword" class="sr-only">Password</label>
-                    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-
-                    <label for="inputPassword" class="sr-only">Password</label>
-                    <input name="passwordConfirm" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">Send Forgot Email</button>
-
-                    {{{{messages}}}}
-
-                </form>
-
-                <a href="/">Cancel</a><br>
-                <a href="/login">Sign In</a>
-            </div> <!-- /container -->
+            <div class="column is-4 is-offset-4">
+                    <h3 class="title">Forgot Password</h3>
+                    <div class="box">
+                        <form method="POST" >
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                                </div>
+                            </div>
+                
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="password" name="password" placeholder="New Password">
+                                </div>
+                            </div>
+                
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="password" name="passwordConfirm" placeholder="Comfirm New Password">
+                                </div>
+                            </div>
+                            
+                            <button class="button is-block is-info is-large is-fullwidth">Reset Password</button>
+                        </form>
+                    </div>
+                    <a href='/'>Cancel</a>
+                    <br><a href='/login'>Sign In</a>
+                </div>
             {{% endblock %}}
         '''.format(mainTemplate))
 
@@ -1030,7 +808,8 @@ Reset My Password Now
 {}
             '''.format(resetLink)
 
-            AddJob(_SendEmailFunction, to=email, frm=frm, subject='Password Reset', body=body)
+            AddJob(_SendEmailFunction, name='Send Email Forgot Page', to=email, frm=frm, subject='Password Reset',
+                   body=body)
             flash('A reset link has been emailed to you.', 'info')
             return redirect('/')
 
@@ -1152,7 +931,7 @@ def PathString(path):
             projPath = _PathlibPath(PROJECT_PATH)
 
             if path.startswith('/'):
-                if path.startswith(projPath):
+                if path.startswith(str(projPath)):
                     # path already starts with project path
                     ret = path
                 else:
