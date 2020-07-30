@@ -11,7 +11,8 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.32",
+    version="1.1.33",
+    # 1.1.33 - Replaced custom login feature with well-known flask_login package
     # 1.1.32 - Made APScheduler optional
     # 1.1.31 - Bug fix in PathString
     # 1.1.16 - Added misfire_grace_time to ScheduleJob
@@ -26,7 +27,13 @@ setup(
     # 1.0.0 - init release to pypi
 
     packages=packages,
-    install_requires=['flask', 'dictabase', 'requests', 'flask-apscheduler'],
+    install_requires=[
+        'flask',
+        'dictabase',
+        'requests',
+        'flask-apscheduler',
+        'flask-login',
+    ],
     # scripts=['say_hello.py'],
 
     # Project uses reStructuredText, so ensure that the docutils get

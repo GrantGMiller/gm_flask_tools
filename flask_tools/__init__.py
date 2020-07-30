@@ -23,6 +23,7 @@ from dictabase import (
     BaseTable,
     RegisterDBURI,
     New,
+    SetDebug
 )
 import uuid
 import functools
@@ -30,9 +31,9 @@ from collections import namedtuple
 import os
 from pathlib import Path as _PathlibPath
 import base64
-import flask_apscheduler
+import flask_jobs
 import flask_login
-
+# SetDebug(True)
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
 
@@ -236,7 +237,12 @@ _SendEmailFunction = FTSendEmail
 
 def SendEmail(*a, **k):
     try:
-        AddJob(_SendEmailFunction, *a, name='SendEmail', **k)
+        AddJob(
+            func=_SendEmailFunction,
+            args=a,
+            name='SendEmail',
+            kwargs=k
+        )
     except Exception as e:
         print('239 Exception:', e)
 
@@ -360,6 +366,9 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app.engineURI = engineURI
     app.config['SECRET_KEY'] = secretKey
 
+    app.config['DATABASE_URL'] = engineURI
+    flask_jobs.init_app(app)
+
     configClass = k.pop('configClass', None)
 
     app.jinja_env.globals['displayableAppName'] = displayableAppName
@@ -375,15 +384,6 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
                 d[k] = str(getattr(request, k))
 
         return jsonify(d)
-
-    # Flask-ApScheduler
-    scheduler = flask_apscheduler.APScheduler()
-    scheduler.init_app(app)
-    # Store jobs in the database so they persist between restarts
-    scheduler.scheduler.add_jobstore(
-        'sqlalchemy',
-        url='sqlite:///{}_jobstore.db'.format(dbName))
-    scheduler.start()
 
     # Flask-Login
     loginManager = flask_login.LoginManager()
@@ -808,8 +808,16 @@ Reset My Password Now
 {}
             '''.format(resetLink)
 
-            AddJob(_SendEmailFunction, name='Send Email Forgot Page', to=email, frm=frm, subject='Password Reset',
-                   body=body)
+            AddJob(
+                func=_SendEmailFunction,
+                name='Send Email Forgot Page',
+                kwargs={
+                    'to': email,
+                    'frm': frm,
+                    'subject': 'Password Reset',
+                    'body': body,
+                }
+            )
             flash('A reset link has been emailed to you.', 'info')
             return redirect('/')
 
@@ -892,20 +900,8 @@ def GetNumOfJobs():
     return len(GetJobs())
 
 
-def AddJob(callback, *args, name=None, misfire_grace_time=10, **kwargs):
-    print('flask_tools.AddJob(callback={}, args={}, kwargs={})'.format(callback, args, kwargs))
-    Log('AddJob', callback, args, kwargs, name)
-    jobID = GetRandomID(8)
-    app.apscheduler.add_job(
-        id=jobID,
-        name=name,
-        func=callback,
-        args=args,
-        kwargs=kwargs,
-        misfire_grace_time=misfire_grace_time,  # seconds
-        trigger='date',  # needed when running on ubuntu
-    )
-    return jobID
+def AddJob(*a, **k):
+    return flask_jobs.AddJob(*a, **k)
 
 
 def PathString(path):
@@ -1245,79 +1241,21 @@ def GetConfigVar(key):
         return None
 
 
-def ScheduleJob(dt, callback, *args, misfire_grace_time=60, name=None, **kwargs):
-    '''
-    Schedule a job at a specific datetime
-    :param misfire_grace_time:
-    :param dt: datetime
-    :param callback:
-    :param args:
-    :param kwargs:
-    :return:
-    '''
-    print('SchedulJob(', dt, callback, args, kwargs)
-    Log('ScheduleJob(', dt, callback, args, kwargs)
-    jobID = GetRandomID(length=8)
-    # https://apscheduler.readthedocs.io/en/stable/modules/schedulers/base.html#apscheduler.schedulers.base.BaseScheduler.add_job
-
-    if dt < datetime.datetime.now():
-        dt = datetime.datetime.now() + datetime.timedelta(seconds=1)
-
-    app.apscheduler.add_job(
-        id=jobID,
-        func=callback,
-        trigger='date',  # once at a specific datetime
-        run_date=dt,
-        args=args,
-        kwargs=kwargs,
-        misfire_grace_time=misfire_grace_time,  # seconds
-        name=name,
-    )
-    return jobID
+def ScheduleJob(*a, **k):
+    return flask_jobs.ScheduleJob(*a, **k)
 
 
-def ScheduleIntervalJob(
-        callback,
-        *args,
-        startDT=None,  # None means datetime.now() + interval
-        weeks=0,
-        days=0,
-        hours=0,
-        minutes=0,
-        seconds=0,
-        name=None,
-        **kwargs
-):
-    '''
-    Schedule a recurring job
-    :return:
-    '''
-    Log('ScheduleIntervalJob(', callback, args, kwargs, name, startDT)
-    jobID = GetRandomID(length=8)
-    # https://apscheduler.readthedocs.io/en/stable/modules/schedulers/base.html#apscheduler.schedulers.base.BaseScheduler.add_job
-    app.apscheduler.add_job(
-        id=jobID,
-        name=name,
-        func=callback,
-        trigger='interval',
-        start_date=startDT,
-        weeks=weeks,
-        days=days,
-        hours=hours,
-        minutes=minutes,
-        seconds=seconds,
-        args=args,
-        kwargs=kwargs
-    )
-    return jobID
+def ScheduleIntervalJob(*a, **k):
+    return flask_jobs.RepeatJob(*a, **k)
 
 
 def GetJobs():
-    return app.apscheduler.get_jobs()
+    return flask_jobs.GetJobs()
 
 
 def RemoveJob(jobID):
-    return app.apscheduler.remove_job(jobID)
+    job = flask_jobs.GetJob(jobID)
+    job.Delete()
 
 
 def OnExit():

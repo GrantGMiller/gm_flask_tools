@@ -47,7 +47,7 @@ def Index():
 
 
 def ScheduleCallback(*args, **kwargs):
-    print(time.asctime(), ': ScheduleCallback(args=', args, ', kwargs=', kwargs)
+    print(datetime.datetime.utcnow(), ': ScheduleCallback(args=', args, ', kwargs=', kwargs)
     time.sleep(1)
     # if random.randint(0, 10) == 0:
     #     raise Exception('oops')
@@ -58,22 +58,37 @@ def Schedule_Job():
     if request.form:
         print('request.form=', request.form)
         if request.form.get('delay'):
-            ScheduleJob(
-                datetime.datetime.now() + datetime.timedelta(seconds=int(request.form.get('delay'))),
-                ScheduleCallback,
-                1, 2, 3,
-                kw1='kw1',
-                kw2='kw2',
-                t=time.asctime(),
-            )
+            if request.form.get('delay') == '0':
+                AddJob(
+                    func=ScheduleCallback,
+                    args=('ASAP',),
+                    kwargs={
+                        'kw1': 'kw1',
+                        'kw2': 'kw2',
+                        't': time.asctime(),
+                    }
+                )
+            else:
+                ScheduleJob(
+                    dt=datetime.datetime.utcnow() + datetime.timedelta(seconds=int(request.form.get('delay'))),
+                    func=ScheduleCallback,
+                    args=('Schedule delay =', int(request.form.get('delay'))),
+                    kwargs={
+                        'kw1': 'kw1',
+                        'kw2': 'kw2',
+                        't': time.asctime(),
+                    }
+                )
         elif request.form.get('interval'):
             ScheduleIntervalJob(
-                ScheduleCallback,
-                1, 2, 3,
+                func=ScheduleCallback,
+                args=('Repeat interval=', int(request.form.get('interval'))),
                 seconds=int(request.form.get('interval')),
-                kw1='kw1',
-                kw2='kw2',
-                t=time.asctime(),
+                kwargs={
+                    'kw1': 'kw1',
+                    'kw2': 'kw2',
+                    't': time.asctime(),
+                }
             )
 
     return render_template(
@@ -82,18 +97,18 @@ def Schedule_Job():
     )
 
 
-for i in range(3):
-    AddJob(
-        ScheduleCallback,
-        'addjob',
-        kw1=f'{i} kw add job' + time.asctime()
-    )
-for i in range(3):
-    ScheduleJob(
-        datetime.datetime.now() + datetime.timedelta(seconds=i),
-        ScheduleCallback,
-        f'i={i}'
-    )
+# for i in range(3):
+#     AddJob(
+#         func=ScheduleCallback,
+#         args=('addjob',),
+#         kwargs={'kw1': '{i} kw add job' + time.asctime()}
+#     )
+# for i in range(3):
+#     ScheduleJob(
+#         dt=datetime.datetime.utcnow() + datetime.timedelta(seconds=i),
+#         func=ScheduleCallback,
+#         args=(f'i={i}',)
+#     )
 
 
 @app.route('/remove/job/<jobID>')
@@ -103,4 +118,7 @@ def FlaskRemoveJob(jobID):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(
+        debug=True,
+        threaded=True,
+    )

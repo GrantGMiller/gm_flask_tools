@@ -9,9 +9,9 @@ verify_ssl = true
 twine = "*"
 dictabase = "*"
 pytest = "*"
-flask-apscheduler = "*"
 flask-login = "*"
 flask-sqlalchemy = "*"
+flask-jobs = "==0.0.12"
 
 [requires]
 python_version = "3.8"
