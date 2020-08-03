@@ -11,10 +11,10 @@ print('packages=', packages)
 setup(
     name="gm_flask_tools",
 
-    version="1.1.33",
+    version="1.1.41",
     # 1.1.33 - Replaced custom login feature with well-known flask_login package
     # 1.1.32 - Made APScheduler optional
-    # 1.1.31 - Bug fix in PathString
+    # 1.1.31 - Bug fix in PathStringr
     # 1.1.16 - Added misfire_grace_time to ScheduleJob
     # 1.1.10 - Added APScheduler
     # 1.1.8 - Made OnExit public function
@@ -31,7 +31,7 @@ setup(
         'flask',
         'dictabase',
         'requests',
-        'flask-apscheduler',
+        'flask-jobs',
         'flask-login',
     ],
     # scripts=['say_hello.py'],

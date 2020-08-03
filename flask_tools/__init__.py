@@ -17,14 +17,7 @@ from flask import (
     Markup,
     url_for,
     send_file, jsonify)
-from dictabase import (
-    FindOne,
-    FindAll,
-    BaseTable,
-    RegisterDBURI,
-    New,
-    SetDebug
-)
+
 import uuid
 import functools
 from collections import namedtuple
@@ -33,6 +26,8 @@ from pathlib import Path as _PathlibPath
 import base64
 import flask_jobs
 import flask_login
+import flask_dictabase
+
 # SetDebug(True)
 AUTH_TOKEN_EXPIRATION_SECONDS = 60 * 60 * 24 * 365  # seconds
 DOMAIN_RE = re.compile('.+\.(.+\.[^\/]+)')
@@ -309,7 +304,7 @@ def ModIndexLoop(num, min_, max_):
     return min_ + mod
 
 
-class UserClass(flask_login.UserMixin, BaseTable):
+class UserClass(flask_login.UserMixin, flask_dictabase.BaseTable):
     '''
     OTHER KEYS
 
@@ -322,7 +317,7 @@ class UserClass(flask_login.UserMixin, BaseTable):
         return self['id']
 
     def __str__(self):
-        return BaseTable.__str__(self)
+        return flask_dictabase.BaseTable.__str__(self)
 
 
 global app
@@ -342,8 +337,6 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     engineURI = GetConfigVar('DATABASE_URL')
     if engineURI is None:
         engineURI = 'sqlite:///{}.db'.format(dbName)
-
-    RegisterDBURI(engineURI)
 
     devMode = k.pop('devMode', False)
     domainName = k.pop('domainName', 'grant-miller.com')
@@ -367,6 +360,10 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
     app.config['SECRET_KEY'] = secretKey
 
     app.config['DATABASE_URL'] = engineURI
+
+    db = flask_dictabase.Dictabase(app)
+    app.db = db
+
     flask_jobs.init_app(app)
 
     configClass = k.pop('configClass', None)
@@ -392,7 +389,7 @@ def GetApp(appName=None, *a, OtherAdminStuff=None, **k):
 
     @loginManager.user_loader
     def LoadUser(user_id):
-        return FindOne(UserClass, id=int(user_id))
+        return app.db.FindOne(UserClass, id=int(user_id))
 
     return app
 
@@ -606,7 +603,8 @@ def SetupRegisterAndLoginPageWithPassword(
 
             if email is not None and password is not None:
                 passwordHash = HashIt(password)
-                userObj = FindOne(UserClass, email=email)
+                userObj = app.db.FindOne(UserClass, email=email)
+
                 print('572 userObj=', userObj)
                 if userObj is None:
                     # username not found
@@ -619,6 +617,10 @@ def SetupRegisterAndLoginPageWithPassword(
                         rememberMe=rememberMe,
                     )
                 else:
+
+                    Log(
+                        f'Attempted to login. email={email}, form passwordHash[:10]={passwordHash[:10]}, userObj["passwordHash"]="{userObj["passwordHash"][:10]}..."')
+
                     if userObj.get('passwordHash', None) == passwordHash:
                         print('login successful')
 
@@ -682,13 +684,13 @@ def SetupRegisterAndLoginPageWithPassword(
             if password != passwordConfirm:
                 flash('Passwords do not match.', 'danger')
 
-            existingUser = FindOne(UserClass, email=email)
+            existingUser = app.db.FindOne(UserClass, email=email)
             if existingUser is not None:
                 flash('Error 969: Invalid Email', 'danger')
 
             else:
                 if passwordConfirm == password:
-                    newUser = New(
+                    newUser = app.db.New(
                         UserClass,
                         email=email.lower(),
                         passwordHash=HashIt(password),
@@ -759,6 +761,7 @@ def SetupRegisterAndLoginPageWithPassword(
                     </div>
                     <a href='/'>Cancel</a>
                     <br><a href='/login'>Sign In</a>
+                    <br><a href='/magic_link'>Get a <i>Magic Link</i></a>
                 </div>
             {{% endblock %}}
         '''.format(mainTemplate))
@@ -786,14 +789,13 @@ def SetupRegisterAndLoginPageWithPassword(
 
             resetToken = GetRandomID()
 
-            if 'Signage' in app.name:
-                referrerDomain = 'signage.grant-miller.com'
-
-            resetLink = '{}/reset_password/{}'.format('http://{}'.format(app.domainName) or request.host_url,
-                                                      resetToken)
+            resetLink = '{}/reset_password/{}'.format(
+                'http://{}'.format(app.domainName) or request.host_url,
+                resetToken
+            )
             print('resetLink=', resetLink)
 
-            user = FindOne(UserClass, email=email)
+            user = app.db.FindOne(UserClass, email=email)
             if user is None:
                 pass
             else:
@@ -819,6 +821,8 @@ Reset My Password Now
                 }
             )
             flash('A reset link has been emailed to you.', 'info')
+            Log(f'Emailed reset link to {email}')
+            del user  # force commit
             return redirect('/')
 
         else:
@@ -827,16 +831,19 @@ Reset My Password Now
 
     @app.route('/reset_password/<resetToken>')
     def ResetPassword(resetToken):
-        user = FindOne(UserClass, resetToken=resetToken)
+        user = app.db.FindOne(UserClass, resetToken=resetToken)
         if user:
             tempHash = user.get('tempPasswordHash', None)
             if tempHash:
                 user['passwordHash'] = tempHash
                 user['resetToken'] = None
                 user['tempPasswordHash'] = None
-                flash('Your password has been changed.', 'info')
+                flash('Your password has been changed.', 'success')
+                Log(f'Password for {user["email"]} has been changed. New Hash[:10]="{tempHash[:10]}..."')
+                del user  # force commit
         else:
-            flash('(Info 847) Your password has been changed', 'success')
+            flash('(Info 847) Your password has been changed', 'warning')
+            Log(f'token {resetToken[:10]} tried to reset pw, but no user was found with that restToken"')
 
         return redirect('/')
 
@@ -993,7 +1000,7 @@ class FormFile(File):
         data = base64.b64encode(data)
         data = data.decode()
 
-        obj = New(
+        obj = app.db.New(
             DatabaseFile,
             data=data,
             name=self.Name
@@ -1074,7 +1081,7 @@ class SystemFile(File):
         )
 
 
-class DatabaseFile(BaseTable):
+class DatabaseFile(flask_dictabase.BaseTable):
     # name (str) b64 encoded data
     # data (str) (b''.encode())
 
@@ -1234,10 +1241,10 @@ def GetConfigVar(key):
             import config
             return getattr(config, key)
         except Exception as e2:
-            print('flask_tools Exception 1557:', e2)
+            print('flask_tools Exception 1237:', e2)
             return os.environ.get(key, None)
     except Exception as e:
-        print('flask_tools Exception 1557:', e)
+        print('flask_tools Exception 1240:', e)
         return None
 
 
@@ -1265,3 +1272,6 @@ def OnExit():
 def Log(*args):
     with open('ft.log', mode='at') as file:
         file.write(f'{datetime.datetime.now()}: {" ".join([str(a) for a in args])}\r\n')
+
+
+Log('end flask_tools.__init__')

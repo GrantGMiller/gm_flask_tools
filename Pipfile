@@ -11,7 +11,8 @@ dictabase = "*"
 pytest = "*"
 flask-login = "*"
 flask-sqlalchemy = "*"
-flask-jobs = "==0.0.12"
+flask-jobs = "==0.0.14"
+flask-dictabase = "*"
 
 [requires]
 python_version = "3.8"
