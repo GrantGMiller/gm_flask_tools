@@ -6,7 +6,7 @@ import sys
 import datetime
 import requests
 from flask import (
-    send_file)
+    send_file, request)
 
 import uuid
 import os
@@ -572,3 +572,44 @@ def IsValidJSID(strng, fix=False):
                         strng = strng.replace(ch, '_')
 
     return strng
+
+
+class HashableDict(dict):
+    def __new__(cls, item={}):
+        # oldPrint('item=', item)
+        if item is None:
+            return None
+        else:
+            return super().__new__(cls, item)
+
+    def __key(self):
+        return tuple((k, self[k]) for k in sorted(self))
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        if isinstance(other, HashableDict):
+            return self.__key() == other.__key()
+        else:
+            return False
+
+    def __contains__(self, other):
+        return other.items() <= self.items()
+
+    def __add__(self, other):
+        # Other will take precedence if duplicate keys in self/other
+        retD = self.copy()
+        for key, value in other.items():
+            retD[key] = value
+
+        return HashableDict(retD)
+
+
+def GetClientIP(raiseForLocalAddress=True):
+    ret = request.get('remote_addr', None)
+    if raiseForLocalAddress and '127.0.0' in ret:
+        raise TypeError(
+            'reqeust["remote_addr"] "{}" looks like a local address, you may need to do "from werkzeug.middleware import proxy_fix; app.wsgi_app = proxy_fix.ProxyFix(app.wsgi_app)". Or pass GetClientIP(raiseForLocalAddress=False)')
+    else:
+        return ret
