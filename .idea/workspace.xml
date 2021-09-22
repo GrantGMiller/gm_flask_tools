@@ -10,10 +10,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="1.2.6 broke my git repo, now fixed">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flask_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
-    </list>
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment="1.2.8 - added GetClientIP() function" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,7 +41,7 @@
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../gs-tools" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -340,7 +337,14 @@
       <option name="project" value="LOCAL" />
       <updated>1613425047581</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="1.2.8 - added GetClientIP() function">
+      <created>1632334092271</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1632334092271</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -377,7 +381,8 @@
     <MESSAGE value="replaced custom login feature with well-known flask-login" />
     <MESSAGE value="replaced apscheduler with flask_jobs" />
     <MESSAGE value="1.2.6 broke my git repo, now fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="1.2.6 broke my git repo, now fixed" />
+    <MESSAGE value="1.2.8 - added GetClientIP() function" />
+    <option name="LAST_COMMIT_MESSAGE" value="1.2.8 - added GetClientIP() function" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2660" y="292" key="FileChooserDialogImpl" timestamp="1630695367481">
