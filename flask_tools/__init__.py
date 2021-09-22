@@ -607,7 +607,7 @@ class HashableDict(dict):
 
 
 def GetClientIP(raiseForLocalAddress=True):
-    ret = request['remote_addr']
+    ret = request.remote_addr
     if raiseForLocalAddress and '127.0.0' in ret:
         raise TypeError(
             'reqeust["remote_addr"] "{}" looks like a local address, you may need to do "from werkzeug.middleware import proxy_fix; app.wsgi_app = proxy_fix.ProxyFix(app.wsgi_app)". Or pass GetClientIP(raiseForLocalAddress=False)')
