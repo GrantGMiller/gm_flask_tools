@@ -14,6 +14,7 @@ from pathlib import Path as _PathlibPath
 import base64
 import flask_dictabase
 import hashlib
+from werkzeug.utils import secure_filename
 
 
 def StripNonHex(string):
@@ -192,6 +193,11 @@ def ModIndexLoop(num, min_, max_):
 global app
 
 
+def Setup(a):
+    global app
+    app = a
+
+
 def ListOfDictToJS(l):
     '''
     take in a list of dict
@@ -299,9 +305,15 @@ class FormFile(File):
     def __init__(self, form, key):
         self._form = form
         self._key = key
+        self._name = secure_filename(
+            str(uuid.uuid4()) + self._form[self._key].data.filename  # adds uuid prefix to prevent colisions
+        )
         super().__init__(form, key)
 
     def SaveTo(self, newPath):
+        if _PathlibPath(newPath).is_dir():
+            newPath = _PathlibPath(newPath) / self._name
+
         self._form[self._key].data.save(PathString(newPath))
         return SystemFile(newPath)
 
@@ -324,7 +336,7 @@ class FormFile(File):
     @property
     def Name(self):
         # returns filename like "image.jpg"
-        return self._form[self._key].data.filename
+        return self._name
 
     def RenderResponse(self):
         return send_file(
@@ -610,6 +622,19 @@ def GetClientIP(raiseForLocalAddress=True):
     ret = request.remote_addr
     if raiseForLocalAddress and '127.0.0' in ret:
         raise TypeError(
-            'reqeust["remote_addr"] "{}" looks like a local address, you may need to do "from werkzeug.middleware import proxy_fix; app.wsgi_app = proxy_fix.ProxyFix(app.wsgi_app)". Or pass GetClientIP(raiseForLocalAddress=False)')
+            'reqeust["remote_addr"] "{}" looks like a local address, '
+            'you may need to do "from werkzeug.middleware import proxy_fix; '
+            'app.wsgi_app = proxy_fix.ProxyFix(app.wsgi_app)". '
+            'Or pass GetClientIP(raiseForLocalAddress=False).'
+            'You will also need to add this to your nginx config'
+            '# the below will pass the client IP to flask'
+            'proxy_set_header X-Forwarded-Proto https;'
+            'proxy_set_header X-Forwarded-Host {2};'
+            'proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;'
+        )
     else:
         return ret
+
+
+def ProjectBaseDir():
+    return app.config["basedir"]
