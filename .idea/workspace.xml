@@ -10,7 +10,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment=" 1.2.10 - added GetClientIP() function">
+    <list default="true" id="26f4984e-8eda-4a73-82a7-d54ff3397a6a" name="Default" comment=" # 1.2.12 - Added ProjectBaseDir&#10;    # 1.2.11 - reworked FormFile to produce a unique filename, ans FormFile.SaveTo() to accept a directory">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flask_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_tools/__init__.py" afterDir="false" />
     </list>
@@ -44,7 +44,7 @@
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pretty_bows" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -361,7 +361,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632334535142</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary=" # 1.2.12 - Added ProjectBaseDir&#10;    # 1.2.11 - reworked FormFile to produce a unique filename, ans FormFile.SaveTo() to accept a directory">
+      <created>1640027461733</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1640027461733</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -401,17 +408,26 @@
     <MESSAGE value="1.2.8 - added GetClientIP() function" />
     <MESSAGE value="1.2.9 - added GetClientIP() function" />
     <MESSAGE value=" 1.2.10 - added GetClientIP() function" />
-    <option name="LAST_COMMIT_MESSAGE" value=" 1.2.10 - added GetClientIP() function" />
+    <MESSAGE value=" # 1.2.12 - Added ProjectBaseDir&#10;    # 1.2.11 - reworked FormFile to produce a unique filename, ans FormFile.SaveTo() to accept a directory" />
+    <option name="LAST_COMMIT_MESSAGE" value=" # 1.2.12 - Added ProjectBaseDir&#10;    # 1.2.11 - reworked FormFile to produce a unique filename, ans FormFile.SaveTo() to accept a directory" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="-238" y="-805" key="FileChooserDialogImpl" timestamp="1640024790159">
+    <state x="-238" y="-805" key="FileChooserDialogImpl" timestamp="1640190986506">
       <screen x="-978" y="-1080" width="1920" height="1040" />
     </state>
     <state x="-238" y="-805" key="FileChooserDialogImpl/-978.-1080.1920.1040/942.-1080.1920.1040/0.0.1920.1040@-978.-1080.1920.1040" timestamp="1640024790159" />
-    <state x="2472" y="270" key="Vcs.Push.Dialog.v2" timestamp="1632334552654">
-      <screen x="1920" y="17" width="1920" height="1040" />
+    <state x="740" y="275" key="FileChooserDialogImpl/-978.-1080.1920.1040/942.-1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1640029054194" />
+    <state x="-238" y="-805" key="FileChooserDialogImpl/0.0.1920.1040/-978.-1080.1920.1040/942.-1080.1920.1040@-978.-1080.1920.1040" timestamp="1640190986506" />
+    <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/-978.-1080.1920.1040/942.-1080.1920.1040@0.0.1920.1040" timestamp="1640187576246" />
+    <state x="552" y="253" key="Vcs.Push.Dialog.v2" timestamp="1640027464118">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="552" y="253" key="Vcs.Push.Dialog.v2/-978.-1080.1920.1040/942.-1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1640027464118" />
     <state x="2472" y="270" key="Vcs.Push.Dialog.v2/1920.17.1920.1040/979.1097.1920.1040/0.0.1920.1040@1920.17.1920.1040" timestamp="1632334552654" />
+    <state x="751" y="421" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1640027450589">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="751" y="421" key="git4idea.remote.GitConfigureRemotesDialog/-978.-1080.1920.1040/942.-1080.1920.1040/0.0.1920.1040@0.0.1920.1040" timestamp="1640027450589" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

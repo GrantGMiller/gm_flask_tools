@@ -1,16 +1,21 @@
 import io
 import random
 import re
+import smtplib
 import string
 import sys
 import datetime
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import requests
 from flask import (
     send_file, request)
 
 import uuid
 import os
-from pathlib import Path as _PathlibPath
+from pathlib import Path as _PathlibPath, Path
 import base64
 import flask_dictabase
 import hashlib
@@ -636,5 +641,79 @@ def GetClientIP(raiseForLocalAddress=True):
         return ret
 
 
-def ProjectBaseDir():
-    return app.config["basedir"]
+def SendEmail_SMTP(smtpServerURL, smtpUsername, smtpPassword, to, frm, cc=None, bcc=None, subject=None, body=None,
+                   html=None, attachments=None):
+    """
+
+    :param smtpServerURL:
+    :param smtpUsername:
+    :param smtpPassword:
+    :param to:
+    :param frm:
+    :param cc:
+    :param bcc:
+    :param subject:
+    :param body:
+    :param html: body using html, not supported by all email clients
+    :param attachments: list of filepaths
+    :return:
+    """
+
+    # Create message container - the correct MIME type is multipart/alternative.
+    multipart = MIMEMultipart('alternative')
+
+    subject = subject or 'No Subject'
+
+    multipart['Subject'] = subject
+    multipart['From'] = frm
+    multipart['To'] = to
+    if cc:
+        multipart['Cc'] = cc
+    if bcc:
+        multipart['Bcc'] = bcc
+
+    # Create the body of the message (a plain-text and an HTML version).
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    partBody = MIMEText(body, 'plain')
+
+    html = html or f'''
+            <html>
+                <body>
+                    {body}
+                </body>
+            </html>
+            '''
+    partHTML = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    multipart.attach(partBody)
+    multipart.attach(partHTML)
+
+    # attachment files
+    attachments = attachments or []
+    for attachment in attachments:
+        with open(attachment, mode='rb') as aFile:
+            file = MIMEApplication(aFile.read())
+            name = Path(attachment).name
+            file.add_header('Content-Disposition', 'attachment', filename=name)
+            multipart.attach(file)
+
+    # send the message
+    with smtplib.SMTP_SSL(
+            host=smtpServerURL,
+            port=465,
+    ) as smtp:
+        smtp.login(smtpUsername, smtpPassword)
+
+        if sys.platform.startswith('win'):
+            smtp.set_debuglevel(1)
+
+        smtp.sendmail(
+            from_addr=frm,
+            to_addrs=to,
+            msg=multipart.as_string(),
+        )
+        smtp.quit()
