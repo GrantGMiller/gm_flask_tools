@@ -281,14 +281,14 @@ def PathString(path):
 
         elif 'virtualenv' in __file__:
             # when using pipenv
-            projPath = _PathlibPath(PROJECT_PATH)
+            projPath = _PathlibPath(PROJECT_PATH)  # default is '.'
 
-            if path.startswith('/'):
-                if path.startswith(str(projPath)):
+            if str(path).startswith('/'):
+                if str(path).startswith(str(projPath)):
                     # path already starts with project path
                     ret = path
                 else:
-                    path = path[1:]
+                    path = str(path)[1:]
                     ret = projPath / path
             else:
                 ret = projPath / path
@@ -307,24 +307,25 @@ class File:
 
 
 class FormFile(File):
-    def __init__(self, form, key):
-        self._form = form
-        self._key = key
-        self._name = secure_filename(
-            str(uuid.uuid4()) + self._form[self._key].data.filename  # adds uuid prefix to prevent colisions
-        )
-        super().__init__(form, key)
+    def __init__(self, requestFilesKey):
+        self._key = requestFilesKey
+        self._name = secure_filename(  # prevents dangerous characters
+            '{}_{}'.format(
+                uuid.uuid4(),
+                request.files[self._key].filename
+            ))  # adds uuid prefix to prevent colisions
+        super().__init__(self._key)
 
     def SaveTo(self, newPath):
         if _PathlibPath(newPath).is_dir():
             newPath = _PathlibPath(newPath) / self._name
 
-        self._form[self._key].data.save(PathString(newPath))
+        request.files[self._key].save(str(newPath))
         return SystemFile(newPath)
 
     @property
     def Size(self, asString=False):
-        size = len(self._form[self._key].data)
+        size = len(request.files[self._key])
         if asString:
             sizeString = '{:,} Bytes'.format(size)
             return sizeString
@@ -333,10 +334,13 @@ class FormFile(File):
 
     @property
     def Extension(self):
-        return self._form[self._key].data.filename.split('.')[-1].lower()
+        return request.files[self._key].filename.split('.')[-1].lower()
 
     def Read(self):
-        return self._form[self._key].data.read()
+        return request.files[self._key].read()
+
+    def Data(self):
+        return request.files[self._key]
 
     @property
     def Name(self):
@@ -414,6 +418,8 @@ class SystemFile(File):
             'png': 'image',
             'jpeg': 'image',
             'gif': 'image',
+            'jfif': 'image',
+            'ico': 'image',
 
             'flv': 'video',
             'mov': 'video',
@@ -717,3 +723,64 @@ def SendEmail_SMTP(smtpServerURL, smtpUsername, smtpPassword, to, frm, cc=None, 
             msg=multipart.as_string(),
         )
         smtp.quit()
+
+
+def CreateMain(baseDir):
+    # try using CreateMain(__file__) to create the file in the current directory
+    baseDir = _PathlibPath(baseDir)
+    if baseDir.is_file():
+        baseDir = baseDir.parent
+
+    baseName = 'main'
+    name = f'{baseName}.py'
+    index = 0
+    while name in os.listdir(baseDir):
+        name = f'{baseName}_{index}.py'
+        index += 1
+    print('name=', name)
+
+    with open(baseDir / name, mode='wt') as file:
+        file.write('''from flask import Flask
+import flask_dictabase
+import flask_jobs
+import config
+
+app = Flask('title')
+
+app.config['SECRET_KEY'] = config.SECRET_KEY
+
+app.db = flask_dictabase.Dictabase(app)
+app.jobs = flask_jobs.JobScheduler(
+    app,
+    SERVER_HOST_URL=config.get('SERVER_HOST_URL', None),  # if on linux, set to "https://mysite.com/"
+)
+
+
+@app.route('/')
+def Index():
+    return 'Hello from the index page'
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+''')
+
+    if 'config.py' not in os.listdir(baseDir):
+        with open(baseDir / 'config.py', mode='wt') as file:
+            key = '-'.join(str(uuid.uuid4()) for _ in range(5))
+            file.write(f'SECRET_KEY = "{key}"')
+    else:
+        with open(baseDir / 'config.py', mode='at') as oldFile:
+            oldFile = oldFile.read()
+
+        for item in [
+            'SECRET_KEY',
+            'SERVER_HOST_URL',
+        ]:
+            if item not in oldFile:
+                with open(baseDir / 'config.py', mode='at') as newFile:
+                    if key == 'SECRET_KEY':
+                        key = '-'.join(str(uuid.uuid4()) for _ in range(5))
+                        newFile.write(f'\nSECRET_KEY = {key}')
+                    else:
+                        newFile.write(f'\n{item}=None')
